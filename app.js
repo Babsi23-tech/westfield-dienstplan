@@ -1,5 +1,5 @@
 // ==========================================================
-// SCS TEAM – VERBINDUNG ZU GOOGLE APPS SCRIPT
+// SCS TEAM – APP.JS
 // ==========================================================
 
 const API_URL =
@@ -9,29 +9,46 @@ const SESSION_KEY =
   'scs_team_session';
 
 
+let aktuellerBenutzer =
+  '';
+
+let aktuellerAdmin =
+  false;
+
+
 // ==========================================================
 // API
 // ==========================================================
 
-async function apiPost(action, daten = {}) {
+async function apiPost(
+  action,
+  daten = {}
+) {
 
-  const response = await fetch(
-    API_URL,
-    {
-      method: 'POST',
+  const response =
+    await fetch(
+      API_URL,
+      {
+        method:
+          'POST',
 
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
+        headers: {
+          'Content-Type':
+            'text/plain;charset=utf-8'
+        },
 
-      body: JSON.stringify({
-        action: action,
-        ...daten
-      }),
+        body:
+          JSON.stringify({
+            action:
+              action,
 
-      redirect: 'follow'
-    }
-  );
+            ...daten
+          }),
+
+        redirect:
+          'follow'
+      }
+    );
 
 
   const text =
@@ -46,13 +63,18 @@ async function apiPost(action, daten = {}) {
   );
 
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
 
     throw new Error(
       'HTTP ' +
       response.status +
       ': ' +
-      text
+      text.substring(
+        0,
+        300
+      )
     );
   }
 
@@ -67,7 +89,10 @@ async function apiPost(action, daten = {}) {
 
     throw new Error(
       'Server hat kein gültiges JSON zurückgegeben: ' +
-      text.substring(0, 300)
+      text.substring(
+        0,
+        300
+      )
     );
   }
 }
@@ -95,7 +120,9 @@ async function starteApp() {
     );
 
 
-  if (token) {
+  if (
+    token
+  ) {
 
     try {
 
@@ -103,7 +130,8 @@ async function starteApp() {
         await apiPost(
           'session',
           {
-            token: token
+            token:
+              token
           }
         );
 
@@ -113,10 +141,23 @@ async function starteApp() {
         result.ok
       ) {
 
+        aktuellerBenutzer =
+          result.name || '';
+
+        aktuellerAdmin =
+          result.admin === true;
+
+
         zeigeHauptApp(
-          result.name,
-          result.admin
+          aktuellerBenutzer,
+          aktuellerAdmin
         );
+
+
+        zeigeSeite(
+          'dienstplan'
+        );
+
 
         return;
       }
@@ -138,6 +179,7 @@ async function starteApp() {
 
   zeigeLogin();
 
+
   await ladeMitarbeiter();
 }
 
@@ -153,19 +195,26 @@ function zeigeLogin() {
       'loginAnsicht'
     );
 
+
   const app =
     document.getElementById(
       'hauptApp'
     );
 
 
-  if (login) {
+  if (
+    login
+  ) {
+
     login.style.display =
       'flex';
   }
 
 
-  if (app) {
+  if (
+    app
+  ) {
+
     app.style.display =
       'none';
   }
@@ -184,7 +233,10 @@ async function ladeMitarbeiter() {
     );
 
 
-  if (!select) {
+  if (
+    !select
+  ) {
+
     return;
   }
 
@@ -237,11 +289,14 @@ async function ladeMitarbeiter() {
             'option'
           );
 
+
         option.value =
           name;
 
+
         option.textContent =
           name;
+
 
         select.appendChild(
           option
@@ -295,10 +350,12 @@ async function loginAusfuehren() {
       'loginName'
     );
 
+
   const pinElement =
     document.getElementById(
       'loginPin'
     );
+
 
   const button =
     document.getElementById(
@@ -321,12 +378,15 @@ async function loginAusfuehren() {
   loescheLoginMeldung();
 
 
-  if (!name) {
+  if (
+    !name
+  ) {
 
     zeigeLoginMeldung(
       'Bitte wähle deinen Namen aus.',
       'fehler'
     );
+
 
     return;
   }
@@ -343,16 +403,21 @@ async function loginAusfuehren() {
       'fehler'
     );
 
+
     pinElement?.focus();
+
 
     return;
   }
 
 
-  if (button) {
+  if (
+    button
+  ) {
 
     button.disabled =
       true;
+
 
     button.textContent =
       'Anmeldung läuft …';
@@ -365,8 +430,11 @@ async function loginAusfuehren() {
       await apiPost(
         'login',
         {
-          name: name,
-          pin: pin
+          name:
+            name,
+
+          pin:
+            pin
         }
       );
 
@@ -382,6 +450,7 @@ async function loginAusfuehren() {
         'fehler'
       );
 
+
       return;
     }
 
@@ -392,15 +461,31 @@ async function loginAusfuehren() {
     );
 
 
-    if (pinElement) {
+    aktuellerBenutzer =
+      result.name || name;
+
+
+    aktuellerAdmin =
+      result.admin === true;
+
+
+    if (
+      pinElement
+    ) {
+
       pinElement.value =
         '';
     }
 
 
     zeigeHauptApp(
-      result.name,
-      result.admin
+      aktuellerBenutzer,
+      aktuellerAdmin
+    );
+
+
+    zeigeSeite(
+      'dienstplan'
     );
 
   } catch (error) {
@@ -418,10 +503,13 @@ async function loginAusfuehren() {
 
   } finally {
 
-    if (button) {
+    if (
+      button
+    ) {
 
       button.disabled =
         false;
+
 
       button.textContent =
         '🔐 Anmelden';
@@ -444,19 +532,26 @@ function zeigeHauptApp(
       'loginAnsicht'
     );
 
+
   const app =
     document.getElementById(
       'hauptApp'
     );
 
 
-  if (login) {
+  if (
+    login
+  ) {
+
     login.style.display =
       'none';
   }
 
 
-  if (app) {
+  if (
+    app
+  ) {
+
     app.style.display =
       'flex';
   }
@@ -468,7 +563,10 @@ function zeigeHauptApp(
     );
 
 
-  if (profilName) {
+  if (
+    profilName
+  ) {
+
     profilName.textContent =
       name || 'Mitarbeiter';
   }
@@ -480,13 +578,792 @@ function zeigeHauptApp(
     );
 
 
-  if (adminNav) {
+  if (
+    adminNav
+  ) {
 
     adminNav.style.display =
       admin
         ? 'flex'
         : 'none';
   }
+}
+
+
+// ==========================================================
+// MEIN DIENSTPLAN LADEN
+// ==========================================================
+
+async function ladeMeinDienstplanNeu() {
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  if (
+    !token
+  ) {
+
+    zeigeLogin();
+
+    await ladeMitarbeiter();
+
+    return;
+  }
+
+
+  const laden =
+    document.getElementById(
+      'dienstplanLaden'
+    );
+
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  const sollstundenElement =
+    document.getElementById(
+      'dienstplanSollstunden'
+    );
+
+
+  const abwesenheitenListe =
+    document.getElementById(
+      'abwesenheitenListe'
+    );
+
+
+  if (
+    laden
+  ) {
+
+    laden.style.display =
+      'block';
+
+
+    laden.textContent =
+      'Dienstplan wird geladen …';
+  }
+
+
+  if (
+    liste
+  ) {
+
+    liste.innerHTML =
+      '';
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'meinDienstplan',
+        {
+          token:
+            token
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      if (
+        result &&
+        result.sessionExpired
+      ) {
+
+        localStorage.removeItem(
+          SESSION_KEY
+        );
+
+
+        zeigeLogin();
+
+
+        await ladeMitarbeiter();
+
+
+        return;
+      }
+
+
+      throw new Error(
+        result?.message ||
+        'Dienstplan konnte nicht geladen werden.'
+      );
+    }
+
+
+    aktuellerBenutzer =
+      result.name ||
+      aktuellerBenutzer;
+
+
+    aktuellerAdmin =
+      result.admin === true;
+
+
+    const profilName =
+      document.getElementById(
+        'profilNameAnzeige'
+      );
+
+
+    if (
+      profilName
+    ) {
+
+      profilName.textContent =
+        aktuellerBenutzer ||
+        'Mitarbeiter';
+    }
+
+
+    if (
+      sollstundenElement
+    ) {
+
+      const soll =
+        Number(
+          result.sollstunden || 0
+        );
+
+
+      sollstundenElement.textContent =
+        soll
+          .toFixed(
+            1
+          )
+          .replace(
+            '.',
+            ','
+          ) +
+        ' Std.';
+    }
+
+
+    rendereDienstplan(
+      Array.isArray(
+        result.dienstplan
+      )
+        ? result.dienstplan
+        : []
+    );
+
+
+    rendereAbwesenheiten(
+      Array.isArray(
+        result.abwesenheiten
+      )
+        ? result.abwesenheiten
+        : []
+    );
+
+
+    if (
+      laden
+    ) {
+
+      laden.style.display =
+        'none';
+    }
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+
+    if (
+      laden
+    ) {
+
+      laden.style.display =
+        'block';
+
+
+      laden.textContent =
+        'Fehler beim Laden: ' +
+        error.message;
+    }
+
+
+    if (
+      abwesenheitenListe
+    ) {
+
+      abwesenheitenListe.innerHTML =
+        '<div class="empty-state">Abwesenheiten konnten nicht geladen werden.</div>';
+    }
+  }
+}
+
+
+// ==========================================================
+// DIENSTPLAN ANZEIGEN
+// ==========================================================
+
+function rendereDienstplan(
+  plan
+) {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (
+    !liste
+  ) {
+
+    return;
+  }
+
+
+  const relevanteTage =
+    (plan || []).filter(
+      function(z) {
+
+        return (
+          z.gpFrueh ||
+          z.gpSpaet ||
+          z.gpAbloese ||
+          z.wpFrueh ||
+          z.wpSpaet ||
+          z.wpAbloese
+        );
+      }
+    );
+
+
+  if (
+    relevanteTage.length === 0
+  ) {
+
+    liste.innerHTML =
+      `
+        <div class="panel">
+          Keine Dienste gefunden.
+        </div>
+      `;
+
+
+    return;
+  }
+
+
+  let html =
+    '';
+
+
+  relevanteTage.forEach(
+    function(z) {
+
+      const dienste =
+        [];
+
+
+      if (
+        z.gpFrueh
+      ) {
+
+        dienste.push({
+
+          typ:
+            'gp',
+
+          name:
+            'Garden Plaza – Früh',
+
+          zeit:
+            zeitFruehNeu(
+              z.tag
+            )
+
+        });
+      }
+
+
+      if (
+        z.gpSpaet
+      ) {
+
+        dienste.push({
+
+          typ:
+            'gp',
+
+          name:
+            'Garden Plaza – Spät',
+
+          zeit:
+            zeitSpaetNeu(
+              z.tag
+            )
+
+        });
+      }
+
+
+      if (
+        z.gpAbloese
+      ) {
+
+        dienste.push({
+
+          typ:
+            'abloese',
+
+          name:
+            'Garden Plaza – Pausenablöse',
+
+          zeit:
+            z.gpAbloesezeit || ''
+
+        });
+      }
+
+
+      if (
+        z.wpFrueh
+      ) {
+
+        dienste.push({
+
+          typ:
+            'wp',
+
+          name:
+            'Water Plaza – Früh',
+
+          zeit:
+            zeitFruehNeu(
+              z.tag
+            )
+
+        });
+      }
+
+
+      if (
+        z.wpSpaet
+      ) {
+
+        dienste.push({
+
+          typ:
+            'wp',
+
+          name:
+            'Water Plaza – Spät',
+
+          zeit:
+            zeitSpaetNeu(
+              z.tag
+            )
+
+        });
+      }
+
+
+      if (
+        z.wpAbloese
+      ) {
+
+        dienste.push({
+
+          typ:
+            'abloese',
+
+          name:
+            'Water Plaza – Pausenablöse',
+
+          zeit:
+            z.wpAbloesezeit || ''
+
+        });
+      }
+
+
+      html +=
+        `
+          <div
+            style="
+              background:#ffffff;
+              border:1px solid #e1e4e8;
+              border-radius:14px;
+              padding:18px;
+              margin-bottom:14px;
+              box-shadow:0 4px 18px rgba(0,0,0,0.05);
+            "
+          >
+
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                gap:15px;
+                align-items:flex-start;
+              "
+            >
+
+              <div>
+
+                <strong
+                  style="
+                    font-size:18px;
+                  "
+                >
+                  ${escapeHtmlNeu(z.tag || '')},
+                  ${escapeHtmlNeu(z.datum || '')}
+                </strong>
+
+                <div
+                  style="
+                    margin-top:4px;
+                    color:#666;
+                    font-size:13px;
+                  "
+                >
+                  KW ${escapeHtmlNeu(z.kw || '')}
+                </div>
+
+              </div>
+
+            </div>
+        `;
+
+
+      dienste.forEach(
+        function(dienst) {
+
+          let randfarbe =
+            '#999999';
+
+
+          let hintergrund =
+            '#ffffff';
+
+
+          if (
+            dienst.typ ===
+            'gp'
+          ) {
+
+            randfarbe =
+              '#14943b';
+
+
+            hintergrund =
+              '#f9fffa';
+          }
+
+
+          if (
+            dienst.typ ===
+            'wp'
+          ) {
+
+            randfarbe =
+              '#1754d1';
+
+
+            hintergrund =
+              '#f9fbff';
+          }
+
+
+          if (
+            dienst.typ ===
+            'abloese'
+          ) {
+
+            randfarbe =
+              '#f0a14a';
+
+
+            hintergrund =
+              '#fffdf8';
+          }
+
+
+          html +=
+            `
+              <div
+                style="
+                  background:${hintergrund};
+                  border:1px solid #e1e4e8;
+                  border-left:6px solid ${randfarbe};
+                  border-radius:10px;
+                  padding:14px;
+                  margin-top:10px;
+                "
+              >
+
+                <div
+                  style="
+                    font-weight:700;
+                    font-size:16px;
+                  "
+                >
+                  ${escapeHtmlNeu(dienst.name)}
+                </div>
+
+
+                ${
+                  dienst.zeit
+
+                    ? `
+                      <div
+                        style="
+                          color:#666;
+                          margin-top:6px;
+                        "
+                      >
+                        🕒 ${escapeHtmlNeu(dienst.zeit)}
+                      </div>
+                    `
+
+                    : ''
+                }
+
+              </div>
+            `;
+        }
+      );
+
+
+      if (
+        z.notiz
+      ) {
+
+        html +=
+          `
+            <div
+              style="
+                margin-top:11px;
+                color:#666;
+                font-size:14px;
+              "
+            >
+              📝 ${escapeHtmlNeu(z.notiz)}
+            </div>
+          `;
+      }
+
+
+      html +=
+        `
+          </div>
+        `;
+    }
+  );
+
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// ABWESENHEITEN ANZEIGEN
+// ==========================================================
+
+function rendereAbwesenheiten(
+  abwesenheiten
+) {
+
+  const liste =
+    document.getElementById(
+      'abwesenheitenListe'
+    );
+
+
+  if (
+    !liste
+  ) {
+
+    return;
+  }
+
+
+  if (
+    !abwesenheiten ||
+    abwesenheiten.length === 0
+  ) {
+
+    liste.innerHTML =
+      `
+        <div
+          style="
+            color:#666;
+            padding:14px 0;
+          "
+        >
+          Keine Abwesenheiten vorhanden.
+        </div>
+      `;
+
+
+    return;
+  }
+
+
+  let html =
+    '';
+
+
+  abwesenheiten.forEach(
+    function(a) {
+
+      const status =
+        String(
+          a.status || 'Abwesenheit'
+        );
+
+
+      let symbol =
+        '📌';
+
+
+      let farbe =
+        '#666666';
+
+
+      if (
+        status
+          .toLowerCase()
+          .includes(
+            'urlaub'
+          )
+      ) {
+
+        symbol =
+          '🏖️';
+
+
+        farbe =
+          '#14943b';
+      }
+
+
+      if (
+        status
+          .toLowerCase()
+          .includes(
+            'krank'
+          )
+      ) {
+
+        symbol =
+          '🤒';
+
+
+        farbe =
+          '#c62828';
+      }
+
+
+      html +=
+        `
+          <div
+            style="
+              background:#ffffff;
+              border:1px solid #e1e4e8;
+              border-left:6px solid ${farbe};
+              border-radius:10px;
+              padding:14px;
+              margin-top:10px;
+            "
+          >
+
+            <strong>
+              ${symbol}
+              ${escapeHtmlNeu(status)}
+            </strong>
+
+            <div
+              style="
+                color:#666;
+                margin-top:6px;
+              "
+            >
+              ${escapeHtmlNeu(a.von || '')}
+              ${
+                a.bis
+                  ? ' – ' +
+                    escapeHtmlNeu(
+                      a.bis
+                    )
+                  : ''
+              }
+            </div>
+
+          </div>
+        `;
+    }
+  );
+
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// DIENSTZEITEN
+// ==========================================================
+
+function zeitFruehNeu(
+  tag
+) {
+
+  if (
+    tag === 'Samstag'
+  ) {
+
+    return '09:00 – 18:00';
+  }
+
+
+  return '09:00 – 14:30';
+}
+
+
+function zeitSpaetNeu(
+  tag
+) {
+
+  if (
+    tag === 'Samstag'
+  ) {
+
+    return '11:30 – 16:00';
+  }
+
+
+  if (
+    tag === 'Donnerstag' ||
+    tag === 'Freitag'
+  ) {
+
+    return '14:30 – 20:00';
+  }
+
+
+  return '14:30 – 19:00';
 }
 
 
@@ -507,14 +1384,25 @@ async function logoutAusfuehren() {
   );
 
 
-  if (token) {
+  aktuellerBenutzer =
+    '';
+
+
+  aktuellerAdmin =
+    false;
+
+
+  if (
+    token
+  ) {
 
     try {
 
       await apiPost(
         'logout',
         {
-          token: token
+          token:
+            token
         }
       );
 
@@ -534,13 +1422,17 @@ async function logoutAusfuehren() {
     );
 
 
-  if (pin) {
+  if (
+    pin
+  ) {
+
     pin.value =
       '';
   }
 
 
   zeigeLogin();
+
 
   await ladeMitarbeiter();
 }
@@ -562,12 +1454,15 @@ async function pinVergessenNeu() {
     ).trim();
 
 
-  if (!name) {
+  if (
+    !name
+  ) {
 
     zeigeLoginMeldung(
       'Bitte wähle zuerst deinen Namen aus.',
       'fehler'
     );
+
 
     return;
   }
@@ -595,7 +1490,10 @@ function zeigeLoginMeldung(
     );
 
 
-  if (!element) {
+  if (
+    !element
+  ) {
+
     return;
   }
 
@@ -622,7 +1520,10 @@ function loescheLoginMeldung() {
     );
 
 
-  if (!element) {
+  if (
+    !element
+  ) {
+
     return;
   }
 
@@ -630,6 +1531,46 @@ function loescheLoginMeldung() {
   element.textContent =
     '';
 
+
   element.className =
     'login-meldung';
+}
+
+
+// ==========================================================
+// HTML SICHER
+// ==========================================================
+
+function escapeHtmlNeu(
+  text
+) {
+
+  return String(
+    text ?? ''
+  )
+
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+
+    .replace(
+      /</g,
+      '&lt;'
+    )
+
+    .replace(
+      />/g,
+      '&gt;'
+    )
+
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+
+    .replace(
+      /'/g,
+      '&#039;'
+    );
 }
