@@ -1,0 +1,90 @@
+/* =========================================
+   APP-FARBEN – HIER KANNST DU SIE ÄNDERN
+   ========================================= */
+
+:root {
+  --hauptfarbe: #ed1639;
+  --hauptfarbe-dunkel: #c8102e;
+
+  --hintergrund: #f3f5f8;
+  --karte: #ffffff;
+
+  --text: #182230;
+  --text-hell: #667085;
+
+  --rahmen: #d8dee8;
+}
+
+
+/* =========================================
+   GRUNDDESIGN
+   ========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--hintergrund);
+  color: var(--text);
+}
+
+.app {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--karte);
+  padding: 20px;
+}
+
+.app-header {
+  padding: 25px 20px;
+  border-radius: 22px;
+  background: var(--karte);
+  border: 1px solid var(--rahmen);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.app-title {
+  margin: 0;
+  color: var(--hauptfarbe);
+  font-size: 28px;
+}
+
+.app-subtitle {
+  margin-top: 8px;
+  color: var(--text-hell);
+  font-size: 15px;
+}
+
+.test-karte {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--karte);
+  border: 1px solid var(--rahmen);
+}
+
+.test-karte h2 {
+  margin-top: 0;
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 15px;
+  background: var(--hauptfarbe);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:active {
+  background: var(--hauptfarbe-dunkel);
+  transform: scale(0.98);
+}
