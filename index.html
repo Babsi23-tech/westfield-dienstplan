@@ -399,6 +399,31 @@
 
     <h2>📅 Meine Dienste</h2>
 
+    <div id="wochenNavigation" class="wochen-navigation">
+      <button
+        id="kwZurueck"
+        class="wochen-button"
+        type="button"
+        onclick="wechselWoche(-1)"
+      >
+        ← Vorherige Woche
+      </button>
+
+      <div class="wochen-mitte">
+        <span class="wochen-label">Ausgewählte Woche</span>
+        <strong id="kwAnzeige">KW —</strong>
+      </div>
+
+      <button
+        id="kwWeiter"
+        class="wochen-button"
+        type="button"
+        onclick="wechselWoche(1)"
+      >
+        Nächste Woche →
+      </button>
+    </div>
+
     <div id="dienstplanLaden">
       Dienstplan wird geladen …
     </div>
@@ -993,209 +1018,96 @@ function zeigeKollegen() {
 function zeigeSeite(seite) {
 
   const dienstplanAnsicht =
-    document.getElementById(
-      'dienstplanAnsicht'
-    );
+    document.getElementById('dienstplanAnsicht');
 
   const tauschAnsicht =
-    document.getElementById(
-      'tauschAnsicht'
-    );
-
-
-  // ======================================================
-  // ALLE ROTEN MARKIERUNGEN ZUERST ENTFERNEN
-  // ======================================================
-
-  document
-    .querySelectorAll(
-      '.nav-item'
-    )
-    .forEach(
-      function(button) {
-
-        button.classList.remove(
-          'aktiv'
-        );
-      }
-    );
+    document.getElementById('tauschAnsicht');
 
 
   document
-    .querySelectorAll(
-      '.nav-untermenue button'
-    )
-    .forEach(
-      function(button) {
+    .querySelectorAll('.nav-item')
+    .forEach(function(button) {
+      button.classList.remove('aktiv');
+    });
 
-        button.classList.remove(
-          'aktiv'
-        );
-      }
-    );
+
+  document
+    .querySelectorAll('.nav-untermenue button')
+    .forEach(function(button) {
+      button.classList.remove('aktiv');
+    });
 
 
   const tauschGruppe =
-    document.querySelector(
-      '.nav-gruppe'
-    );
+    document.querySelector('.nav-gruppe');
 
-
-  if (
-    tauschGruppe
-  ) {
-
-    tauschGruppe.classList.remove(
-      'aktiv'
-    );
+  if (tauschGruppe) {
+    tauschGruppe.classList.remove('aktiv');
   }
 
 
-  // ======================================================
-  // MEIN DIENSTPLAN
-  // ======================================================
+  if (seite === 'dienstplan') {
 
-  if (
-    seite === 'dienstplan'
-  ) {
-
-    if (
-      dienstplanAnsicht
-    ) {
-
-      dienstplanAnsicht.style.display =
-        'block';
+    if (dienstplanAnsicht) {
+      dienstplanAnsicht.style.display = 'block';
     }
 
-
-    if (
-      tauschAnsicht
-    ) {
-
-      tauschAnsicht.style.display =
-        'none';
+    if (tauschAnsicht) {
+      tauschAnsicht.style.display = 'none';
     }
-
 
     const dienstplanButton =
-      document.querySelector(
-        `[onclick="zeigeSeite('dienstplan')"]`
-      );
+      document.querySelector(`[onclick="zeigeSeite('dienstplan')"]`);
 
-
-    if (
-      dienstplanButton
-    ) {
-
-      dienstplanButton.classList.add(
-        'aktiv'
-      );
+    if (dienstplanButton) {
+      dienstplanButton.classList.add('aktiv');
     }
 
-
-    if (
-      typeof ladeMeinDienstplanNeu ===
-      'function'
-    ) {
-
+    if (typeof ladeMeinDienstplanNeu === 'function') {
       ladeMeinDienstplanNeu();
     }
-  }
 
+  } else if (seite === 'dienstTauschen') {
 
-  // ======================================================
-  // DIENST TAUSCHEN
-  // ======================================================
-
-  else if (
-    seite === 'dienstTauschen'
-  ) {
-
-    if (
-      dienstplanAnsicht
-    ) {
-
-      dienstplanAnsicht.style.display =
-        'none';
+    if (dienstplanAnsicht) {
+      dienstplanAnsicht.style.display = 'none';
     }
 
-
-    if (
-      tauschAnsicht
-    ) {
-
-      tauschAnsicht.style.display =
-        'block';
+    if (tauschAnsicht) {
+      tauschAnsicht.style.display = 'block';
     }
-
 
     const tauschHauptButton =
-      document.querySelector(
-        '.nav-hauptpunkt'
-      );
+      document.querySelector('.nav-hauptpunkt');
 
-
-    if (
-      tauschHauptButton
-    ) {
-
-      tauschHauptButton.classList.add(
-        'aktiv'
-      );
+    if (tauschHauptButton) {
+      tauschHauptButton.classList.add('aktiv');
     }
 
-
-    if (
-      tauschGruppe
-    ) {
-
-      tauschGruppe.classList.add(
-        'aktiv'
-      );
+    if (tauschGruppe) {
+      tauschGruppe.classList.add('aktiv');
     }
-
 
     const tauschButton =
-      document.querySelector(
-        `[onclick="zeigeSeite('dienstTauschen')"]`
-      );
+      document.querySelector(`[onclick="zeigeSeite('dienstTauschen')"]`);
 
-
-    if (
-      tauschButton
-    ) {
-
-      tauschButton.classList.add(
-        'aktiv'
-      );
+    if (tauschButton) {
+      tauschButton.classList.add('aktiv');
     }
   }
 
 
-  // ======================================================
-  // HANDY-MENÜ SCHLIESSEN
-  // ======================================================
-
-  if (
-    window.innerWidth <= 900
-  ) {
+  if (window.innerWidth <= 900) {
 
     const sidebar =
-      document.getElementById(
-        'sidebar'
-      );
+      document.getElementById('sidebar');
 
-
-    if (
-      sidebar
-    ) {
-
-      sidebar.classList.remove(
-        'mobile-offen'
-      );
+    if (sidebar) {
+      sidebar.classList.remove('mobile-offen');
     }
   }
 }
+
 
 document.addEventListener('keydown', function(event) {
   if (
