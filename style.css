@@ -610,21 +610,33 @@ input {
 .schritt span {
   font-size:
     13px;
+
+  color:
+    #555555;
+}
+
+
+.schritt.aktiv span {
+  color:
+    #111111;
+
+  font-weight:
+    700;
 }
 
 
 .schritt-linie {
+  width:
+    80px;
+
   height:
-    1px;
+    2px;
+
+  margin-top:
+    21px;
 
   background:
     #dddddd;
-
-  flex:
-    1;
-
-  margin-top:
-    20px;
 }
 
 
@@ -641,7 +653,7 @@ input {
 
 .panel {
   background:
-    white;
+    var(--weiss);
 
   border:
     1px solid var(--linie);
@@ -649,47 +661,35 @@ input {
   border-radius:
     14px;
 
-  padding:
-    26px;
-
-  margin-bottom:
-    18px;
-
   box-shadow:
     var(--shadow);
+
+  padding:
+    24px;
+
+  margin-bottom:
+    22px;
 }
 
 
 .panel h2 {
   margin:
-    0;
-
-  color:
-    var(--rot);
+    0 0 8px;
 
   font-size:
-    20px;
-}
-
-
-.panel h3 {
-  margin:
-    0 0 14px;
-
-  color:
-    var(--rot);
-
-  font-size:
-    17px;
+    21px;
 }
 
 
 .beschreibung {
-  margin:
-    8px 0 18px;
-
   color:
-    #444444;
+    var(--text-hell);
+
+  margin:
+    0 0 22px;
+
+  line-height:
+    1.5;
 }
 
 
@@ -698,10 +698,11 @@ input {
     grid;
 
   grid-template-columns:
-    1fr 1fr;
+    minmax(260px, 0.9fr)
+    minmax(380px, 1.3fr);
 
   gap:
-    45px;
+    30px;
 }
 
 
@@ -715,43 +716,47 @@ input {
     grid;
 
   grid-template-columns:
-    60px 1fr 60px;
+    52px 1fr 52px;
 
   gap:
-    10px;
+    8px;
 
-  margin-bottom:
-    14px;
+  align-items:
+    stretch;
 }
 
 
-.pfeil-button,
-.datum-button,
-.secondary-button {
+.datum-pfeil {
   min-height:
-    56px;
+    58px;
 
   border:
-    1px solid #d5d9df;
+    1px solid #d9d9d9;
+
+  background:
+    white;
 
   border-radius:
     9px;
 
-  background:
-    white;
+  font-size:
+    25px;
 
   cursor:
     pointer;
 }
 
 
-.pfeil-button {
-  font-size:
-    26px;
+.datum-pfeil:hover {
+  background:
+    #fafafa;
 }
 
 
 .datum-button {
+  min-height:
+    58px;
+
   display:
     flex;
 
@@ -759,105 +764,82 @@ input {
     center;
 
   justify-content:
-    flex-start;
+    center;
 
   gap:
     10px;
 
-  padding:
-    0 18px;
-
-  font-size:
-    16px;
-}
-
-
-.info-box {
-  display:
-    flex;
-
-  gap:
-    13px;
+  border:
+    1px solid #d9d9d9;
 
   background:
-    #eef5ff;
-
-  color:
-    #173a76;
-
-  border:
-    1px solid #d5e4ff;
+    white;
 
   border-radius:
     9px;
 
-  padding:
-    15px;
-
-  line-height:
-    1.45;
-
-  margin-bottom:
-    14px;
-}
-
-
-.secondary-button {
-  padding:
-    0 18px;
-
   font-size:
     15px;
 }
 
 
+.datum-button strong {
+  color:
+    var(--rot);
+}
 
 /* =========================================================
    EIGENE DIENSTE
    ========================================================= */
 
 .eigene-dienste {
-  background:
-    #fffafa;
+  display:
+    flex;
 
-  border-radius:
-    12px;
+  flex-direction:
+    column;
 
-  padding:
-    18px;
+  gap:
+    10px;
+}
+
+
+.eigene-dienste h3 {
+  margin:
+    0 0 4px;
+
+  font-size:
+    17px;
 }
 
 
 .dienst-mini {
+  min-height:
+    58px;
+
   display:
     flex;
-
-  justify-content:
-    space-between;
 
   align-items:
     center;
 
-  min-height:
-    58px;
+  justify-content:
+    space-between;
 
-  background:
-    white;
-
-  border:
-    1px solid #e6e6e6;
-
-  border-radius:
-    9px;
+  gap:
+    15px;
 
   padding:
-    0 15px;
+    12px 14px;
 
-  margin-bottom:
+  border:
+    1px solid var(--linie);
+
+  border-radius:
     10px;
 
-  box-shadow:
-    0 2px 7px rgba(0, 0, 0, 0.04);
+  background:
+    #fafafa;
 }
 
 
@@ -875,13 +857,16 @@ input {
 
 .punkt {
   width:
-    14px;
+    12px;
 
   height:
-    14px;
+    12px;
 
   border-radius:
     50%;
+
+  flex:
+    0 0 auto;
 }
 
 
@@ -911,7 +896,7 @@ input {
 
 
 /* =========================================================
-   DIENST AUSWAHL
+   DIENSTAUSWAHL
    ========================================================= */
 
 .dienst-auswahl {
@@ -919,28 +904,22 @@ input {
     grid;
 
   grid-template-columns:
-    1fr 1fr;
+    repeat(2, minmax(0, 1fr));
 
   gap:
-    18px;
-
-  margin-top:
-    10px;
+    14px;
 }
 
 
 .dienst-option {
+  position:
+    relative;
+
+  width:
+    100%;
+
   min-height:
-    166px;
-
-  border:
-    1px solid #d7dbe0;
-
-  border-radius:
-    10px;
-
-  background:
-    white;
+    145px;
 
   display:
     flex;
@@ -949,10 +928,19 @@ input {
     center;
 
   gap:
-    20px;
+    16px;
 
   padding:
-    20px;
+    18px;
+
+  border:
+    1px solid #dddddd;
+
+  border-radius:
+    12px;
+
+  background:
+    #ffffff;
 
   text-align:
     left;
@@ -962,51 +950,72 @@ input {
 }
 
 
+.dienst-option:hover {
+  border-color:
+    #bbbbbb;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+
 .dienst-option.ausgewaehlt {
   border:
-    1.5px solid var(--gruen);
+    2px solid var(--rot);
 
   background:
-    #fbfffc;
+    #fffafa;
 }
 
 
 .radio {
+  position:
+    absolute;
+
+  top:
+    13px;
+
+  right:
+    13px;
+
   width:
-    27px;
+    20px;
 
   height:
-    27px;
+    20px;
 
   border:
-    2px solid #a9adb3;
+    2px solid #bbbbbb;
 
   border-radius:
     50%;
 
-  flex:
-    0 0 auto;
+  background:
+    #ffffff;
 }
 
 
 .radio.aktiv {
-  border:
-    8px solid var(--gruen);
+  border-color:
+    var(--rot);
+
+  box-shadow:
+    inset 0 0 0 5px #ffffff;
+
+  background:
+    var(--rot);
 }
 
 
 .dienst-symbol {
   width:
-    92px;
+    78px;
 
   height:
-    92px;
+    78px;
 
-  border:
-    1px solid #d8dde4;
-
-  border-radius:
-    50%;
+  flex:
+    0 0 auto;
 
   display:
     flex;
@@ -1017,27 +1026,21 @@ input {
   justify-content:
     center;
 
+  border-radius:
+    14px;
+
+  background:
+    #f5f6f8;
+
   font-size:
-    52px;
-
-  flex:
-    0 0 auto;
-}
-
-
-.sonne {
-  color:
-    #ffb300;
-}
-
-
-.mond {
-  color:
-    var(--blau);
+    45px;
 }
 
 
 .dienst-option-text {
+  min-width:
+    0;
+
   display:
     flex;
 
@@ -1045,19 +1048,25 @@ input {
     column;
 
   gap:
-    9px;
+    6px;
 }
 
 
 .dienst-option-text strong {
   font-size:
-    18px;
+    17px;
+
+  line-height:
+    1.3;
 }
 
 
 .dienst-option-text span {
   color:
-    #444444;
+    #555555;
+
+  font-size:
+    14px;
 }
 
 
@@ -1065,38 +1074,44 @@ input {
   width:
     fit-content;
 
+  margin-top:
+    4px;
+
   padding:
-    6px 10px;
+    5px 8px;
 
   border-radius:
-    6px;
+    999px;
 
   font-size:
     12px;
+
+  font-weight:
+    700;
 }
 
 
 .gruen-chip {
-  background:
-    #e7f7eb;
-
   color:
-    #168437;
+    #176b2c;
+
+  background:
+    #eaf7ee;
 }
 
 
 .blau-chip {
-  background:
-    #e9f0ff;
-
   color:
-    #174fbe;
+    #174ea6;
+
+  background:
+    #eaf1ff;
 }
 
 
 
 /* =========================================================
-   UNTEN
+   PANEL UNTEN / WEITER BUTTON
    ========================================================= */
 
 .panel-unten {
@@ -1104,73 +1119,46 @@ input {
     grid;
 
   grid-template-columns:
-    1fr 330px;
-
-  gap:
-    30px;
+    1fr auto;
 
   align-items:
     center;
 
-  margin-top:
-    24px;
-}
-
-
-.hinweis-box {
-  display:
-    flex;
-
   gap:
-    14px;
+    20px;
 
-  background:
-    #fff8e8;
-
-  border:
-    1px solid #ffe4a6;
-
-  border-radius:
-    9px;
-
-  padding:
-    16px;
+  margin-top:
+    22px;
 }
 
 
-.hinweis-icon {
-  font-size:
-    25px;
-}
-
-
-.hinweis-box strong {
+.hinweis {
   color:
-    #a76300;
-}
-
-
-.hinweis-box p {
-  margin:
-    5px 0 0;
+    #666666;
 
   line-height:
-    1.4;
+    1.5;
 
   font-size:
-    13px;
+    14px;
 }
 
 
 .weiter-button {
+  min-width:
+    210px;
+
   min-height:
-    66px;
+    50px;
+
+  padding:
+    12px 18px;
 
   border:
     0;
 
   border-radius:
-    8px;
+    9px;
 
   background:
     var(--rot);
@@ -1179,7 +1167,7 @@ input {
     white;
 
   font-size:
-    17px;
+    16px;
 
   font-weight:
     700;
@@ -1197,7 +1185,7 @@ input {
     center;
 
   gap:
-    18px;
+    10px;
 }
 
 
@@ -1217,7 +1205,7 @@ input {
     grid;
 
   grid-template-columns:
-    1fr 1fr;
+    repeat(2, minmax(0, 1fr));
 
   gap:
     18px;
@@ -1226,7 +1214,7 @@ input {
 
 .kollegen-box {
   border-radius:
-    10px;
+    12px;
 
   overflow:
     hidden;
@@ -1254,13 +1242,41 @@ input {
 }
 
 
+.kollegen-box.ganztag {
+  background:
+    #f7f9ff;
+
+  border:
+    1px solid #d6def5;
+}
+
+
+.kollegen-box.weitere {
+  background:
+    #fafafa;
+
+  border:
+    1px solid #dddddd;
+}
+
+
+.kollegen-box h3 {
+  margin:
+    0 0 12px;
+
+  font-size:
+    16px;
+}
+
+
 .kollegen-box.frueh h3 {
   color:
     var(--gruen);
 }
 
 
-.kollegen-box.spaet h3 {
+.kollegen-box.spaet h3,
+.kollegen-box.ganztag h3 {
   color:
     var(--blau);
 }
@@ -1271,7 +1287,7 @@ input {
     grid;
 
   grid-template-columns:
-    30px 1fr auto;
+    30px minmax(0, 1fr) auto;
 
   align-items:
     center;
@@ -1280,7 +1296,7 @@ input {
     8px;
 
   min-height:
-    54px;
+    56px;
 
   background:
     white;
@@ -1289,7 +1305,7 @@ input {
     1px solid #e6e6e6;
 
   border-radius:
-    8px;
+    9px;
 
   padding:
     10px 12px;
@@ -1302,6 +1318,33 @@ input {
 }
 
 
+.kollege:hover {
+  border-color:
+    #bbbbbb;
+}
+
+
+.kollege input {
+  width:
+    18px;
+
+  height:
+    18px;
+
+  accent-color:
+    var(--rot);
+}
+
+
+.kollege span {
+  min-width:
+    0;
+
+  overflow-wrap:
+    anywhere;
+}
+
+
 .kollege strong {
   font-size:
     13px;
@@ -1311,424 +1354,968 @@ input {
 
   color:
     #555555;
+
+  text-align:
+    right;
 }
 
 
 .versteckt {
   display:
-    none;
+    none !important;
 }
 
 
 
 /* =========================================================
-   HANDY
+   MEIN DIENSTPLAN
    ========================================================= */
 
-@media screen and (max-width: 900px) {
-
-  .sidebar {
-    transform:
-      translateX(-105%);
-
-    transition:
-      transform .25s ease;
-
-    box-shadow:
-      12px 0 35px rgba(0, 0, 0, 0.18);
-  }
-
-
-  .sidebar.mobile-offen {
-    transform:
-      translateX(0);
-  }
-
-
-  .mobile-header {
-    position:
-      sticky;
-
-    top:
-      0;
-
-    z-index:
-      900;
-
-    display:
-      flex;
-
-    align-items:
-      center;
-
-    gap:
-      14px;
-
-    height:
-      66px;
-
-    background:
-      white;
-
-    border-bottom:
-      1px solid var(--linie);
-
-    padding:
-      0 14px;
-  }
-
-
-  .mobile-header small {
-    display:
-      block;
-
-    color:
-      var(--text-hell);
-  }
-
-
-  .mobile-menu {
-    width:
-      45px;
-
-    height:
-      45px;
-
-    border:
-      0;
-
-    border-radius:
-      10px;
-
-    background:
-      var(--rot);
-
-    color:
-      white;
-
-    font-size:
-      23px;
-  }
-
-
-  .content {
-    width:
-      100%;
-
-    margin-left:
-      0;
-
-    padding:
-      18px 12px 35px;
-  }
-
-
-  .content-header h1 {
-    font-size:
-      25px;
-  }
-
-
-  .content-header p {
-    font-size:
-      14px;
-  }
-
-
-  .close-button {
-    display:
-      none;
-  }
-
-
-  .schritte {
-    overflow-x:
-      auto;
-
-    justify-content:
-      flex-start;
-
-    padding-bottom:
-      4px;
-  }
-
-
-  .schritt {
-    min-width:
-      92px;
-  }
-
-
-  .schritt-linie {
-    min-width:
-      40px;
-  }
-
-
-  .panel {
-    padding:
-      18px 14px;
-
-    border-radius:
-      12px;
-  }
-
-
-  .panel-grid,
-  .dienst-auswahl,
-  .kollegen-grid,
-  .panel-unten {
-    grid-template-columns:
-      1fr;
-  }
-
-
-  .panel-grid {
-    gap:
-      20px;
-  }
-
-
-  .dienst-option {
-    min-height:
-      130px;
-
-    padding:
-      15px;
-
-    gap:
-      13px;
-  }
-
-
-  .dienst-symbol {
-    width:
-      65px;
-
-    height:
-      65px;
-
-    font-size:
-      38px;
-  }
-
-
-  .panel-unten {
-    gap:
-      15px;
-  }
-
-
-  .datum-navigation {
-    grid-template-columns:
-      48px 1fr 48px;
-  }
-
-
-  .datum-button {
-    padding:
-      0 10px;
-
-    font-size:
-      14px;
-  }
-
-
-  .kollege {
-    grid-template-columns:
-      26px 1fr;
-
-    gap:
-      5px;
-  }
-
-
-  .kollege strong {
-    grid-column:
-      2;
-
-    margin-top:
-      2px;
-  }
-
+.dienstplan-info {
+  max-width:
+    720px;
+
+  margin:
+    0 auto 26px;
 }
+
+
+.dienstplan-info > div {
+  background:
+    #ffffff;
+
+  border:
+    1px solid var(--linie);
+
+  border-left:
+    7px solid var(--rot);
+
+  border-radius:
+    14px;
+
+  box-shadow:
+    var(--shadow);
+
+  padding:
+    18px 22px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    7px;
+}
+
+
+.dienstplan-info strong {
+  font-size:
+    17px;
+}
+
+
+.dienstplan-info span {
+  color:
+    var(--rot);
+
+  font-size:
+    25px;
+
+  font-weight:
+    800;
+}
+
+
+.dienstplan-bereich {
+  max-width:
+    900px;
+
+  margin:
+    0 auto 26px;
+
+  padding:
+    22px;
+
+  background:
+    #ffffff;
+
+  border:
+    1px solid var(--linie);
+
+  border-radius:
+    14px;
+
+  box-shadow:
+    var(--shadow);
+}
+
+
+.dienstplan-bereich h2 {
+  margin:
+    0 0 18px;
+
+  color:
+    var(--rot);
+
+  font-size:
+    21px;
+}
+
+
+#dienstplanLaden {
+  border:
+    1px dashed #d5d5d5;
+
+  border-radius:
+    12px;
+
+  padding:
+    25px 18px;
+
+  text-align:
+    center;
+
+  color:
+    #666666;
+
+  font-size:
+    17px;
+}
+
+
+#dienstplanListe {
+  width:
+    100%;
+}
+
+
+
+/* =========================================================
+   WOCHENAUSWAHL
+   ========================================================= */
+
+.kw-navigation,
+.wochen-navigation {
+  width:
+    100%;
+
+  margin-bottom:
+    20px;
+
+  padding:
+    14px;
+
+  border:
+    1px solid var(--linie);
+
+  border-radius:
+    12px;
+
+  background:
+    #fafafa;
+}
+
+
+.kw-navigation-inner {
+  display:
+    flex;
+
+  justify-content:
+    center;
+
+  align-items:
+    center;
+
+  gap:
+    18px;
+
+  flex-wrap:
+    wrap;
+}
+
+
+.kw-anzeige {
+  text-align:
+    center;
+
+  min-width:
+    130px;
+}
+
+
+.kw-anzeige small {
+  display:
+    block;
+
+  color:
+    #666666;
+
+  margin-bottom:
+    5px;
+}
+
+
+.kw-anzeige strong {
+  color:
+    var(--rot);
+
+  font-size:
+    23px;
+}
+
+
+.kw-button,
+.wochen-button {
+  min-height:
+    45px;
+
+  padding:
+    9px 15px;
+
+  border:
+    1px solid #d7d7d7;
+
+  border-radius:
+    9px;
+
+  background:
+    white;
+
+  color:
+    #222222;
+
+  cursor:
+    pointer;
+
+  font-size:
+    14px;
+}
+
+
+.kw-button:hover,
+.wochen-button:hover {
+  border-color:
+    var(--rot);
+
+  color:
+    var(--rot);
+}
+
+
+
+/* =========================================================
+   LEERE ZUSTÄNDE
+   ========================================================= */
+
+.empty-state {
+  width:
+    100%;
+
+  padding:
+    22px 16px;
+
+  border:
+    1px dashed #d8d8d8;
+
+  border-radius:
+    11px;
+
+  color:
+    #666666;
+
+  text-align:
+    center;
+
+  line-height:
+    1.5;
+}
+
+
+
+/* =========================================================
+   ANFRAGEN
+   ========================================================= */
+
+.anfrage-card {
+  border:
+    1px solid var(--linie);
+
+  border-radius:
+    11px;
+
+  background:
+    #ffffff;
+
+  padding:
+    15px;
+
+  margin-top:
+    12px;
+}
+
+
+.anfrage-dienst {
+  color:
+    var(--rot);
+
+  font-weight:
+    700;
+
+  margin-bottom:
+    5px;
+}
+
+
+.klein {
+  margin-top:
+    5px;
+
+  color:
+    #666666;
+
+  font-size:
+    13px;
+}
+
+
+.status {
+  width:
+    fit-content;
+
+  margin-top:
+    10px;
+
+  padding:
+    5px 9px;
+
+  border-radius:
+    999px;
+
+  font-size:
+    12px;
+
+  font-weight:
+    700;
+}
+
+
+.status.offen {
+  background:
+    #fff4ce;
+
+  color:
+    #7a4f00;
+}
+
+
+.status.genehmigt {
+  background:
+    #e7f6ec;
+
+  color:
+    #176b2c;
+}
+
+
+.status.abgelehnt {
+  background:
+    #fdecec;
+
+  color:
+    #b00020;
+}
+
+
+
+/* =========================================================
+   FORMULARE
+   ========================================================= */
+
+textarea,
+select {
+  font-family:
+    inherit;
+}
+
+
+textarea:focus,
+select:focus,
+input:focus {
+  outline:
+    none;
+
+  border-color:
+    var(--rot);
+
+  box-shadow:
+    0 0 0 3px rgba(227, 6, 19, 0.08);
+}
+
+/* =========================================================
+   NEUES MENÜ-MODELL
+   SIDEBAR STANDARDMÄSSIG VERSTECKT
+   ========================================================= */
+
+.app-shell {
+  display:
+    block;
+
+  width:
+    100%;
+
+  min-height:
+    100vh;
+
+  position:
+    relative;
+}
+
+
+/* Sidebar liegt außerhalb des sichtbaren Bereichs */
+.sidebar {
+  transform:
+    translateX(-105%);
+
+  transition:
+    transform 0.25s ease;
+
+  box-shadow:
+    12px 0 35px rgba(0, 0, 0, 0.18);
+}
+
+
+/* ☰ öffnet die Sidebar */
+.sidebar.mobile-offen {
+  transform:
+    translateX(0);
+}
+
+
+/* Hauptinhalt bekommt IMMER die volle Breite */
+.content {
+  width:
+    100%;
+
+  max-width:
+    1500px;
+
+  margin-left:
+    0;
+
+  margin-right:
+    auto;
+
+  padding:
+    24px 40px 50px;
+}
+
+
+
+/* =========================================================
+   HAMBURGER-BALKEN
+   ========================================================= */
+
+.mobile-header {
+  position:
+    sticky;
+
+  top:
+    0;
+
+  z-index:
+    1200;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    flex-start;
+
+  width:
+    100%;
+
+  min-height:
+    72px;
+
+  padding:
+    12px 22px;
+
+  background:
+    rgba(247, 248, 250, 0.96);
+
+  border-bottom:
+    1px solid rgba(225, 228, 232, 0.8);
+
+  backdrop-filter:
+    blur(10px);
+
+  -webkit-backdrop-filter:
+    blur(10px);
+}
+
+
+/* "SCS Team / Dienstplan" oben komplett ausblenden */
+.mobile-header > div {
+  display:
+    none;
+}
+
+
+.mobile-menu {
+  width:
+    50px;
+
+  height:
+    50px;
+
+  border:
+    0;
+
+  border-radius:
+    12px;
+
+  background:
+    var(--rot);
+
+  color:
+    white;
+
+  font-size:
+    26px;
+
+  line-height:
+    1;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  cursor:
+    pointer;
+
+  box-shadow:
+    0 4px 12px rgba(227, 6, 19, 0.2);
+}
+
+
+.mobile-menu:hover {
+  background:
+    var(--rot-dunkel);
+}
+
+
+.mobile-menu:active {
+  transform:
+    scale(0.96);
+}
+
+
+
+/* =========================================================
+   SIDEBAR ALS OVERLAY
+   ========================================================= */
+
+.sidebar {
+  width:
+    min(320px, 88vw);
+
+  min-width:
+    0;
+
+  padding:
+    20px 18px 24px;
+
+  padding-top:
+    max(
+      20px,
+      env(safe-area-inset-top)
+    );
+
+  padding-bottom:
+    max(
+      24px,
+      env(safe-area-inset-bottom)
+    );
+
+  background:
+    #ffffff;
+
+  border-right:
+    1px solid var(--linie);
+
+  position:
+    fixed;
+
+  left:
+    0;
+
+  top:
+    0;
+
+  bottom:
+    0;
+
+  overflow-y:
+    auto;
+
+  overscroll-behavior:
+    contain;
+
+  z-index:
+    1100;
+}
+
+
+/* Genug Platz oben lassen,
+   damit der rote ☰ Button sichtbar bleibt */
+.sidebar.mobile-offen {
+  padding-top:
+    max(
+      88px,
+      calc(
+        70px +
+        env(safe-area-inset-top)
+      )
+    );
+}
+
+
+
+/* =========================================================
+   SIDEBAR BRAND KOMPAKTER
+   ========================================================= */
+
+.sidebar .brand {
+  padding:
+    0 0 18px;
+
+  text-align:
+    left;
+}
+
+
+.sidebar .brand-westfield {
+  font-size:
+    27px;
+}
+
+
+.sidebar .brand-scs {
+  font-size:
+    20px;
+}
+
+
+
+/* =========================================================
+   PROFIL IM MENÜ
+   ========================================================= */
+
+.sidebar .profil {
+  padding:
+    8px 2px 16px;
+}
+
+
+.sidebar .profil-icon {
+  width:
+    42px;
+
+  height:
+    42px;
+
+  font-size:
+    22px;
+}
+
+
+.sidebar .profil-name {
+  font-size:
+    16px;
+}
+
+
+.sidebar .profil-rolle {
+  font-size:
+    13px;
+}
+
+
+
+/* =========================================================
+   MENÜPUNKTE
+   ========================================================= */
+
+.sidebar .nav-item {
+  min-height:
+    50px;
+
+  padding:
+    11px 10px;
+
+  font-size:
+    15px;
+}
+
+
+.sidebar .nav-icon {
+  width:
+    28px;
+
+  font-size:
+    20px;
+}
+
+
+.sidebar .nav-item.aktiv {
+  background:
+    #fff1f2;
+
+  color:
+    var(--rot);
+}
+
+
+.sidebar .nav-untermenue {
+  margin:
+    4px 0 7px 18px;
+
+  padding-left:
+    15px;
+}
+
+
+.sidebar .nav-untermenue button {
+  min-height:
+    43px;
+
+  padding:
+    9px 8px;
+
+  font-size:
+    14px;
+}
+
+
+
+/* =========================================================
+   AKTUALISIERT AM
+   ========================================================= */
+
+.sidebar-update {
+  margin-top:
+    22px;
+
+  margin-bottom:
+    10px;
+
+  background:
+    #fafafa;
+}
+
+
 
 /* =========================================================
    LOGIN
    ========================================================= */
 
 .login-seite {
-  min-height: 100vh;
+  min-height:
+    100vh;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height:
+    100dvh;
 
-  padding: 25px;
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    24px;
+
+  padding-top:
+    max(
+      24px,
+      env(safe-area-inset-top)
+    );
+
+  padding-bottom:
+    max(
+      24px,
+      env(safe-area-inset-bottom)
+    );
 
   background:
     linear-gradient(
-      135deg,
-      #f7f8fa 0%,
-      #ffffff 50%,
-      #fff4f5 100%
+      180deg,
+      #f8f9fb 0%,
+      #ffffff 100%
     );
 }
 
 
 .login-karte {
-  width: 100%;
-  max-width: 440px;
+  width:
+    100%;
 
-  background: white;
+  max-width:
+    430px;
+
+  padding:
+    30px;
 
   border:
     1px solid var(--linie);
 
-  border-radius: 18px;
+  border-radius:
+    18px;
 
-  padding:
-    34px 34px 30px;
+  background:
+    #ffffff;
 
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.10);
+    0 12px 38px rgba(0, 0, 0, 0.08);
 }
 
 
 .login-brand {
-  text-align: center;
+  text-align:
+    center;
 
-  padding-bottom: 24px;
-
-  border-bottom:
-    1px solid var(--linie);
-
-  margin-bottom: 26px;
+  margin-bottom:
+    25px;
 }
 
 
 .login-brand .brand-westfield {
-  font-size: 38px;
+  font-size:
+    34px;
 }
 
 
 .login-brand .brand-scs {
-  font-size: 25px;
+  font-size:
+    22px;
 }
 
 
 .login-kopf {
-  text-align: center;
+  text-align:
+    center;
 
-  margin-bottom: 26px;
+  margin-bottom:
+    24px;
 }
 
 
 .login-kopf h1 {
-  margin: 0 0 8px;
+  margin:
+    0;
 
-  font-size: 27px;
+  font-size:
+    27px;
 }
 
 
 .login-kopf p {
-  margin: 0;
+  margin:
+    8px 0 0;
 
   color:
     var(--text-hell);
 
-  line-height: 1.5;
+  line-height:
+    1.5;
 }
 
 
 .login-label {
-  display: block;
+  display:
+    block;
 
   margin:
-    18px 0 7px;
+    15px 0 7px;
 
-  font-size: 14px;
-
-  font-weight: 700;
+  font-weight:
+    700;
 }
 
 
 .login-eingabe {
-  width: 100%;
+  width:
+    100%;
 
-  height: 54px;
-
-  border:
-    1px solid #d5d9df;
-
-  border-radius: 9px;
-
-  background: white;
+  min-height:
+    50px;
 
   padding:
-    0 14px;
+    11px 13px;
 
-  color:
-    var(--text);
+  border:
+    1px solid #ccd0d5;
 
-  font-size: 16px;
+  border-radius:
+    10px;
 
-  outline: none;
-}
+  background:
+    #ffffff;
 
-
-.login-eingabe:focus {
-  border-color:
-    var(--rot);
-
-  box-shadow:
-    0 0 0 3px rgba(227, 6, 19, 0.10);
+  font-size:
+    16px;
 }
 
 
 .login-pin {
-  letter-spacing: 6px;
-
-  font-size: 20px;
-
-  font-weight: 700;
-}
-
-
-.login-pin::placeholder {
-  letter-spacing: normal;
-
-  font-size: 15px;
-
-  font-weight: 400;
+  letter-spacing:
+    4px;
 }
 
 
 .login-button {
-  width: 100%;
+  width:
+    100%;
 
-  min-height: 56px;
+  min-height:
+    51px;
 
-  margin-top: 25px;
+  margin-top:
+    22px;
 
-  border: 0;
+  border:
+    0;
 
-  border-radius: 9px;
+  border-radius:
+    10px;
 
   background:
     var(--rot);
 
-  color: white;
+  color:
+    white;
 
-  font-size: 17px;
+  font-size:
+    16px;
 
-  font-weight: 700;
+  font-weight:
+    700;
 
-  cursor: pointer;
-
-  transition:
-    background .2s ease,
-    transform .1s ease;
+  cursor:
+    pointer;
 }
 
 
@@ -1738,350 +2325,1113 @@ input {
 }
 
 
-.login-button:active {
-  transform:
-    scale(.99);
-}
-
-
 .login-button:disabled {
-  opacity: .65;
+  opacity:
+    0.65;
 
-  cursor: wait;
+  cursor:
+    wait;
 }
 
 
 .login-link {
-  width: 100%;
+  width:
+    100%;
 
-  margin-top: 17px;
+  margin-top:
+    13px;
 
-  border: 0;
+  padding:
+    8px;
 
-  background: transparent;
+  border:
+    0;
+
+  background:
+    transparent;
 
   color:
     var(--rot);
 
-  font-size: 14px;
+  font-size:
+    14px;
 
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-
-.login-link:hover {
-  text-decoration: underline;
+  cursor:
+    pointer;
 }
 
 
 .login-meldung {
-  display: none;
+  margin-top:
+    14px;
 
-  margin-top: 18px;
+  min-height:
+    20px;
 
-  padding: 12px 14px;
+  text-align:
+    center;
 
-  border-radius: 8px;
-
-  font-size: 14px;
-
-  line-height: 1.4;
-
-  text-align: center;
+  font-size:
+    14px;
 }
 
 
 .login-meldung.fehler {
-  display: block;
-
-  background: #fff0f1;
-
-  border:
-    1px solid #ffc9cd;
-
-  color: #a9000c;
+  color:
+    #b00020;
 }
 
 
 .login-meldung.erfolg {
-  display: block;
-
-  background: #edf9f0;
-
-  border:
-    1px solid #c9ebd1;
-
-  color: #147532;
+  color:
+    #176b2c;
 }
+
 
 
 /* =========================================================
-   LOGIN HANDY
+   ALLGEMEINE BUTTON-OPTIMIERUNG
    ========================================================= */
 
-@media screen and (max-width: 600px) {
-
-  .login-seite {
-    padding: 16px;
-  }
-
-
-  .login-karte {
-    padding:
-      28px 20px 25px;
-
-    border-radius: 15px;
-  }
-
-
-  .login-brand .brand-westfield {
-    font-size: 34px;
-  }
-
-
-  .login-kopf h1 {
-    font-size: 24px;
-  }
-
-
-  .login-eingabe {
-    height: 56px;
-  }
-
-
-  .login-button {
-    min-height: 58px;
-  }
-
+button {
+  -webkit-tap-highlight-color:
+    transparent;
 }
+
+
+button,
+.nav-item,
+.nav-untermenue button,
+.kollege,
+.dienst-option {
+  touch-action:
+    manipulation;
+}
+
 
 
 /* =========================================================
-   MEIN DIENSTPLAN
+   SCROLLING
    ========================================================= */
 
-#dienstplanAnsicht {
-  width: 100%;
+html {
+  scroll-behavior:
+    smooth;
 }
 
-.dienstplan-info {
-  max-width: 1180px;
-  margin: 0 auto 18px;
+
+body {
+  overflow-x:
+    hidden;
 }
 
-.dienstplan-info > div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  min-height: 82px;
-  padding: 18px 22px;
-  background: linear-gradient(135deg, #ffffff 0%, #fff7f8 100%);
-  border: 1px solid var(--linie);
-  border-left: 6px solid var(--rot);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-}
 
-.dienstplan-info strong {
-  font-size: 16px;
-}
-
-#dienstplanSollstunden {
-  color: var(--rot);
-  font-size: 25px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
+.content,
+.panel,
 .dienstplan-bereich {
-  max-width: 1180px;
-  margin: 0 auto 20px;
-  padding: 24px;
-  background: var(--weiss);
-  border: 1px solid var(--linie);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
+  min-width:
+    0;
 }
 
-.dienstplan-bereich > h2 {
-  margin: 0 0 18px;
-  color: var(--rot);
-  font-size: 20px;
-}
 
-#dienstplanLaden,
-.empty-state {
-  padding: 22px;
-  color: var(--text-hell);
-  text-align: center;
-  background: #fafafa;
-  border: 1px dashed #d7dbe0;
-  border-radius: 10px;
+img,
+svg {
+  max-width:
+    100%;
 }
-
-#dienstplanListe,
-#abwesenheitenListe {
-  width: 100%;
-}
-
-#dienstplanListe .panel,
-#abwesenheitenListe .panel {
-  transition:
-    transform .15s ease,
-    box-shadow .15s ease;
-}
-
-#dienstplanListe .panel:hover,
-#abwesenheitenListe .panel:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 7px 22px rgba(0, 0, 0, 0.08);
-}
-
 
 /* =========================================================
-   DIENSTPLAN HANDY
+   HANDY / IPHONE / TABLET
    ========================================================= */
 
 @media screen and (max-width: 900px) {
 
-  .dienstplan-info,
-  .dienstplan-bereich {
-    max-width: none;
+  /* -------------------------------------------------------
+     OBERE LEISTE:
+     NUR DER ROTE ☰ BUTTON
+     ------------------------------------------------------- */
+
+  .mobile-header {
+    min-height:
+      64px;
+
+    padding-top:
+      max(
+        8px,
+        env(safe-area-inset-top)
+      );
+
+    padding-right:
+      max(
+        12px,
+        env(safe-area-inset-right)
+      );
+
+    padding-bottom:
+      8px;
+
+    padding-left:
+      max(
+        12px,
+        env(safe-area-inset-left)
+      );
+
+    background:
+      #f7f8fa;
+
+    border-bottom:
+      0;
   }
 
-  .dienstplan-bereich {
-    padding: 18px 14px;
+
+  .mobile-menu {
+    width:
+      48px;
+
+    height:
+      48px;
+
+    border-radius:
+      11px;
+
+    font-size:
+      24px;
   }
+
+
+  /* -------------------------------------------------------
+     HAUPTINHALT VOLLE BREITE
+     ------------------------------------------------------- */
+
+  .content {
+    width:
+      100%;
+
+    max-width:
+      none;
+
+    margin:
+      0;
+
+    padding-top:
+      10px;
+
+    padding-right:
+      max(
+        12px,
+        env(safe-area-inset-right)
+      );
+
+    padding-bottom:
+      max(
+        35px,
+        env(safe-area-inset-bottom)
+      );
+
+    padding-left:
+      max(
+        12px,
+        env(safe-area-inset-left)
+      );
+  }
+
+
+  /* -------------------------------------------------------
+     SEITENÜBERSCHRIFT
+     ------------------------------------------------------- */
+
+  .content-header {
+    display:
+      block;
+
+    width:
+      100%;
+
+    margin:
+      5px 0 20px;
+
+    text-align:
+      left;
+  }
+
+
+  .content-header > div {
+    width:
+      100%;
+  }
+
+
+  .content-header h1 {
+    margin:
+      0;
+
+    font-size:
+      28px;
+
+    line-height:
+      1.15;
+
+    overflow-wrap:
+      anywhere;
+  }
+
+
+  .content-header p {
+    margin:
+      7px 0 0;
+
+    font-size:
+      14px;
+
+    line-height:
+      1.45;
+
+    color:
+      #555555;
+  }
+
+
+  .close-button {
+    display:
+      none;
+  }
+
+
+  /* -------------------------------------------------------
+     WOCHENSTUNDEN
+     ------------------------------------------------------- */
+
+  .dienstplan-info {
+    width:
+      100%;
+
+    max-width:
+      none;
+
+    margin:
+      0 0 16px;
+  }
+
 
   .dienstplan-info > div {
-    min-height: 72px;
-    padding: 15px 16px;
+    width:
+      100%;
+
+    padding:
+      15px 16px;
+
+    border-radius:
+      12px;
+
+    gap:
+      5px;
   }
 
-  #dienstplanSollstunden {
-    font-size: 21px;
+
+  .dienstplan-info strong {
+    font-size:
+      15px;
   }
+
+
+  .dienstplan-info span {
+    font-size:
+      23px;
+  }
+
+
+  /* -------------------------------------------------------
+     MEINE DIENSTE / ABWESENHEITEN
+     ------------------------------------------------------- */
+
+  .dienstplan-bereich {
+    width:
+      100%;
+
+    max-width:
+      none;
+
+    margin:
+      0 0 16px;
+
+    padding:
+      15px;
+
+    border-radius:
+      12px;
+  }
+
+
+  .dienstplan-bereich h2 {
+    margin-bottom:
+      14px;
+
+    font-size:
+      19px;
+  }
+
+
+  #dienstplanLaden {
+    width:
+      100%;
+
+    padding:
+      20px 12px;
+
+    font-size:
+      15px;
+  }
+
+
+  #dienstplanListe {
+    width:
+      100%;
+  }
+
+
+  /*
+     Die Dienstkarten werden in app.js
+     teilweise mit Inline-Padding erzeugt.
+     Deshalb hier bewusst !important,
+     damit am iPhone genug Platz bleibt.
+  */
+
+  #dienstplanListe .panel {
+    width:
+      100%;
+
+    padding:
+      14px !important;
+
+    margin-bottom:
+      10px !important;
+
+    border-radius:
+      11px !important;
+  }
+
+
+  /*
+     "Dienst tauschen" auf kleinen Displays
+     immer unter den Dienstinformationen.
+  */
+
+  #dienstplanListe button {
+    width:
+      100%;
+
+    min-height:
+      44px;
+
+    margin-top:
+      5px;
+
+    white-space:
+      normal;
+  }
+
+
+  /* -------------------------------------------------------
+     ALLGEMEINE PANELS
+     ------------------------------------------------------- */
+
+  .panel {
+    width:
+      100%;
+
+    padding:
+      16px 14px;
+
+    margin-bottom:
+      15px;
+
+    border-radius:
+      12px;
+  }
+
+
+  .panel h2 {
+    font-size:
+      19px;
+  }
+
+
+  .beschreibung {
+    margin-bottom:
+      16px;
+
+    font-size:
+      14px;
+  }
+
+
+  /* -------------------------------------------------------
+     GRIDS NICHT MEHR QUETSCHEN
+     ------------------------------------------------------- */
+
+  .panel-grid,
+  .dienst-auswahl,
+  .kollegen-grid,
+  .panel-unten {
+    grid-template-columns:
+      minmax(0, 1fr);
+  }
+
+
+  .panel-grid {
+    gap:
+      16px;
+  }
+
+
+  .kollegen-grid {
+    gap:
+      12px;
+  }
+
+
+  .panel-unten {
+    gap:
+      13px;
+  }
+
+
+  /* -------------------------------------------------------
+     DIENSTAUSWAHL
+     ------------------------------------------------------- */
+
+  .dienst-option {
+    min-height:
+      115px;
+
+    padding:
+      14px;
+
+    gap:
+      12px;
+  }
+
+
+  .dienst-symbol {
+    width:
+      60px;
+
+    height:
+      60px;
+
+    font-size:
+      34px;
+
+    border-radius:
+      11px;
+  }
+
+
+  .dienst-option-text strong {
+    font-size:
+      15px;
+  }
+
+
+  .dienst-option-text span {
+    font-size:
+      13px;
+  }
+
+
+  /* -------------------------------------------------------
+     DATUM
+     ------------------------------------------------------- */
+
+  .datum-navigation {
+    grid-template-columns:
+      46px minmax(0, 1fr) 46px;
+
+    gap:
+      6px;
+  }
+
+
+  .datum-pfeil {
+    min-height:
+      54px;
+  }
+
+
+  .datum-button {
+    min-width:
+      0;
+
+    min-height:
+      54px;
+
+    padding:
+      7px;
+
+    gap:
+      5px;
+
+    font-size:
+      13px;
+
+    text-align:
+      center;
+
+    flex-wrap:
+      wrap;
+  }
+
+
+  /* -------------------------------------------------------
+     WEITER BUTTON
+     ------------------------------------------------------- */
+
+  .weiter-button {
+    width:
+      100%;
+
+    min-width:
+      0;
+
+    min-height:
+      49px;
+  }
+
+
+  /* -------------------------------------------------------
+     KOLLEGEN
+     ------------------------------------------------------- */
+
+  .kollegen-box {
+    width:
+      100%;
+
+    padding:
+      12px;
+  }
+
+
+  .kollege {
+    grid-template-columns:
+      26px minmax(0, 1fr);
+
+    gap:
+      5px 8px;
+
+    padding:
+      10px;
+  }
+
+
+  .kollege strong {
+    grid-column:
+      2;
+
+    text-align:
+      left;
+
+    margin-top:
+      1px;
+  }
+
+
+  /* -------------------------------------------------------
+     SCHRITTE BEIM TAUSCH
+     ------------------------------------------------------- */
+
+  .schritte {
+    width:
+      100%;
+
+    justify-content:
+      flex-start;
+
+    overflow-x:
+      auto;
+
+    -webkit-overflow-scrolling:
+      touch;
+
+    margin:
+      10px 0 20px;
+
+    padding:
+      3px 0 8px;
+  }
+
+
+  .schritt {
+    min-width:
+      88px;
+
+    width:
+      88px;
+
+    flex:
+      0 0 auto;
+  }
+
+
+  .schritt-linie {
+    min-width:
+      35px;
+
+    width:
+      35px;
+
+    flex:
+      0 0 auto;
+  }
+
+
+  .schritt span {
+    font-size:
+      11px;
+  }
+
+
+  .schritt-kreis {
+    width:
+      37px;
+
+    height:
+      37px;
+  }
+
+
+  /* -------------------------------------------------------
+     SIDEBAR AUF HANDY
+     ------------------------------------------------------- */
+
+  .sidebar {
+    width:
+      min(
+        320px,
+        88vw
+      );
+
+    min-width:
+      0;
+
+    max-width:
+      88vw;
+
+    transform:
+      translateX(-110%);
+
+    transition:
+      transform 0.25s ease;
+
+    border-radius:
+      0 18px 18px 0;
+  }
+
+
+  .sidebar.mobile-offen {
+    transform:
+      translateX(0);
+  }
+
+
+  /* -------------------------------------------------------
+     MENÜ AUF HANDY ETWAS GRÖSSER
+     ------------------------------------------------------- */
+
+  .sidebar .nav-item {
+    min-height:
+      52px;
+
+    font-size:
+      15px;
+
+    border-radius:
+      10px;
+  }
+
+
+  .sidebar .nav-untermenue button {
+    min-height:
+      46px;
+  }
+
+
+  /* -------------------------------------------------------
+     FORMULARE
+     ------------------------------------------------------- */
+
+  input,
+  select,
+  textarea {
+    max-width:
+      100%;
+  }
+
+
+  /*
+     Verhindert auf iPhones das automatische
+     starke Hineinzoomen beim Antippen.
+  */
+
+  input,
+  select,
+  textarea {
+    font-size:
+      16px;
+  }
+
 }
 
 
-@media screen and (max-width: 600px) {
-
-  .dienstplan-info > div {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 7px;
-  }
-
-  .dienstplan-bereich {
-    margin-bottom: 14px;
-    border-radius: 12px;
-  }
-
-  .dienstplan-bereich > h2 {
-    font-size: 18px;
-  }
-
-  #dienstplanListe .panel,
-  #abwesenheitenListe .panel {
-    padding: 15px !important;
-    border-radius: 11px !important;
-  }
-}
 
 /* =========================================================
-   DIENSTPLAN – WOCHEN-NAVIGATION + MENÜ-FOKUS
+   KLEINE HANDYS / IPHONES
    ========================================================= */
 
-.nav-item,
-.nav-untermenue button {
-  outline: none;
-}
+@media screen and (max-width: 560px) {
 
-.nav-item:focus,
-.nav-untermenue button:focus {
-  outline: none;
-}
+  .mobile-header {
+    min-height:
+      60px;
 
-.nav-item:focus-visible,
-.nav-untermenue button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.13);
-}
+    padding-top:
+      max(
+        6px,
+        env(safe-area-inset-top)
+      );
 
-.nav-item.aktiv {
-  color: var(--rot);
-  background: #fff3f4;
-  font-weight: 700;
-}
-
-.wochen-navigation {
-  display: grid;
-  grid-template-columns: minmax(170px, 1fr) auto minmax(170px, 1fr);
-  align-items: center;
-  gap: 14px;
-  margin: 0 0 20px;
-  padding: 14px;
-  background: #f8f9fb;
-  border: 1px solid var(--linie);
-  border-radius: 12px;
-}
-
-.wochen-button {
-  min-height: 48px;
-  padding: 0 16px;
-  border: 1px solid #d5d9df;
-  border-radius: 9px;
-  background: #fff;
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 650;
-  cursor: pointer;
-  transition: border-color .15s ease, background .15s ease, color .15s ease;
-}
-
-.wochen-button:hover:not(:disabled) {
-  border-color: var(--rot);
-  color: var(--rot);
-  background: #fff7f8;
-}
-
-.wochen-button:disabled {
-  opacity: .42;
-  cursor: default;
-}
-
-.wochen-mitte {
-  min-width: 120px;
-  text-align: center;
-}
-
-.wochen-label {
-  display: block;
-  margin-bottom: 3px;
-  color: var(--text-hell);
-  font-size: 11px;
-}
-
-#kwAnzeige {
-  color: var(--rot);
-  font-size: 20px;
-}
-
-@media screen and (max-width: 700px) {
-  .wochen-navigation {
-    grid-template-columns: 1fr 1fr;
+    padding-bottom:
+      6px;
   }
 
-  .wochen-mitte {
-    grid-column: 1 / -1;
-    grid-row: 1;
+
+  .mobile-menu {
+    width:
+      46px;
+
+    height:
+      46px;
+
+    font-size:
+      23px;
   }
 
-  .wochen-button {
-    min-height: 46px;
-    padding: 0 10px;
-    font-size: 12px;
+
+  .content {
+    padding-top:
+      6px;
+
+    padding-right:
+      max(
+        10px,
+        env(safe-area-inset-right)
+      );
+
+    padding-left:
+      max(
+        10px,
+        env(safe-area-inset-left)
+      );
+  }
+
+
+  .content-header {
+    margin-top:
+      2px;
+
+    margin-bottom:
+      17px;
+  }
+
+
+  .content-header h1 {
+    font-size:
+      26px;
+  }
+
+
+  .content-header p {
+    font-size:
+      13px;
+  }
+
+
+  .dienstplan-info {
+    margin-bottom:
+      12px;
+  }
+
+
+  .dienstplan-info > div {
+    padding:
+      14px;
+
+    border-left-width:
+      6px;
+  }
+
+
+  .dienstplan-info strong {
+    font-size:
+      14px;
+  }
+
+
+  .dienstplan-info span {
+    font-size:
+      21px;
+  }
+
+
+  .dienstplan-bereich {
+    margin-bottom:
+      12px;
+
+    padding:
+      13px;
+  }
+
+
+  .dienstplan-bereich h2 {
+    font-size:
+      18px;
+
+    margin-bottom:
+      12px;
+  }
+
+
+  #dienstplanListe .panel {
+    padding:
+      12px !important;
+  }
+
+
+  .panel {
+    padding:
+      14px 12px;
+  }
+
+
+  .dienst-mini {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+
+    gap:
+      7px;
+  }
+
+
+  .dienst-option {
+    min-height:
+      105px;
+
+    padding:
+      12px;
+
+    gap:
+      10px;
+  }
+
+
+  .dienst-symbol {
+    width:
+      52px;
+
+    height:
+      52px;
+
+    font-size:
+      29px;
+  }
+
+
+  .radio {
+    width:
+      18px;
+
+    height:
+      18px;
+  }
+
+
+  .datum-navigation {
+    grid-template-columns:
+      42px minmax(0, 1fr) 42px;
+  }
+
+
+  .datum-pfeil {
+    min-height:
+      50px;
+
+    font-size:
+      21px;
+  }
+
+
+  .datum-button {
+    min-height:
+      50px;
+
+    font-size:
+      12px;
+  }
+
+
+  .sidebar {
+    width:
+      86vw;
+
+    max-width:
+      330px;
+  }
+
+
+  .sidebar .brand-westfield {
+    font-size:
+      25px;
+  }
+
+
+  .sidebar .brand-scs {
+    font-size:
+      18px;
+  }
+
+
+  .sidebar-update {
+    font-size:
+      12px;
+  }
+
+}
+
+
+
+/* =========================================================
+   SEHR KLEINE IPHONES
+   ========================================================= */
+
+@media screen and (max-width: 390px) {
+
+  .content {
+    padding-right:
+      max(
+        8px,
+        env(safe-area-inset-right)
+      );
+
+    padding-left:
+      max(
+        8px,
+        env(safe-area-inset-left)
+      );
+  }
+
+
+  .content-header h1 {
+    font-size:
+      24px;
+  }
+
+
+  .dienstplan-bereich {
+    padding:
+      11px;
+  }
+
+
+  #dienstplanListe .panel {
+    padding:
+      11px !important;
+  }
+
+
+  .panel {
+    padding:
+      12px 10px;
+  }
+
+
+  .dienst-option {
+    padding:
+      10px;
+  }
+
+
+  .dienst-symbol {
+    width:
+      48px;
+
+    height:
+      48px;
+
+    font-size:
+      27px;
+  }
+
+}
+
+
+
+/* =========================================================
+   MENÜ-OFFEN:
+   HINTERGRUND NICHT MITSCHIEBEN
+   ========================================================= */
+
+@supports selector(body:has(*)) {
+
+  body:has(.sidebar.mobile-offen) {
+    overflow:
+      hidden;
   }
 }
+
+
+
+/* =========================================================
+   DESKTOP
+   ========================================================= */
+
+@media screen and (min-width: 901px) {
+
+  /*
+     Auch am PC bleibt das Menü hinter ☰.
+     Öffnen = Sidebar fährt über den Inhalt.
+     Dadurch ist der Dienstplan immer breit.
+  */
+
+  .mobile-header {
+    display:
+      flex;
+  }
+
+
+  .content {
+    width:
+      100%;
+
+    max-width:
+      1500px;
+
+    margin:
+      0 auto;
+
+    padding:
+      24px 40px 50px;
+  }
+
+
+  .sidebar {
+    width:
+      310px;
+
+    max-width:
+      310px;
+  }
+
+}
+
