@@ -9,55 +9,887 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Westfield SCS Dienstplan</title>
+  <meta
+    name="theme-color"
+    content="#e30613"
+  >
 
-  <!-- Unsere Design-Datei -->
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-  
+  <title>SCS Team</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
 </head>
+
 
 <body>
 
-  <main class="app">
+<div class="app-shell">
 
-    <header class="app-header">
-      <h1 class="app-title">
-        Westfield SCS
-      </h1>
 
-      <div class="app-subtitle">
-        Rezeption · Dienstplan
+  <!-- ======================================================
+       SIDEBAR
+       ====================================================== -->
+
+  <aside
+    id="sidebar"
+    class="sidebar"
+  >
+
+    <div class="brand">
+
+      <div class="brand-westfield">
+        Westfield
       </div>
-    </header>
 
-    <section class="test-karte">
+      <div class="brand-scs">
+        SCS
+      </div>
 
-      <h2>👋 Willkommen</h2>
+    </div>
 
-      <p>
-        Die neue Dienstplan-App wird vorbereitet.
-      </p>
+
+    <div class="profil">
+
+      <div class="profil-icon">
+        👤
+      </div>
+
+      <div>
+        <div class="profil-name">
+          Babsi
+        </div>
+
+        <div class="profil-rolle">
+          Mitarbeiterin
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="sidebar-trenner"></div>
+
+
+    <nav class="nav">
+
 
       <button
-  type="button"
-  onclick="testeVerbindung()"
->
-  Verbindung testen
-</button>
+        class="nav-item"
+        onclick="zeigeSeite('dienstplan')"
+      >
+
+        <span class="nav-icon">
+          📅
+        </span>
+
+        <span>
+          Mein Dienstplan
+        </span>
+
+      </button>
+
+
+      <button
+        class="nav-item"
+        onclick="zeigeSeite('abwesenheiten')"
+      >
+
+        <span class="nav-icon">
+          🏖
+        </span>
+
+        <span>
+          Meine Abwesenheiten
+        </span>
+
+      </button>
+
+
+      <div class="nav-gruppe aktiv">
+
+        <button
+          class="nav-item nav-hauptpunkt aktiv"
+          onclick="toggleTauschMenue()"
+        >
+
+          <span class="nav-icon">
+            🔄
+          </span>
+
+          <span>
+            Änderung / Tausch
+          </span>
+
+          <span class="nav-pfeil">
+           ⌃
+          </span>
+
+        </button>
+
+
+        <div
+          id="tauschUntermenue"
+          class="nav-untermenue"
+        >
+
+          <button
+            onclick="zeigeSeite('dienstAendern')"
+          >
+            Dienst ändern
+          </button>
+
+          <button
+            class="aktiv"
+            onclick="zeigeSeite('dienstTauschen')"
+          >
+            Dienst tauschen
+          </button>
+
+          <button
+            onclick="zeigeSeite('sonstigerWunsch')"
+          >
+            Sonstiger Wunsch
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="nav-item"
+        onclick="zeigeSeite('anfragen')"
+      >
+
+        <span class="nav-icon">
+          📋
+        </span>
+
+        <span>
+          Meine Anfragen
+        </span>
+
+        <span class="badge">
+          2
+        </span>
+
+      </button>
+
+
+      <button
+        class="nav-item"
+        onclick="zeigeSeite('pin')"
+      >
+
+        <span class="nav-icon">
+          🔐
+        </span>
+
+        <span>
+          PIN & Sicherheit
+        </span>
+
+      </button>
+
+
+      <button
+        class="nav-item logout"
+      >
+
+        <span class="nav-icon">
+          ↪
+        </span>
+
+        <span>
+          Abmelden
+        </span>
+
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-update">
+
+      <div class="sidebar-update-icon">
+        🕒
+      </div>
+
+      <div>
+
+        <div>
+          Aktualisiert am
+        </div>
+
+        <strong>
+          05.01.2027 – 10:30
+        </strong>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+
+  <!-- ======================================================
+       MOBILE HEADER
+       ====================================================== -->
+
+  <header class="mobile-header">
+
+    <button
+      class="mobile-menu"
+      onclick="toggleMobileMenue()"
+    >
+      ☰
+    </button>
+
+    <div>
+
+      <strong>
+        SCS Team
+      </strong>
+
+      <small>
+        Dienstplan
+      </small>
+
+    </div>
+
+  </header>
+
+
+
+  <!-- ======================================================
+       HAUPTBEREICH
+       ====================================================== -->
+
+  <main class="content">
+
+
+    <div class="content-header">
+
+      <div>
+
+        <h1>
+          Dienst tauschen
+        </h1>
+
+        <p>
+          Wähle einen Tag aus und tausche deinen Dienst direkt
+          mit einem Kollegen.
+        </p>
+
+      </div>
+
+
+      <button class="close-button">
+        ×
+      </button>
+
+    </div>
+
+
+
+    <!-- ====================================================
+         SCHRITTE
+         ==================================================== -->
+
+    <div class="schritte">
+
+      <div class="schritt aktiv">
+
+        <div class="schritt-kreis">
+          1
+        </div>
+
+        <span>
+          Tag auswählen
+        </span>
+
+      </div>
+
+
+      <div class="schritt-linie aktiv"></div>
+
+
+      <div class="schritt aktiv">
+
+        <div class="schritt-kreis">
+          2
+        </div>
+
+        <span>
+          Dienst wählen
+        </span>
+
+      </div>
+
+
+      <div class="schritt-linie"></div>
+
+
+      <div class="schritt">
+
+        <div class="schritt-kreis">
+          3
+        </div>
+
+        <span>
+          Kollegen wählen
+        </span>
+
+      </div>
+
+
+      <div class="schritt-linie"></div>
+
+
+      <div class="schritt">
+
+        <div class="schritt-kreis">
+          4
+        </div>
+
+        <span>
+          Anfrage senden
+        </span>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ====================================================
+         SCHRITT 1
+         ==================================================== -->
+
+    <section class="panel">
+
+      <div class="panel-grid">
+
+
+        <div>
+
+          <h2>
+            1. Tag auswählen
+          </h2>
+
+          <p class="beschreibung">
+            Für welchen Tag möchtest du tauschen?
+          </p>
+
+
+          <div class="datum-navigation">
+
+            <button class="pfeil-button">
+              ←
+            </button>
+
+
+            <button class="datum-button">
+
+              <span>
+                📅
+              </span>
+
+              <strong>
+                05.01.2027
+              </strong>
+
+              <span>
+                (Dienstag)
+              </span>
+
+            </button>
+
+
+            <button class="pfeil-button">
+              →
+            </button>
+
+          </div>
+
+
+          <div class="info-box">
+
+            <span>
+              ℹ️
+            </span>
+
+            <div>
+              Es werden nur Tage angezeigt, an denen du
+              einen Früh- oder Spätdienst eingetragen hast.
+            </div>
+
+          </div>
+
+
+          <button class="secondary-button">
+            📅 Anderen Tag wählen
+          </button>
+
+        </div>
+
+
+
+        <div class="eigene-dienste">
+
+          <h3>
+            Deine Dienste an diesem Tag
+          </h3>
+
+
+          <div class="dienst-mini">
+
+            <div class="dienst-links">
+
+              <span class="punkt gruen"></span>
+
+              <span>
+                Garden Plaza – Früh
+              </span>
+
+            </div>
+
+            <strong class="gruen-text">
+              Babsi
+            </strong>
+
+          </div>
+
+
+          <div class="dienst-mini">
+
+            <div class="dienst-links">
+
+              <span class="punkt blau"></span>
+
+              <span>
+                Water Plaza – Spät
+              </span>
+
+            </div>
+
+            <strong class="blau-text">
+              Babsi
+            </strong>
+
+          </div>
+
+        </div>
+
+
+      </div>
 
     </section>
 
+
+
+    <!-- ====================================================
+         SCHRITT 2
+         ==================================================== -->
+
+    <section class="panel">
+
+      <h2>
+        2. Dienst wählen
+      </h2>
+
+      <p class="beschreibung">
+        Wähle den Dienst, den du tauschen möchtest.
+      </p>
+
+
+      <div class="dienst-auswahl">
+
+
+        <button
+          class="dienst-option ausgewaehlt"
+          onclick="waehleDienst(this)"
+        >
+
+          <span class="radio aktiv"></span>
+
+
+          <div class="dienst-symbol sonne">
+            ☀
+          </div>
+
+
+          <div class="dienst-option-text">
+
+            <strong class="gruen-text">
+              Garden Plaza – Früh
+            </strong>
+
+            <span>
+              Dienstzeit: 09:00 – 14:30
+            </span>
+
+            <small class="status-chip gruen-chip">
+              Du bist eingetragen
+            </small>
+
+          </div>
+
+        </button>
+
+
+
+        <button
+          class="dienst-option"
+          onclick="waehleDienst(this)"
+        >
+
+          <span class="radio"></span>
+
+
+          <div class="dienst-symbol mond">
+            ☾
+          </div>
+
+
+          <div class="dienst-option-text">
+
+            <strong class="blau-text">
+              Water Plaza – Spät
+            </strong>
+
+            <span>
+              Dienstzeit: 14:30 – 19:00
+            </span>
+
+            <small class="status-chip blau-chip">
+              Du bist eingetragen
+            </small>
+
+          </div>
+
+        </button>
+
+
+      </div>
+
+
+
+      <div class="panel-unten">
+
+        <div class="hinweis-box">
+
+          <span class="hinweis-icon">
+            💡
+          </span>
+
+          <div>
+
+            <strong>
+              Hinweis
+            </strong>
+
+            <p>
+              Du wählst deinen Dienst aus,
+              anschließend den Kollegen,
+              mit dem du tauschen möchtest.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <button
+          class="weiter-button"
+          onclick="zeigeKollegen()"
+        >
+          Weiter zu Schritt 3
+          <span>→</span>
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ====================================================
+         SCHRITT 3
+         ==================================================== -->
+
+    <section
+      id="kollegenBereich"
+      class="panel versteckt"
+    >
+
+      <h2>
+        3. Kollegen wählen
+      </h2>
+
+      <p class="beschreibung">
+        Mit wem möchtest du deinen Dienst tauschen?
+      </p>
+
+
+      <div class="kollegen-grid">
+
+
+        <div class="kollegen-box frueh">
+
+          <h3>
+            ☀️ Frühdienste
+          </h3>
+
+
+          <label class="kollege">
+
+            <input
+              type="radio"
+              name="kollege"
+            >
+
+            <span>
+              Christina
+            </span>
+
+            <strong>
+              Water Plaza – Früh
+            </strong>
+
+          </label>
+
+
+          <label class="kollege">
+
+            <input
+              type="radio"
+              name="kollege"
+            >
+
+            <span>
+              Paul
+            </span>
+
+            <strong>
+              Garden Plaza – Früh
+            </strong>
+
+          </label>
+
+        </div>
+
+
+
+        <div class="kollegen-box spaet">
+
+          <h3>
+            🌙 Spätdienste
+          </h3>
+
+
+          <label class="kollege">
+
+            <input
+              type="radio"
+              name="kollege"
+            >
+
+            <span>
+              Paul
+            </span>
+
+            <strong>
+              Garden Plaza – Spät
+            </strong>
+
+          </label>
+
+
+          <label class="kollege">
+
+            <input
+              type="radio"
+              name="kollege"
+            >
+
+            <span>
+              Angelina
+            </span>
+
+            <strong>
+              Water Plaza – Spät
+            </strong>
+
+          </label>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
   </main>
-  
+
+</div>
+
+
+
+<script src="app.js"></script>
+
+
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./service-worker.js');
+
+function toggleTauschMenue() {
+
+  document
+    .getElementById(
+      'tauschUntermenue'
+    )
+    .classList.toggle(
+      'offen'
+    );
+}
+
+
+function toggleMobileMenue() {
+
+  document
+    .getElementById(
+      'sidebar'
+    )
+    .classList.toggle(
+      'mobile-offen'
+    );
+}
+
+
+function waehleDienst(button) {
+
+  document
+    .querySelectorAll(
+      '.dienst-option'
+    )
+    .forEach(function(element) {
+
+      element
+        .classList
+        .remove(
+          'ausgewaehlt'
+        );
+
+      const radio =
+        element.querySelector(
+          '.radio'
+        );
+
+      if (radio) {
+        radio.classList.remove(
+          'aktiv'
+        );
+      }
+
     });
+
+
+  button
+    .classList
+    .add(
+      'ausgewaehlt'
+    );
+
+
+  const radio =
+    button.querySelector(
+      '.radio'
+    );
+
+  if (radio) {
+    radio.classList.add(
+      'aktiv'
+    );
   }
+}
+
+
+function zeigeKollegen() {
+
+  document
+    .getElementById(
+      'kollegenBereich'
+    )
+    .classList.remove(
+      'versteckt'
+    );
+
+
+  document
+    .getElementById(
+      'kollegenBereich'
+    )
+    .scrollIntoView({
+      behavior: 'smooth'
+    });
+}
+
+
+function zeigeSeite(seite) {
+
+  console.log(
+    'Seite:',
+    seite
+  );
+
+
+  if (
+    window.innerWidth <= 900
+  ) {
+
+    document
+      .getElementById(
+        'sidebar'
+      )
+      .classList.remove(
+        'mobile-offen'
+      );
+  }
+}
+
 </script>
-  <script src="app.js"></script>
+
+
+<script>
+
+if (
+  'serviceWorker' in navigator
+) {
+
+  window.addEventListener(
+    'load',
+    function() {
+
+      navigator
+        .serviceWorker
+        .register(
+          './service-worker.js'
+        );
+
+    }
+  );
+}
+
+</script>
+
 </body>
 
 </html>
