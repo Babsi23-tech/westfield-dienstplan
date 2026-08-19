@@ -92,9 +92,11 @@ document.addEventListener(
   'DOMContentLoaded',
   async function() {
 
+    installiereAbwesenheitenAnsichtNeu();
     installiereMeineAnfragenNeu();
     installiereAdminBereichNeu();
 
+    await ladeAppInfoNeu();
     await starteApp();
 
     setTimeout(
@@ -534,6 +536,7 @@ function zeigeHauptApp(
   }
 }
 
+
 // ==========================================================
 // DIENSTPLAN LADEN
 // ==========================================================
@@ -576,7 +579,6 @@ async function ladeMeinDienstplanNeu() {
 
 
   if (laden) {
-
     laden.style.display =
       'block';
 
@@ -586,7 +588,6 @@ async function ladeMeinDienstplanNeu() {
 
 
   if (liste) {
-
     liste.innerHTML =
       '';
   }
@@ -633,9 +634,7 @@ async function ladeMeinDienstplanNeu() {
 
 
     aktuellerBenutzer =
-      result.name ||
-      aktuellerBenutzer;
-
+      result.name || aktuellerBenutzer;
 
     aktuellerAdmin =
       result.admin === true;
@@ -648,25 +647,8 @@ async function ladeMeinDienstplanNeu() {
 
 
     if (profilName) {
-
       profilName.textContent =
-        aktuellerBenutzer ||
-        'Mitarbeiter';
-    }
-
-
-    const adminNav =
-      document.getElementById(
-        'adminNav'
-      );
-
-
-    if (adminNav) {
-
-      adminNav.style.display =
-        aktuellerAdmin
-          ? 'flex'
-          : 'none';
+        aktuellerBenutzer || 'Mitarbeiter';
     }
 
 
@@ -677,7 +659,6 @@ async function ladeMeinDienstplanNeu() {
           result.sollstunden || 0
         );
 
-
       sollstundenElement.textContent =
         soll
           .toFixed(1)
@@ -687,29 +668,26 @@ async function ladeMeinDienstplanNeu() {
 
 
     rendereDienstplan(
-      Array.isArray(
-        result.dienstplan
-      )
+      Array.isArray(result.dienstplan)
         ? result.dienstplan
         : []
     );
 
 
     rendereAbwesenheiten(
-      Array.isArray(
-        result.abwesenheiten
-      )
+      Array.isArray(result.abwesenheiten)
         ? result.abwesenheiten
         : []
     );
 
 
-    if (laden) {
+    await ladeAppInfoNeu();
 
+
+    if (laden) {
       laden.style.display =
         'none';
     }
-
 
   } catch (error) {
 
@@ -738,6 +716,9 @@ async function ladeMeinDienstplanNeu() {
 }
 
 
+// ==========================================================
+// DIENSTPLAN RENDERN
+// ==========================================================
 // ==========================================================
 // DIENSTPLAN RENDERN
 // ==========================================================
@@ -981,9 +962,6 @@ function rendereDienstplan(plan) {
 
       // ====================================================
       // WP PAUSENABLÖSE
-      //
-      // Bei GP Spät gehört die WP-Pausenablöse automatisch
-      // zum Spätdienst und bekommt keinen eigenen Tauschbutton.
       // ====================================================
 
       if (
@@ -1290,6 +1268,218 @@ function rendereDienstplan(plan) {
 
 
 // ==========================================================
+// SEITE "MEINE ABWESENHEITEN" ERZEUGEN
+// ==========================================================
+
+function installiereAbwesenheitenAnsichtNeu() {
+
+  const content =
+    document.querySelector(
+      'main.content'
+    );
+
+
+  if (
+    !content ||
+    document.getElementById(
+      'abwesenheitenAnsicht'
+    )
+  ) {
+
+    return;
+  }
+
+
+  const section =
+    document.createElement(
+      'section'
+    );
+
+
+  section.id =
+    'abwesenheitenAnsicht';
+
+
+  section.style.display =
+    'none';
+
+
+  section.innerHTML = `
+
+    <div class="content-header">
+
+      <div>
+
+        <h1>
+          🏖️ Meine Abwesenheiten
+        </h1>
+
+        <p>
+          Hier siehst du deine eingetragenen
+          Urlaube, Krankenstände und sonstigen
+          Abwesenheiten.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="abwesenheitenLadenNeu"
+      style="
+        color:#666;
+        padding:12px 0;
+      "
+    ></div>
+
+
+    <div
+      id="abwesenheitenListeNeu"
+    ></div>
+  `;
+
+
+  content.appendChild(
+    section
+  );
+}
+
+
+// ==========================================================
+// MEINE ABWESENHEITEN LADEN
+// ==========================================================
+
+async function ladeMeineAbwesenheitenNeu() {
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  const laden =
+    document.getElementById(
+      'abwesenheitenLadenNeu'
+    );
+
+
+  const liste =
+    document.getElementById(
+      'abwesenheitenListeNeu'
+    );
+
+
+  if (!token) {
+
+    await logoutAusfuehren();
+
+    return;
+  }
+
+
+  if (laden) {
+
+    laden.style.display =
+      'block';
+
+    laden.style.color =
+      '#666';
+
+    laden.textContent =
+      'Abwesenheiten werden geladen …';
+  }
+
+
+  if (liste) {
+
+    liste.innerHTML =
+      '';
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'meinDienstplan',
+        {
+          token:
+            token
+        }
+      );
+
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+
+      localStorage.removeItem(
+        SESSION_KEY
+      );
+
+      zeigeLogin();
+
+      await ladeMitarbeiter();
+
+      return;
+    }
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result?.message ||
+        'Abwesenheiten konnten nicht geladen werden.'
+      );
+    }
+
+
+    rendereAbwesenheiten(
+      Array.isArray(
+        result.abwesenheiten
+      )
+        ? result.abwesenheiten
+        : []
+    );
+
+
+    if (laden) {
+
+      laden.style.display =
+        'none';
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      'Abwesenheiten:',
+      error
+    );
+
+
+    if (laden) {
+
+      laden.style.display =
+        'block';
+
+      laden.style.color =
+        '#b00020';
+
+      laden.textContent =
+        '❌ ' +
+        error.message;
+    }
+  }
+}
+
+
+// ==========================================================
 // ABWESENHEITEN RENDERN
 // ==========================================================
 
@@ -1297,27 +1487,23 @@ function rendereAbwesenheiten(
   abwesenheiten
 ) {
 
-  const liste =
-    document.getElementById(
-      'abwesenheitenListe'
+  const listen =
+    [
+      document.getElementById(
+        'abwesenheitenListe'
+      ),
+
+      document.getElementById(
+        'abwesenheitenListeNeu'
+      )
+    ].filter(
+      Boolean
     );
 
 
-  if (!liste) {
-    return;
-  }
-
-
   if (
-    !abwesenheiten ||
-    abwesenheiten.length === 0
+    listen.length === 0
   ) {
-
-    liste.innerHTML = `
-      <div class="empty-state">
-        Keine Abwesenheiten vorhanden.
-      </div>
-    `;
 
     return;
   }
@@ -1327,6 +1513,43 @@ function rendereAbwesenheiten(
     '';
 
 
+  if (
+    !abwesenheiten ||
+    abwesenheiten.length === 0
+  ) {
+
+    html = `
+      <div
+        class="panel"
+        style="
+          padding:18px;
+        "
+      >
+        <div
+          style="
+            color:#666;
+          "
+        >
+          ✅ Du hast aktuell keine
+          eingetragenen Abwesenheiten.
+        </div>
+      </div>
+    `;
+
+
+    listen.forEach(
+      function(liste) {
+
+        liste.innerHTML =
+          html;
+      }
+    );
+
+
+    return;
+  }
+
+
   abwesenheiten.forEach(
     function(a) {
 
@@ -1334,22 +1557,33 @@ function rendereAbwesenheiten(
         String(
           a.status ||
           'Abwesenheit'
-        );
+        ).trim();
+
+
+      const statusKlein =
+        status.toLowerCase();
 
 
       let symbol =
         '📌';
 
+
       let farbe =
         '#666666';
 
 
+      let hintergrund =
+        '#ffffff';
+
+
+      // ====================================================
+      // URLAUB
+      // ====================================================
+
       if (
-        status
-          .toLowerCase()
-          .includes(
-            'urlaub'
-          )
+        statusKlein.includes(
+          'urlaub'
+        )
       ) {
 
         symbol =
@@ -1357,15 +1591,20 @@ function rendereAbwesenheiten(
 
         farbe =
           '#14943b';
+
+        hintergrund =
+          '#f8fff9';
       }
 
 
+      // ====================================================
+      // KRANK
+      // ====================================================
+
       if (
-        status
-          .toLowerCase()
-          .includes(
-            'krank'
-          )
+        statusKlein.includes(
+          'krank'
+        )
       ) {
 
         symbol =
@@ -1373,44 +1612,146 @@ function rendereAbwesenheiten(
 
         farbe =
           '#c62828';
+
+        hintergrund =
+          '#fffafa';
+      }
+
+
+      // ====================================================
+      // ZEITAUSGLEICH
+      // ====================================================
+
+      if (
+        statusKlein.includes(
+          'zeitausgleich'
+        )
+      ) {
+
+        symbol =
+          '⏱️';
+
+        farbe =
+          '#1754d1';
+
+        hintergrund =
+          '#f9fbff';
+      }
+
+
+      // ====================================================
+      // FREI
+      // ====================================================
+
+      if (
+        statusKlein === 'frei' ||
+        statusKlein.includes(
+          'freier tag'
+        )
+      ) {
+
+        symbol =
+          '🌿';
+
+        farbe =
+          '#357a38';
+
+        hintergrund =
+          '#f9fff9';
+      }
+
+
+      const von =
+        String(
+          a.von || ''
+        ).trim();
+
+
+      const bis =
+        String(
+          a.bis || ''
+        ).trim();
+
+
+      let zeitraum =
+        von;
+
+
+      if (
+        bis &&
+        bis !== von
+      ) {
+
+        zeitraum =
+          von +
+          ' – ' +
+          bis;
       }
 
 
       html += `
+
         <div
           class="panel"
           style="
             padding:16px;
-            margin-bottom:10px;
+            margin-bottom:11px;
             border-left:6px solid ${farbe};
+            background:${hintergrund};
           "
         >
 
-          <strong>
-            ${symbol}
-            ${escapeHtmlNeu(
-              status
-            )}
-          </strong>
-
           <div
             style="
-              color:#666;
-              margin-top:6px;
+              display:flex;
+              align-items:flex-start;
+              gap:12px;
             "
           >
-            ${escapeHtmlNeu(
-              a.von || ''
-            )}
 
-            ${
-              a.bis
-                ? ' – ' +
-                  escapeHtmlNeu(
-                    a.bis
-                  )
-                : ''
-            }
+            <div
+              style="
+                font-size:25px;
+                line-height:1;
+              "
+            >
+              ${symbol}
+            </div>
+
+
+            <div>
+
+              <strong
+                style="
+                  font-size:16px;
+                "
+              >
+                ${escapeHtmlNeu(
+                  status
+                )}
+              </strong>
+
+
+              ${
+                zeitraum
+                  ? `
+                    <div
+                      style="
+                        color:#666;
+                        margin-top:6px;
+                      "
+                    >
+                      📅
+                      ${escapeHtmlNeu(
+                        zeitraum
+                      )}
+                    </div>
+                  `
+                  : ''
+              }
+
+            </div>
+
           </div>
 
         </div>
@@ -1419,8 +1760,13 @@ function rendereAbwesenheiten(
   );
 
 
-  liste.innerHTML =
-    html;
+  listen.forEach(
+    function(liste) {
+
+      liste.innerHTML =
+        html;
+    }
+  );
 }
 
 
@@ -1567,6 +1913,7 @@ function fuelleTauschAnsicht() {
           </span>
 
         </div>
+
 
         <strong
           class="
@@ -3020,10 +3367,6 @@ function rendereMeineTauschAnfragenNeu(
     '';
 
 
-  // ========================================================
-  // ERHALTENE
-  // ========================================================
-
   html += `
     <div
       class="panel"
@@ -3090,10 +3433,6 @@ function rendereMeineTauschAnfragenNeu(
   html +=
     '</div>';
 
-
-  // ========================================================
-  // GESENDETE
-  // ========================================================
 
   html += `
     <div
@@ -3532,7 +3871,7 @@ function baueTauschAnfrageKarteNeu(
 
 
 // ==========================================================
-// STATUS
+// STATUS EINER TAUSCHANFRAGE
 // ==========================================================
 
 function statusTauschAnfrageNeu(
@@ -3668,7 +4007,7 @@ function statusTauschAnfrageNeu(
 
 
 // ==========================================================
-// ANNEHMEN / ABLEHNEN
+// TAUSCHANFRAGE ANNEHMEN / ABLEHNEN
 // ==========================================================
 
 async function bearbeiteTauschAnfrageNeu(
@@ -3998,6 +4337,63 @@ async function aktualisiereAnfragenBadgeNeu() {
 }
 
 // ==========================================================
+// APP INFO / "AKTUALISIERT AM"
+// ==========================================================
+
+async function ladeAppInfoNeu() {
+
+  const anzeige =
+    document.getElementById(
+      'sidebarAktualisiert'
+    );
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'appInfo'
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result?.message ||
+        'App-Info konnte nicht geladen werden.'
+      );
+    }
+
+
+    if (anzeige) {
+
+      anzeige.textContent =
+        result.aktualisiert ||
+        'Noch keine Aktualisierung';
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      'App-Info:',
+      error
+    );
+
+
+    if (anzeige) {
+
+      anzeige.textContent =
+        '—';
+    }
+  }
+}
+
+
+// ==========================================================
 // ADMIN-BEREICH ERZEUGEN
 // ==========================================================
 
@@ -4083,7 +4479,7 @@ function installiereAdminBereichNeu() {
 
 
   // ========================================================
-  // ADMIN-BADGE
+  // ADMIN BADGE
   // ========================================================
 
   const adminNav =
@@ -4128,7 +4524,7 @@ function installiereAdminBereichNeu() {
 
 
   // ========================================================
-  // BESTEHENDE NAVIGATION ERWEITERN
+  // BESTEHENDE SEITENNAVIGATION ÜBERNEHMEN
   // ========================================================
 
   const bisherigeZeigeSeite =
@@ -4140,6 +4536,12 @@ function installiereAdminBereichNeu() {
 
   window.zeigeSeite =
     function(seite) {
+
+      const abwesenheiten =
+        document.getElementById(
+          'abwesenheitenAnsicht'
+        );
+
 
       const anfragen =
         document.getElementById(
@@ -4154,14 +4556,70 @@ function installiereAdminBereichNeu() {
 
 
       // ====================================================
+      // MEINE ABWESENHEITEN
+      // ====================================================
+
+      if (
+        seite ===
+        'abwesenheiten'
+      ) {
+
+        versteckeStandardAnsichtenNeu();
+
+
+        if (anfragen) {
+
+          anfragen.style.display =
+            'none';
+        }
+
+
+        if (admin) {
+
+          admin.style.display =
+            'none';
+        }
+
+
+        if (abwesenheiten) {
+
+          abwesenheiten.style.display =
+            'block';
+        }
+
+
+        markiereNavigationNeu(
+          'abwesenheiten'
+        );
+
+
+        ladeMeineAbwesenheitenNeu();
+
+
+        schliesseMobileNavigationNeu();
+
+
+        return;
+      }
+
+
+      // ====================================================
       // MEINE ANFRAGEN
       // ====================================================
 
       if (
-        seite === 'anfragen'
+        seite ===
+        'anfragen'
       ) {
 
         versteckeStandardAnsichtenNeu();
+
+
+        if (abwesenheiten) {
+
+          abwesenheiten.style.display =
+            'none';
+        }
 
 
         if (admin) {
@@ -4198,10 +4656,18 @@ function installiereAdminBereichNeu() {
       // ====================================================
 
       if (
-        seite === 'admin'
+        seite ===
+        'admin'
       ) {
 
         versteckeStandardAnsichtenNeu();
+
+
+        if (abwesenheiten) {
+
+          abwesenheiten.style.display =
+            'none';
+        }
 
 
         if (anfragen) {
@@ -4272,8 +4738,15 @@ function installiereAdminBereichNeu() {
 
 
       // ====================================================
-      // DYNAMISCHE SEITEN AUSBLENDEN
+      // DYNAMISCHE ANSICHTEN AUSBLENDEN
       // ====================================================
+
+      if (abwesenheiten) {
+
+        abwesenheiten.style.display =
+          'none';
+      }
+
 
       if (anfragen) {
 
@@ -4289,7 +4762,10 @@ function installiereAdminBereichNeu() {
       }
 
 
-      // Alte Navigation weiterverwenden
+      // ====================================================
+      // ALTE INDEX-NAVIGATION
+      // ====================================================
+
       if (
         bisherigeZeigeSeite
       ) {
@@ -4488,6 +4964,23 @@ async function ladeAdminTauschAnfragenNeu() {
             token
         }
       );
+
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+
+      localStorage.removeItem(
+        SESSION_KEY
+      );
+
+      zeigeLogin();
+
+      await ladeMitarbeiter();
+
+      return;
+    }
 
 
     if (
@@ -5002,6 +5495,23 @@ async function bearbeiteAdminTauschNeu(
 
 
     if (
+      result &&
+      result.sessionExpired
+    ) {
+
+      localStorage.removeItem(
+        SESSION_KEY
+      );
+
+      zeigeLogin();
+
+      await ladeMitarbeiter();
+
+      return;
+    }
+
+
+    if (
       !result ||
       !result.ok
     ) {
@@ -5025,6 +5535,11 @@ async function bearbeiteAdminTauschNeu(
       ),
       true
     );
+
+
+    // Nach genehmigtem Tausch
+    // "Aktualisiert am" neu laden
+    await ladeAppInfoNeu();
 
 
     await ladeAdminTauschAnfragenNeu();
