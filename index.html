@@ -2,6 +2,7 @@
 <html lang="de">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -16,11 +17,12 @@
 
   <title>SCS Team</title>
 
-  <!-- Neue Versionsnummer verhindert alte CSS-Datei aus dem Cache -->
+
   <link
     rel="stylesheet"
-    href="style.css?v=20260819-2"
+    href="style.css?v=20260819-3"
   >
+
 
   <link
     rel="manifest"
@@ -29,103 +31,233 @@
 
 
   <!-- ======================================================
-       ZUSÄTZLICHE LAYOUT-SICHERUNG
-       Damit Handy/iPhone garantiert volle Breite verwenden
+       MOBILE / IPHONE FEINSCHLIFF
        ====================================================== -->
 
   <style>
 
-    /*
-      Wichtig:
-      app.js kann #hauptApp als display:flex öffnen.
-      Deshalb wird hier die Richtung fest auf untereinander
-      gesetzt, damit Menüleiste und Inhalt NICHT nebeneinander
-      stehen.
-    */
+    /* =====================================================
+       APP IMMER UNTEREINANDER
+       ===================================================== */
 
     #hauptApp {
-      flex-direction: column !important;
-      width: 100% !important;
-      min-width: 0 !important;
+      flex-direction:
+        column !important;
+
+      width:
+        100% !important;
+
+      min-width:
+        0 !important;
     }
 
-
-    /*
-      Hauptinhalt darf niemals von einer linken Spalte
-      zusammengedrückt werden.
-    */
 
     #hauptApp .content {
-      width: 100% !important;
-      margin-left: 0 !important;
-      min-width: 0 !important;
+      width:
+        100% !important;
+
+      margin-left:
+        0 !important;
+
+      min-width:
+        0 !important;
     }
 
 
-    /*
-      Im mobilen Kopf befindet sich nur der ☰ Button.
-    */
+    /* =====================================================
+       MOBILER KOPFBALKEN
+       ===================================================== */
 
     .mobile-header {
-      flex: 0 0 auto !important;
-      width: 100% !important;
+      flex:
+        0 0 auto !important;
+
+      width:
+        100% !important;
     }
 
 
     /*
-      Falls ein Browser noch alten Text im Header kennt:
-      alles außer dem Button ausblenden.
+      Alte Header-Inhalte bleiben versteckt.
     */
 
     .mobile-header > div {
-      display: none !important;
+      display:
+        none !important;
     }
 
 
+    /*
+      Unser neuer Seitentitel wird ausdrücklich angezeigt.
+    */
+
+    .mobile-header > .mobile-seitentitel {
+      display:
+        block !important;
+    }
+
+
+    .mobile-seitentitel {
+      flex:
+        1;
+
+      min-width:
+        0;
+
+      margin-right:
+        50px;
+
+      text-align:
+        center;
+
+      font-size:
+        22px;
+
+      font-weight:
+        750;
+
+      line-height:
+        1.15;
+
+      color:
+        #171717;
+
+      white-space:
+        nowrap;
+
+      overflow:
+        hidden;
+
+      text-overflow:
+        ellipsis;
+    }
+
+
+    /* =====================================================
+       DIENSTPLAN SCHICHT-FARBEN
+       ===================================================== */
+
+    #dienstplanListe .scs-schicht-frueh {
+      border-left:
+        6px solid #14943b !important;
+
+      background:
+        #f5fff8 !important;
+    }
+
+
+    #dienstplanListe .scs-schicht-spaet {
+      border-left:
+        6px solid #1754d1 !important;
+
+      background:
+        #f5f8ff !important;
+    }
+
+
+    /* =====================================================
+       HANDY / IPHONE
+       ===================================================== */
+
     @media screen and (max-width: 900px) {
 
-      #hauptApp {
-        flex-direction: column !important;
-        width: 100% !important;
-      }
-
+      /* -----------------------------------------------
+         OBERER BALKEN
+         ----------------------------------------------- */
 
       .mobile-header {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 1200 !important;
+        position:
+          sticky !important;
 
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
+        top:
+          0 !important;
 
-        width: 100% !important;
+        z-index:
+          1200 !important;
 
-        min-height: 64px !important;
+        display:
+          flex !important;
+
+        align-items:
+          center !important;
+
+        width:
+          100% !important;
+
+        min-height:
+          66px !important;
 
         padding-top:
-          max(8px, env(safe-area-inset-top)) !important;
+          max(
+            8px,
+            env(safe-area-inset-top)
+          ) !important;
 
         padding-right:
-          max(12px, env(safe-area-inset-right)) !important;
+          max(
+            12px,
+            env(safe-area-inset-right)
+          ) !important;
 
         padding-bottom:
           8px !important;
 
         padding-left:
-          max(12px, env(safe-area-inset-left)) !important;
+          max(
+            12px,
+            env(safe-area-inset-left)
+          ) !important;
 
         background:
-          #f7f8fa !important;
+          rgba(
+            247,
+            248,
+            250,
+            0.97
+          ) !important;
 
         border-bottom:
-          0 !important;
+          1px solid #eceef1 !important;
+
+        backdrop-filter:
+          blur(10px);
+
+        -webkit-backdrop-filter:
+          blur(10px);
       }
 
 
       .mobile-menu {
         flex:
           0 0 auto !important;
+
+        width:
+          48px !important;
+
+        height:
+          48px !important;
+
+        border-radius:
+          11px !important;
+      }
+
+
+      .mobile-seitentitel {
+        font-size:
+          21px;
+      }
+
+
+      /* -----------------------------------------------
+         HAUPTINHALT
+         ----------------------------------------------- */
+
+      #hauptApp {
+        flex-direction:
+          column !important;
+
+        width:
+          100% !important;
       }
 
 
@@ -146,34 +278,95 @@
           0 !important;
 
         padding-top:
-          8px !important;
+          12px !important;
 
         padding-right:
-          max(12px, env(safe-area-inset-right)) !important;
+          max(
+            12px,
+            env(safe-area-inset-right)
+          ) !important;
 
         padding-bottom:
-          max(35px, env(safe-area-inset-bottom)) !important;
+          max(
+            35px,
+            env(safe-area-inset-bottom)
+          ) !important;
 
         padding-left:
-          max(12px, env(safe-area-inset-left)) !important;
+          max(
+            12px,
+            env(safe-area-inset-left)
+          ) !important;
       }
 
 
-      #dienstplanAnsicht {
+      /* -----------------------------------------------
+         GROSSEN H1-TITEL AUSBLENDEN
+
+         Der Titel steht jetzt oben im Balken.
+         Der Beschreibungstext bleibt sichtbar.
+         ----------------------------------------------- */
+
+      .content-header h1 {
+        display:
+          none !important;
+      }
+
+
+      .content-header {
+        width:
+          100% !important;
+
+        margin:
+          0 0 18px !important;
+
+        text-align:
+          left !important;
+      }
+
+
+      .content-header p {
+        margin:
+          0 !important;
+
+        font-size:
+          14px !important;
+
+        line-height:
+          1.45 !important;
+
+        color:
+          #555555 !important;
+      }
+
+
+      /* -----------------------------------------------
+         WOCHENSTUNDEN
+         ----------------------------------------------- */
+
+      .dienstplan-info {
         width:
           100% !important;
 
         max-width:
           none !important;
 
-        min-width:
-          0 !important;
+        margin:
+          0 0 14px !important;
       }
 
 
-      #dienstplanAnsicht .content-header,
-      #dienstplanAnsicht .dienstplan-info,
-      #dienstplanAnsicht .dienstplan-bereich {
+      .dienstplan-info > div {
+        padding:
+          15px 16px !important;
+      }
+
+
+      /* -----------------------------------------------
+         MEINE DIENSTE
+         ----------------------------------------------- */
+
+      .dienstplan-bereich {
         width:
           100% !important;
 
@@ -187,11 +380,253 @@
           0 !important;
       }
 
+
+      .dienstplan-bereich h2 {
+        margin-bottom:
+          16px !important;
+      }
+
+
+      /* -----------------------------------------------
+         WOCHEN-NAVIGATION
+         ‹    Woche    ›
+                KW 1
+         ----------------------------------------------- */
+
+      .wochen-navigation {
+        display:
+          grid !important;
+
+        grid-template-columns:
+          54px minmax(0, 1fr) 54px !important;
+
+        align-items:
+          center !important;
+
+        gap:
+          10px !important;
+
+        width:
+          100% !important;
+
+        padding:
+          15px 12px !important;
+
+        margin:
+          0 0 18px !important;
+
+        border:
+          1px solid #e1e4e8 !important;
+
+        border-radius:
+          13px !important;
+
+        background:
+          #fafafa !important;
+      }
+
+
+      .wochen-mitte {
+        display:
+          flex !important;
+
+        flex-direction:
+          column !important;
+
+        align-items:
+          center !important;
+
+        justify-content:
+          center !important;
+
+        min-width:
+          0 !important;
+
+        text-align:
+          center !important;
+      }
+
+
+      .wochen-label {
+        display:
+          block !important;
+
+        margin-bottom:
+          4px !important;
+
+        color:
+          #666666 !important;
+
+        font-size:
+          13px !important;
+
+        line-height:
+          1.2 !important;
+      }
+
+
+      #kwAnzeige {
+        display:
+          block !important;
+
+        color:
+          #e30613 !important;
+
+        font-size:
+          24px !important;
+
+        font-weight:
+          800 !important;
+
+        line-height:
+          1.2 !important;
+      }
+
+
+      .wochen-button {
+        width:
+          54px !important;
+
+        height:
+          54px !important;
+
+        min-width:
+          54px !important;
+
+        min-height:
+          54px !important;
+
+        padding:
+          0 !important;
+
+        display:
+          flex !important;
+
+        align-items:
+          center !important;
+
+        justify-content:
+          center !important;
+
+        border:
+          1px solid #d5d8dc !important;
+
+        border-radius:
+          12px !important;
+
+        background:
+          #ffffff !important;
+
+        color:
+          #e30613 !important;
+
+        font-size:
+          34px !important;
+
+        font-weight:
+          400 !important;
+
+        line-height:
+          1 !important;
+      }
+
+
+      .wochen-button:active {
+        transform:
+          scale(0.95);
+      }
+
+
+      /* -----------------------------------------------
+         DIENSTKARTEN ETWAS KOMPAKTER
+         ----------------------------------------------- */
+
+      #dienstplanListe {
+        width:
+          100% !important;
+      }
+
+
+      #dienstplanListe button {
+        min-height:
+          42px !important;
+
+        padding:
+          8px 12px !important;
+
+        margin-top:
+          10px !important;
+
+        font-size:
+          14px !important;
+      }
+
+
+      #dienstplanListe .scs-schicht-frueh,
+      #dienstplanListe .scs-schicht-spaet {
+        border-radius:
+          11px !important;
+      }
+
+    }
+
+
+    /* =====================================================
+       KLEINE HANDYS
+       ===================================================== */
+
+    @media screen and (max-width: 480px) {
+
+      .mobile-seitentitel {
+        margin-right:
+          46px;
+
+        font-size:
+          20px;
+      }
+
+
+      .wochen-navigation {
+        grid-template-columns:
+          48px minmax(0, 1fr) 48px !important;
+
+        gap:
+          8px !important;
+
+        padding:
+          13px 10px !important;
+      }
+
+
+      .wochen-button {
+        width:
+          48px !important;
+
+        height:
+          48px !important;
+
+        min-width:
+          48px !important;
+
+        min-height:
+          48px !important;
+
+        font-size:
+          31px !important;
+      }
+
+
+      #kwAnzeige {
+        font-size:
+          22px !important;
+      }
+
     }
 
   </style>
 
 </head>
+
 
 
 <body>
@@ -301,7 +736,6 @@
 </section>
 
 
-
 <!-- ======================================================
      HAUPT-APP
      ====================================================== -->
@@ -322,8 +756,6 @@
     class="sidebar"
   >
 
-
-    <!-- PROFIL -->
 
     <div class="profil">
 
@@ -353,12 +785,8 @@
 
 
 
-    <!-- NAVIGATION -->
-
     <nav class="nav">
 
-
-      <!-- HAUPTSEITE -->
 
       <div
         style="
@@ -389,8 +817,6 @@
       </button>
 
 
-
-      <!-- MEIN BEREICH -->
 
       <div
         style="
@@ -462,8 +888,6 @@
 
 
 
-      <!-- ÄNDERUNG / TAUSCH -->
-
       <div
         style="
           padding:20px 10px 5px;
@@ -530,8 +954,6 @@
 
 
 
-      <!-- ADMIN -->
-
       <div
         style="
           padding:20px 10px 5px;
@@ -563,9 +985,6 @@
       </button>
 
 
-
-      <!-- ABMELDEN -->
-
       <button
         class="nav-item logout"
         onclick="logoutAusfuehren()"
@@ -584,8 +1003,6 @@
     </nav>
 
 
-
-    <!-- AKTUALISIERT -->
 
     <div class="sidebar-update">
 
@@ -610,10 +1027,8 @@
   </aside>
 
 
-
   <!-- ====================================================
        OBERER BALKEN
-       NUR ☰ – KEIN "SCS TEAM"
        ==================================================== -->
 
   <header class="mobile-header">
@@ -627,8 +1042,15 @@
       ☰
     </button>
 
-  </header>
 
+    <div
+      id="mobileSeitentitel"
+      class="mobile-seitentitel"
+    >
+      Mein Dienstplan
+    </div>
+
+  </header>
 
 
   <!-- ====================================================
@@ -697,9 +1119,10 @@
             id="kwZurueck"
             class="wochen-button"
             type="button"
+            aria-label="Vorherige Woche"
             onclick="wechselWoche(-1)"
           >
-            ← Vorherige Woche
+            ‹
           </button>
 
 
@@ -720,9 +1143,10 @@
             id="kwWeiter"
             class="wochen-button"
             type="button"
+            aria-label="Nächste Woche"
             onclick="wechselWoche(1)"
           >
-            Nächste Woche →
+            ›
           </button>
 
         </div>
@@ -781,7 +1205,6 @@
         </button>
 
       </div>
-
 
 
       <!-- ==================================================
@@ -853,7 +1276,6 @@
       </div>
 
 
-
       <!-- ==================================================
            SCHRITT 1
            TAG AUSWÄHLEN
@@ -898,8 +1320,7 @@
                   —
                 </strong>
 
-                <span>
-                </span>
+                <span></span>
 
               </button>
 
@@ -958,7 +1379,6 @@
       </section>
 
 
-
       <!-- ==================================================
            SCHRITT 2
            DIENST WÄHLEN
@@ -1009,7 +1429,6 @@
       </section>
 
 
-
       <!-- ==================================================
            SCHRITT 3
            KOLLEGEN WÄHLEN
@@ -1053,13 +1472,64 @@
 
   <!-- ======================================================
      APP.JS
-     Neue Versionsnummer gegen alten Browser-Cache
      ====================================================== -->
 
-<script src="app.js?v=20260819-2"></script>
+<script src="app.js?v=20260819-3"></script>
 
 
 <script>
+
+/* =========================================================
+   MOBILER SEITENTITEL
+   ========================================================= */
+
+function aktualisiereMobileSeitentitelNeu(seite) {
+
+  const titel =
+    document.getElementById(
+      'mobileSeitentitel'
+    );
+
+  if (!titel) {
+    return;
+  }
+
+
+  const titelNachSeite = {
+
+    dienstplan:
+      'Mein Dienstplan',
+
+    abwesenheiten:
+      'Meine Abwesenheiten',
+
+    anfragen:
+      'Meine Anfragen',
+
+    pin:
+      'PIN & Sicherheit',
+
+    admin:
+      'Admin-Bereich',
+
+    dienstAendern:
+      'Dienst ändern',
+
+    dienstTauschen:
+      'Dienst tauschen',
+
+    sonstigerWunsch:
+      'Sonstiger Wunsch'
+
+  };
+
+
+  titel.textContent =
+    titelNachSeite[seite] ||
+    'SCS Team';
+
+}
+
 
 /* =========================================================
    ÄNDERUNG / TAUSCH UNTERMENÜ
@@ -1076,14 +1546,16 @@ function toggleTauschMenue() {
     return;
   }
 
+
   menue.classList.toggle(
     'offen'
   );
+
 }
 
 
 /* =========================================================
-   ☰ SEITENMENÜ
+   ☰ MENÜ
    ========================================================= */
 
 function toggleMobileMenue() {
@@ -1097,6 +1569,7 @@ function toggleMobileMenue() {
     document.querySelector(
       '.mobile-menu'
     );
+
 
   if (!sidebar) {
     return;
@@ -1121,6 +1594,7 @@ function toggleMobileMenue() {
         ? '×'
         : '☰';
 
+
     button.setAttribute(
       'aria-label',
       istOffen
@@ -1134,7 +1608,7 @@ function toggleMobileMenue() {
 
 
 /* =========================================================
-   MENÜ SCHLIESSEN
+   ☰ MENÜ SCHLIESSEN
    ========================================================= */
 
 function schliesseMobileMenue() {
@@ -1163,6 +1637,7 @@ function schliesseMobileMenue() {
 
     button.textContent =
       '☰';
+
 
     button.setAttribute(
       'aria-label',
@@ -1256,16 +1731,19 @@ function zeigeKollegen() {
   }
 
 
-  bereich
-    .classList
-    .remove(
-      'versteckt'
-    );
+  bereich.classList.remove(
+    'versteckt'
+  );
 
 
   bereich.scrollIntoView({
-    behavior: 'smooth',
-    block: 'start'
+
+    behavior:
+      'smooth',
+
+    block:
+      'start'
+
   });
 
 }
@@ -1273,16 +1751,27 @@ function zeigeKollegen() {
 
 /* =========================================================
    BASIS-SEITENNAVIGATION
-   app.js erweitert diese Funktion später um
-   Abwesenheiten, Anfragen, PIN und Admin.
+
+   app.js erweitert diese Funktion für:
+   - Abwesenheiten
+   - Anfragen
+   - PIN
+   - Admin
+   usw.
    ========================================================= */
 
 function zeigeSeite(seite) {
+
+  aktualisiereMobileSeitentitelNeu(
+    seite
+  );
+
 
   const dienstplanAnsicht =
     document.getElementById(
       'dienstplanAnsicht'
     );
+
 
   const tauschAnsicht =
     document.getElementById(
@@ -1336,7 +1825,8 @@ function zeigeSeite(seite) {
      ------------------------------------------------------- */
 
   if (
-    seite === 'dienstplan'
+    seite ===
+    'dienstplan'
   ) {
 
     if (dienstplanAnsicht) {
@@ -1355,19 +1845,17 @@ function zeigeSeite(seite) {
     }
 
 
-    const dienstplanButton =
+    const button =
       document.querySelector(
         `[onclick="zeigeSeite('dienstplan')"]`
       );
 
 
-    if (dienstplanButton) {
+    if (button) {
 
-      dienstplanButton
-        .classList
-        .add(
-          'aktiv'
-        );
+      button.classList.add(
+        'aktiv'
+      );
 
     }
 
@@ -1389,7 +1877,8 @@ function zeigeSeite(seite) {
      ------------------------------------------------------- */
 
   else if (
-    seite === 'dienstTauschen'
+    seite ===
+    'dienstTauschen'
   ) {
 
     if (dienstplanAnsicht) {
@@ -1408,30 +1897,26 @@ function zeigeSeite(seite) {
     }
 
 
-    const tauschHauptButton =
+    const hauptButton =
       document.querySelector(
         '.nav-hauptpunkt'
       );
 
 
-    if (tauschHauptButton) {
+    if (hauptButton) {
 
-      tauschHauptButton
-        .classList
-        .add(
-          'aktiv'
-        );
+      hauptButton.classList.add(
+        'aktiv'
+      );
 
     }
 
 
     if (tauschGruppe) {
 
-      tauschGruppe
-        .classList
-        .add(
-          'aktiv'
-        );
+      tauschGruppe.classList.add(
+        'aktiv'
+      );
 
     }
 
@@ -1444,22 +1929,14 @@ function zeigeSeite(seite) {
 
     if (tauschButton) {
 
-      tauschButton
-        .classList
-        .add(
-          'aktiv'
-        );
+      tauschButton.classList.add(
+        'aktiv'
+      );
 
     }
 
   }
 
-
-  /*
-    Ganz wichtig:
-    Nach Auswahl eines Menüpunktes
-    Sidebar immer wieder schließen.
-  */
 
   schliesseMobileMenue();
 
@@ -1467,7 +1944,363 @@ function zeigeSeite(seite) {
 
 
 /* =========================================================
-   AUCH DYNAMISCHE MENÜPUNKTE AUTOMATISCH SCHLIESSEN
+   KW UNTER DEM DATUM ENTFERNEN
+   ========================================================= */
+
+function entferneDoppelteKwNeu() {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  const elemente =
+    liste.querySelectorAll(
+      '*'
+    );
+
+
+  elemente.forEach(
+    function(element) {
+
+      /*
+        Nur einzelne kleine Elemente prüfen.
+        Dadurch wird niemals eine komplette
+        Tageskarte ausgeblendet.
+      */
+
+      if (
+        element.children.length !== 0
+      ) {
+
+        return;
+
+      }
+
+
+      const text =
+        String(
+          element.textContent || ''
+        )
+          .replace(
+            /\s+/g,
+            ' '
+          )
+          .trim();
+
+
+      if (
+        /^KW\s*\d{1,2}$/i.test(
+          text
+        )
+      ) {
+
+        element.style.display =
+          'none';
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   EINZELNE DIENSTKARTE FINDEN
+   ========================================================= */
+
+function findeDienstKarteNeu(
+  titelElement
+) {
+
+  if (!titelElement) {
+    return null;
+  }
+
+
+  let element =
+    titelElement;
+
+
+  /*
+    Nach oben gehen, bis wir die kleinste Karte
+    mit genau einem "Dienst tauschen"-Button finden.
+  */
+
+  for (
+    let i = 0;
+    i < 7 && element;
+    i++
+  ) {
+
+    if (
+      element.querySelectorAll
+    ) {
+
+      const buttons =
+        element.querySelectorAll(
+          'button'
+        );
+
+
+      if (
+        buttons.length === 1
+      ) {
+
+        const buttonText =
+          String(
+            buttons[0].textContent || ''
+          ).toLowerCase();
+
+
+        if (
+          buttonText.includes(
+            'tausch'
+          )
+        ) {
+
+          return element;
+
+        }
+
+      }
+
+    }
+
+
+    element =
+      element.parentElement;
+
+  }
+
+
+  /*
+    Fallback, falls app.js die Karte
+    etwas anders aufgebaut hat.
+  */
+
+  return titelElement.parentElement;
+
+}
+
+
+/* =========================================================
+   FRÜH / SPÄT OPTISCH UNTERSCHEIDEN
+   ========================================================= */
+
+function optimiereDienstFarbenNeu() {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  const elemente =
+    liste.querySelectorAll(
+      '*'
+    );
+
+
+  elemente.forEach(
+    function(element) {
+
+      if (
+        element.children.length !== 0
+      ) {
+
+        return;
+
+      }
+
+
+      const original =
+        String(
+          element.textContent || ''
+        )
+          .replace(
+            /\s+/g,
+            ' '
+          )
+          .trim();
+
+
+      /*
+        Nur echte Diensttitel bearbeiten.
+      */
+
+      const treffer =
+        original.match(
+          /^(?:🟢|🔵|☀️?|🌙)?\s*(Garden Plaza|Water Plaza)\s*[–-]\s*(Früh|Spät)$/i
+        );
+
+
+      if (!treffer) {
+        return;
+      }
+
+
+      const plaza =
+        treffer[1];
+
+
+      const schicht =
+        treffer[2].toLowerCase();
+
+
+      const karte =
+        findeDienstKarteNeu(
+          element
+        );
+
+
+      if (
+        schicht ===
+        'früh'
+      ) {
+
+        element.textContent =
+          '☀️ ' +
+          plaza +
+          ' – Früh';
+
+
+        if (karte) {
+
+          karte.classList.remove(
+            'scs-schicht-spaet'
+          );
+
+
+          karte.classList.add(
+            'scs-schicht-frueh'
+          );
+
+        }
+
+      }
+
+
+      else if (
+        schicht ===
+        'spät'
+      ) {
+
+        element.textContent =
+          '🌙 ' +
+          plaza +
+          ' – Spät';
+
+
+        if (karte) {
+
+          karte.classList.remove(
+            'scs-schicht-frueh'
+          );
+
+
+          karte.classList.add(
+            'scs-schicht-spaet'
+          );
+
+        }
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   DIENSTPLAN NACH DEM LADEN OPTIMIEREN
+   ========================================================= */
+
+function optimiereDienstplanDarstellungNeu() {
+
+  entferneDoppelteKwNeu();
+
+  optimiereDienstFarbenNeu();
+
+}
+
+
+/* =========================================================
+   DIENSTPLAN BEOBACHTEN
+
+   app.js lädt den Dienstplan später dynamisch.
+   Sobald neue Karten eingefügt werden,
+   werden KW und Farben automatisch angepasst.
+   ========================================================= */
+
+function installiereDienstplanOptimierungNeu() {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  optimiereDienstplanDarstellungNeu();
+
+
+  const observer =
+    new MutationObserver(
+      function() {
+
+        /*
+          Kurz warten, bis app.js den kompletten
+          Tag fertig aufgebaut hat.
+        */
+
+        window.requestAnimationFrame(
+          function() {
+
+            optimiereDienstplanDarstellungNeu();
+
+          }
+        );
+
+      }
+    );
+
+
+  observer.observe(
+    liste,
+    {
+
+      childList:
+        true,
+
+      subtree:
+        true
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   MENÜPUNKTE
    ========================================================= */
 
 document.addEventListener(
@@ -1486,8 +2319,8 @@ document.addEventListener(
 
 
     /*
-      Änderung / Tausch Hauptbutton soll nur
-      das Untermenü bedienen.
+      Beim Hauptpunkt Änderung/Tausch
+      nur Untermenü öffnen.
     */
 
     if (
@@ -1507,7 +2340,7 @@ document.addEventListener(
         schliesseMobileMenue();
 
       },
-      50
+      40
     );
 
   }
@@ -1515,7 +2348,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   AUSSERHALB DES MENÜS TIPPEN = MENÜ SCHLIESSEN
+   AUSSERHALB ANTIPPEN
    ========================================================= */
 
 document.addEventListener(
@@ -1526,6 +2359,7 @@ document.addEventListener(
       document.getElementById(
         'sidebar'
       );
+
 
     const menuButton =
       document.querySelector(
@@ -1575,7 +2409,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   ESC-TASTE = MENÜ SCHLIESSEN
+   ESC
    ========================================================= */
 
 document.addEventListener(
@@ -1583,7 +2417,8 @@ document.addEventListener(
   function(event) {
 
     if (
-      event.key === 'Escape'
+      event.key ===
+      'Escape'
     ) {
 
       schliesseMobileMenue();
@@ -1602,16 +2437,17 @@ document.addEventListener(
   'keydown',
   function(event) {
 
-    const loginAnsicht =
+    const login =
       document.getElementById(
         'loginAnsicht'
       );
 
 
     if (
-      event.key === 'Enter' &&
-      loginAnsicht &&
-      loginAnsicht.style.display !==
+      event.key ===
+        'Enter' &&
+      login &&
+      login.style.display !==
         'none'
     ) {
 
@@ -1631,7 +2467,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   HANDY-LAYOUT ZUSÄTZLICH ABSICHERN
+   LAYOUT ABSICHERN
    ========================================================= */
 
 function sichereHandyLayout() {
@@ -1653,6 +2489,7 @@ function sichereHandyLayout() {
     hauptApp.style.flexDirection =
       'column';
 
+
     hauptApp.style.width =
       '100%';
 
@@ -1664,12 +2501,34 @@ function sichereHandyLayout() {
     content.style.width =
       '100%';
 
+
     content.style.marginLeft =
       '0';
 
   }
 
 }
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  function() {
+
+    sichereHandyLayout();
+
+    aktualisiereMobileSeitentitelNeu(
+      'dienstplan'
+    );
+
+
+    installiereDienstplanOptimierungNeu();
+
+  }
+);
 
 
 window.addEventListener(
@@ -1681,16 +2540,6 @@ window.addEventListener(
 window.addEventListener(
   'orientationchange',
   sichereHandyLayout
-);
-
-
-document.addEventListener(
-  'DOMContentLoaded',
-  function() {
-
-    sichereHandyLayout();
-
-  }
 );
 
 </script>
@@ -1713,25 +2562,29 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js?v=20260819-2',
+          './service-worker.js?v=20260819-3',
           {
-            updateViaCache: 'none'
+            updateViaCache:
+              'none'
           }
         )
-        .then(function(registration) {
+        .then(
+          function(registration) {
 
-          registration.update();
+            registration.update();
 
-        })
-        .catch(function() {
+          }
+        )
+        .catch(
+          function() {
 
-          /*
-            Die Web-App funktioniert auch,
-            falls der Service Worker nicht
-            verfügbar ist.
-          */
+            /*
+              App funktioniert auch ohne
+              Service Worker weiter.
+            */
 
-        });
+          }
+        );
 
     }
   );
