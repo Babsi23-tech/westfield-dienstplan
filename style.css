@@ -1,3 +1,158 @@
+Unbenannte Tabelle(1).xlsx
+Arbeitsblatt
+ich schicke mal die datei rein
+
+Ja — ich habe deine Datei erweitert und den Aufbau direkt darin fertig gemacht.
+
+Enthalten sind jetzt:
+
+Dashboard mit GP/WP, Datum, Wochentag und Kalenderwoche
+automatische Zeiten für Mo–Mi bis 19:00, Do–Fr bis 20:00, Samstag 09:00–18:00 / 11:30–16:00
+Dienstplan 2027 für das ganze Jahr
+eigenes Blatt Mitarbeitende
+eigenes Blatt Abwesenheiten mit Urlaub/Krank, Von/Bis und Dauer
+Wochenplan, bei dem du Jahr und Kalenderwoche auswählen kannst
+Dropdowns für die Mitarbeiter
+Dashboard-Verknüpfungen zum Dienstplan
+
+Die Datei ist für den Import in Google Sheets vorbereitet. Bei den Bereichen Urlaub/Krank verwendet sie Funktionen, die Google Sheets nach dem Import neu berechnet.
+
+Westfield-SCS-Dienstplan für Google Sheets herunterladen
+
+Wenn du sie in Google Sheets öffnest, würde ich als Erstes im Blatt „Mitarbeitende“ prüfen, ob Lisa und Kevin tatsächlich die zwei fehlenden Namen sind; falls nicht, kannst du sie dort einfach überschreiben.
+
+Westfield_SCS_Dienstplan_Google_Sheets_Vorlage.xlsx
+Arbeitsblatt
+das  brauch ich das ich da immer abwechselnt es eintrage
+wieso sehe ich da nur ab den 4.1 und nicht den 1.1
+Dienstplan 2027.xlsx
+Arbeitsblatt
+Mittwoch 8:19
+Mittwoch 11:32
+was mach ich jetzt mit dieser tabelle
+wieso wird das dann so eingeschrieben
+dass ist komisch
+So sieht das am Handy aus
+hab sie jetzt mit der rezeption email geöffnet nur dann kommt das, er versucht sich mit den google konto anzumelden
+Weil so sieht es aus auf meinen handy
+code.js eingefügt
+Datei
+code(1).js eingefügt
+Datei
+code (2).html eingefügt
+Datei
+kann es nicht makieren was du mir geschickt hast
+Bearbeiten
+Bearbeiten
+code(2).html eingefügt
+Datei
+aber wieso wird die test modus jetzt angezeigt
+ist es möglich das hier ganz nach unten nach den dienstplan 
+Bearbeiten
+Bearbeiten
+Bearbeiten
+Bearbeiten
+wie kann ich das selber ändern wenn ich die farben nicht so haben möchte
+wie kann ich das noch ändern
+Eingefügter Text.txt
+Dokument
+Eingefügter Text(1).txt
+Dokument
+jetzt steht das wenn ich genehmigen will den tausch
+kann man den text mit der seite wegmachen (eingebettete Seite unter xxxxxxxx)
+Bearbeiten
+Bearbeiten
+Bearbeiten
+
+Ja, genau so würde ich es machen. 👍
+
+Die Tauschfunktion selbst läuft jetzt, deshalb können wir uns an die Oberfläche machen. Die Ansicht aus dem Beispiel passt sehr gut zu deiner App: Datum auswählen, eigenen Dienst sehen, Früh/Spät klar getrennt, Kollegen auswählen und danach die Anfrage absenden.
+
+Für deine App würde ich es allerdings fürs Handy kompakter gestalten als auf dem Bild, damit es weiterhin zu deinem jetzigen Dienstplan passt.
+
+Und die Browser-Meldungen wie „Eine eingebettete Seite unter … enthält“ würde ich ebenfalls ersetzen. Die entstehen durch normales alert(). Stattdessen können wir eigene Meldungsfenster im App-Design verwenden, z. B. ✅ Tausch genehmigt, ⚠️ Dienstplan wurde geändert, ❌ Anfrage konnte nicht gesendet werden – ohne diese lange googleusercontent.com-Zeile.
+
+Das wären für mich die nächsten beiden Designverbesserungen: neue Tauschansicht + eigene App-Meldungen.
+
+wollte auf aktualisieren aber es reagiert nicht
+können wir das so aufbauen 
+Eingefügter Text(2).txt
+Dokument
+Eingefügter Text(3).txt
+Dokument
+der ist sehr lang
+Eingefügter Text(4).txt
+Dokument
+Eingefügter Text(5).txt
+Dokument
+das es aber nicht automatisch bei mein dienstplan geht und es rot anzeigt
+Eingefügter Text(6).txt
+Dokument
+
+Ja 👍 jetzt sieht es deutlich besser aus. Die Wochenstunden-Karte und die Bereiche „Meine Dienste“ / „Meine Abwesenheiten“ passen jetzt viel besser zum restlichen Design.
+
+Auf dem Screenshot sehe ich aber noch zwei Dinge:
+
+1. Falsche aktive Menü-Markierung:
+Du bist auf „Mein Dienstplan“, aber links ist „Meine Abwesenheiten“ schwarz umrandet. Das sollten wir korrigieren, sodass ausschließlich der aktuell geöffnete Menüpunkt markiert wird.
+
+2. „Aktualisiert am“ zeigt noch —:
+Das können wir automatisch auf z. B. „05.05.2025 · 10:30“ setzen, sobald der Dienstplan erfolgreich geladen wurde.
+
+Danach würde ich direkt die Wochen-Navigation ← Vorherige Woche | KW 1 | Nächste Woche → ergänzen und anschließend den „Dienst tauschen“-Button an den einzelnen Diensten.
+
+Und wie vereinbart: Ich gebe dir dafür wieder die komplette Datei, nicht zehn einzelne Änderungen.
+
+ok
+
+👍 Dann machen wir als Nächstes genau diese drei Punkte zusammen:
+
+Menü-Markierung korrigieren → „Aktualisiert am“ automatisch setzen → Wochen-Navigation einbauen.
+
+Danach kommt der direkte „Dienst tauschen“-Button bei jedem Dienst.
+
+Und wir bleiben dabei: Du bekommst die komplette fertige Datei zum Ersetzen, nicht wieder einzelne Stellen.
+
+ok
+
+👍 Alles klar. Dann gehen wir als Nächstes an die komplette aktualisierte Version mit korrekter Menü-Markierung, automatischer Aktualisierungszeit und Wochen-Navigation.
+
+perfekt
+
+👍 Perfekt. Dann steht der nächste Ausbau fest: korrekte aktive Menü-Markierung, echte „Aktualisiert am“-Zeit und eine Wochen-Navigation für den Dienstplan. Danach verbinden wir die einzelnen Dienste direkt mit „Dienst tauschen“.
+
+ok machen  wir das
+
+Perfekt 👍 Ich habe dir jetzt die drei kompletten Dateien fertig gemacht – genau mit den drei Änderungen, die wir wollten:
+
+aktive Menü-Markierung sauber korrigiert
+„Aktualisiert am“ wird automatisch gesetzt
+Wochen-Navigation mit Vorherige Woche / KW / Nächste Woche
+
+Komplette index.html
+
+Komplette style.css
+
+Komplette app.js
+
+Bitte jeweils in GitHub:
+
+Strg + A → alles löschen → komplette neue Datei einfügen → Commit changes
+
+Danach wieder warten, bis Actions grün 🟢 ist, und die Seite mit Strg + F5 neu laden.
+
+Dann solltest du im Dienstplan oben eine richtige Wochensteuerung sehen und links nicht mehr diese falsche schwarze Umrandung bei „Meine Abwesenheiten“. 
+
+index_wochen_navigation.html
+HTML
+style_wochen_navigation.css
+Code
+app_wochen_navigation.js
+Code
+
+Bibliothek
+/
+style_wochen_navigation.css
 /* =========================================================
    APP-FARBEN
    ========================================================= */
@@ -1988,5 +2143,100 @@ input {
   #abwesenheitenListe .panel {
     padding: 15px !important;
     border-radius: 11px !important;
+  }
+}
+
+/* =========================================================
+   DIENSTPLAN – WOCHEN-NAVIGATION + MENÜ-FOKUS
+   ========================================================= */
+
+.nav-item,
+.nav-untermenue button {
+  outline: none;
+}
+
+.nav-item:focus,
+.nav-untermenue button:focus {
+  outline: none;
+}
+
+.nav-item:focus-visible,
+.nav-untermenue button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.13);
+}
+
+.nav-item.aktiv {
+  color: var(--rot);
+  background: #fff3f4;
+  font-weight: 700;
+}
+
+.wochen-navigation {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) auto minmax(170px, 1fr);
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 20px;
+  padding: 14px;
+  background: #f8f9fb;
+  border: 1px solid var(--linie);
+  border-radius: 12px;
+}
+
+.wochen-button {
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid #d5d9df;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+
+.wochen-button:hover:not(:disabled) {
+  border-color: var(--rot);
+  color: var(--rot);
+  background: #fff7f8;
+}
+
+.wochen-button:disabled {
+  opacity: .42;
+  cursor: default;
+}
+
+.wochen-mitte {
+  min-width: 120px;
+  text-align: center;
+}
+
+.wochen-label {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text-hell);
+  font-size: 11px;
+}
+
+#kwAnzeige {
+  color: var(--rot);
+  font-size: 20px;
+}
+
+@media screen and (max-width: 700px) {
+  .wochen-navigation {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .wochen-mitte {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .wochen-button {
+    min-height: 46px;
+    padding: 0 10px;
+    font-size: 12px;
   }
 }
