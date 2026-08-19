@@ -1,3 +1,144 @@
+Unbenannte Tabelle(1).xlsx
+Arbeitsblatt
+ich schicke mal die datei rein
+
+Ja — ich habe deine Datei erweitert und den Aufbau direkt darin fertig gemacht.
+
+Enthalten sind jetzt:
+
+Dashboard mit GP/WP, Datum, Wochentag und Kalenderwoche
+automatische Zeiten für Mo–Mi bis 19:00, Do–Fr bis 20:00, Samstag 09:00–18:00 / 11:30–16:00
+Dienstplan 2027 für das ganze Jahr
+eigenes Blatt Mitarbeitende
+eigenes Blatt Abwesenheiten mit Urlaub/Krank, Von/Bis und Dauer
+Wochenplan, bei dem du Jahr und Kalenderwoche auswählen kannst
+Dropdowns für die Mitarbeiter
+Dashboard-Verknüpfungen zum Dienstplan
+
+Die Datei ist für den Import in Google Sheets vorbereitet. Bei den Bereichen Urlaub/Krank verwendet sie Funktionen, die Google Sheets nach dem Import neu berechnet.
+
+Westfield-SCS-Dienstplan für Google Sheets herunterladen
+
+Wenn du sie in Google Sheets öffnest, würde ich als Erstes im Blatt „Mitarbeitende“ prüfen, ob Lisa und Kevin tatsächlich die zwei fehlenden Namen sind; falls nicht, kannst du sie dort einfach überschreiben.
+
+Westfield_SCS_Dienstplan_Google_Sheets_Vorlage.xlsx
+Arbeitsblatt
+das  brauch ich das ich da immer abwechselnt es eintrage
+wieso sehe ich da nur ab den 4.1 und nicht den 1.1
+Dienstplan 2027.xlsx
+Arbeitsblatt
+Mittwoch 8:19
+Mittwoch 11:32
+was mach ich jetzt mit dieser tabelle
+wieso wird das dann so eingeschrieben
+dass ist komisch
+So sieht das am Handy aus
+hab sie jetzt mit der rezeption email geöffnet nur dann kommt das, er versucht sich mit den google konto anzumelden
+Weil so sieht es aus auf meinen handy
+code.js eingefügt
+Datei
+code(1).js eingefügt
+Datei
+code (2).html eingefügt
+Datei
+kann es nicht makieren was du mir geschickt hast
+Bearbeiten
+Bearbeiten
+code(2).html eingefügt
+Datei
+aber wieso wird die test modus jetzt angezeigt
+ist es möglich das hier ganz nach unten nach den dienstplan 
+Bearbeiten
+Bearbeiten
+Bearbeiten
+Bearbeiten
+wie kann ich das selber ändern wenn ich die farben nicht so haben möchte
+wie kann ich das noch ändern
+Eingefügter Text.txt
+Dokument
+Eingefügter Text(1).txt
+Dokument
+jetzt steht das wenn ich genehmigen will den tausch
+kann man den text mit der seite wegmachen (eingebettete Seite unter xxxxxxxx)
+Bearbeiten
+Bearbeiten
+Bearbeiten
+
+Ja, genau so würde ich es machen. 👍
+
+Die Tauschfunktion selbst läuft jetzt, deshalb können wir uns an die Oberfläche machen. Die Ansicht aus dem Beispiel passt sehr gut zu deiner App: Datum auswählen, eigenen Dienst sehen, Früh/Spät klar getrennt, Kollegen auswählen und danach die Anfrage absenden.
+
+Für deine App würde ich es allerdings fürs Handy kompakter gestalten als auf dem Bild, damit es weiterhin zu deinem jetzigen Dienstplan passt.
+
+Und die Browser-Meldungen wie „Eine eingebettete Seite unter … enthält“ würde ich ebenfalls ersetzen. Die entstehen durch normales alert(). Stattdessen können wir eigene Meldungsfenster im App-Design verwenden, z. B. ✅ Tausch genehmigt, ⚠️ Dienstplan wurde geändert, ❌ Anfrage konnte nicht gesendet werden – ohne diese lange googleusercontent.com-Zeile.
+
+Das wären für mich die nächsten beiden Designverbesserungen: neue Tauschansicht + eigene App-Meldungen.
+
+wollte auf aktualisieren aber es reagiert nicht
+können wir das so aufbauen 
+Eingefügter Text(2).txt
+Dokument
+Eingefügter Text(3).txt
+Dokument
+der ist sehr lang
+Eingefügter Text(4).txt
+Dokument
+Eingefügter Text(5).txt
+Dokument
+
+Ja. Ich habe jetzt deine aktuelle komplette index.html vor mir.
+
+Und ich sehe auch den Fehler: Du hast <section id="tauschAnsicht"> zwar richtig geöffnet, aber vor </main> noch nicht geschlossen.
+
+Da du ausdrücklich keine einzelnen Schnipsel mehr möchtest, machen wir es ab jetzt sauber:
+
+Ich gebe dir die komplette fertige index.html zum 1:1 Ersetzen. Sie enthält dann bereits:
+
+Login
+Sidebar
+Mein Dienstplan
+Meine Abwesenheiten
+Dienst ändern
+Dienst tauschen
+Sonstiger Wunsch
+Meine Anfragen
+PIN & Sicherheit
+Admin-Bereich
+korrektes Umschalten der Seiten
+Mobile-Menü
+deine vorhandene Optik
+Vorbereitung für die echten Daten aus Google Sheets
+
+Ich werde dabei deine vorhandenen IDs beibehalten, damit unsere app.js danach dazu passt.
+
+Du musst dann wirklich nur noch: alte index.html komplett markieren → löschen → meinen gesamten Code einfügen → Commit.
+
+Als nächsten Schritt machen wir genau diese komplette Datei.
+
+ok
+
+Fertig 👍 Ab jetzt machen wir es immer mit kompletten Dateien, damit du nichts mehr zusammensuchen musst.
+
+Ich habe deine aktuelle index.html genommen und den fehlenden Abschluss von tauschAnsicht sowie die bisher leere zeigeSeite()-Funktion korrigiert. Deine Navigation für „Mein Dienstplan“ und „Dienst tauschen“ bleibt dabei erhalten.
+
+Jetzt nur Folgendes machen:
+GitHub → index.html
+Strg + A
+Alles löschen
+Die komplette neue Datei verwenden:
+
+Komplette neue index.html herunterladen
+
+Inhalt in GitHub einfügen
+Commit changes
+Warten, bis Actions 🟢 ist.
+
+Danach sagst du mir einfach „fertig“. Dann machen wir genauso die komplette app.js für den echten Dienstplan – wieder ohne einzelne Codeschnipsel. 
+
+index.html
+HTML
+
+index.html
 <!DOCTYPE html>
 <html lang="de">
 
@@ -371,11 +512,11 @@
   id="dienstplanAnsicht"
   style="display: none;"
 >
+  
+    <div class="content-header">
 
-  <div class="content-header">
-
-    <div>
-      <h1>Mein Dienstplan</h1>
+      <div>
+        <h1>Mein Dienstplan</h1>
 
       <p>
         Hier siehst du deine persönlichen Dienste.
@@ -414,13 +555,15 @@
 
     <div id="abwesenheitenListe">
       Keine Abwesenheiten vorhanden.
+      </div>
+
     </div>
 
-  </div>
-
-</section>
+  </section>
     
-    <div class="content-header">
+<section id="tauschAnsicht">
+   
+  <div class="content-header">
 
       <div>
 
@@ -882,6 +1025,7 @@
 
     </section>
 
+  </section><!-- /tauschAnsicht -->
 
   </main>
 
@@ -989,26 +1133,56 @@ function zeigeKollegen() {
 
 function zeigeSeite(seite) {
 
-  console.log(
-    'Seite:',
-    seite
-  );
+  const dienstplanAnsicht =
+    document.getElementById('dienstplanAnsicht');
+
+  const tauschAnsicht =
+    document.getElementById('tauschAnsicht');
 
 
-  if (
-    window.innerWidth <= 900
-  ) {
+  if (seite === 'dienstplan') {
 
-    document
-      .getElementById(
-        'sidebar'
-      )
-      .classList.remove(
-        'mobile-offen'
-      );
+    if (dienstplanAnsicht) {
+      dienstplanAnsicht.style.display = 'block';
+    }
+
+    if (tauschAnsicht) {
+      tauschAnsicht.style.display = 'none';
+    }
+
+    if (typeof ladeMeinDienstplanNeu === 'function') {
+      ladeMeinDienstplanNeu();
+    }
+
+  } else if (seite === 'dienstTauschen') {
+
+    if (dienstplanAnsicht) {
+      dienstplanAnsicht.style.display = 'none';
+    }
+
+    if (tauschAnsicht) {
+      tauschAnsicht.style.display = 'block';
+    }
+
+  } else {
+
+    console.log(
+      'Ansicht noch nicht verbunden:',
+      seite
+    );
+  }
+
+
+  if (window.innerWidth <= 900) {
+
+    const sidebar =
+      document.getElementById('sidebar');
+
+    if (sidebar) {
+      sidebar.classList.remove('mobile-offen');
+    }
   }
 }
-
 
 
 document.addEventListener('keydown', function(event) {
