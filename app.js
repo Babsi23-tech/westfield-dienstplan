@@ -532,3 +532,4202 @@ function zeigeHauptApp(
         : 'none';
   }
 }
+// ==========================================================
+// DIENSTPLAN LADEN
+// ==========================================================
+
+async function ladeMeinDienstplanNeu() {
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  if (!token) {
+
+    await logoutAusfuehren();
+
+    return;
+  }
+
+
+  const laden =
+    document.getElementById(
+      'dienstplanLaden'
+    );
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+  const abwesenheitenListe =
+    document.getElementById(
+      'abwesenheitenListe'
+    );
+
+  const sollstundenElement =
+    document.getElementById(
+      'dienstplanSollstunden'
+    );
+
+
+  if (laden) {
+
+    laden.style.display =
+      'block';
+
+    laden.textContent =
+      'Dienstplan wird geladen …';
+  }
+
+
+  if (liste) {
+
+    liste.innerHTML =
+      '';
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'meinDienstplan',
+        {
+          token: token
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      if (
+        result &&
+        result.sessionExpired
+      ) {
+
+        localStorage.removeItem(
+          SESSION_KEY
+        );
+
+        zeigeLogin();
+
+        await ladeMitarbeiter();
+
+        return;
+      }
+
+
+      throw new Error(
+        result?.message ||
+        'Dienstplan konnte nicht geladen werden.'
+      );
+    }
+
+
+    aktuellerBenutzer =
+      result.name ||
+      aktuellerBenutzer;
+
+
+    aktuellerAdmin =
+      result.admin === true;
+
+
+    const profilName =
+      document.getElementById(
+        'profilNameAnzeige'
+      );
+
+
+    if (profilName) {
+
+      profilName.textContent =
+        aktuellerBenutzer ||
+        'Mitarbeiter';
+    }
+
+
+    if (sollstundenElement) {
+
+      const soll =
+        Number(
+          result.sollstunden || 0
+        );
+
+
+      sollstundenElement.textContent =
+        soll
+          .toFixed(1)
+          .replace('.', ',') +
+        ' Std.';
+    }
+
+
+    rendereDienstplan(
+      Array.isArray(
+        result.dienstplan
+      )
+        ? result.dienstplan
+        : []
+    );
+
+
+    rendereAbwesenheiten(
+      Array.isArray(
+        result.abwesenheiten
+      )
+        ? result.abwesenheiten
+        : []
+    );
+
+
+    if (laden) {
+
+      laden.style.display =
+        'none';
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+
+    if (laden) {
+
+      laden.style.display =
+        'block';
+
+      laden.textContent =
+        'Fehler beim Laden: ' +
+        error.message;
+    }
+
+
+    if (abwesenheitenListe) {
+
+      abwesenheitenListe.innerHTML =
+        '<div class="empty-state">Abwesenheiten konnten nicht geladen werden.</div>';
+    }
+  }
+}
+
+
+// ==========================================================
+// DIENSTPLAN RENDERN
+// ==========================================================
+
+function rendereDienstplan(plan) {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  const relevanteTage =
+    (plan || []).filter(
+      function(z) {
+
+        return (
+          z.gpFrueh ||
+          z.gpSpaet ||
+          z.gpAbloese ||
+          z.wpFrueh ||
+          z.wpSpaet ||
+          z.wpAbloese
+        );
+      }
+    );
+
+
+  if (
+    relevanteTage.length === 0
+  ) {
+
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine Dienste vorhanden.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  let html =
+    '';
+
+
+  relevanteTage.forEach(
+    function(z) {
+
+      const dienste =
+        [];
+
+
+      // ====================================================
+      // GARDEN PLAZA FRÜH
+      // ====================================================
+
+      if (z.gpFrueh) {
+
+        dienste.push({
+
+          typ:
+            'gp',
+
+          symbol:
+            '🌞',
+
+          name:
+            'Garden Plaza – Früh',
+
+          code:
+            'GP_FRUEH',
+
+          zeit:
+            zeitFruehNeu(
+              z.tag
+            ),
+
+          tauschbar:
+            true
+        });
+      }
+
+
+      // ====================================================
+      // GARDEN PLAZA SPÄT
+      // ====================================================
+
+      if (z.gpSpaet) {
+
+        dienste.push({
+
+          typ:
+            'gp',
+
+          symbol:
+            '🌙',
+
+          name:
+            'Garden Plaza – Spät',
+
+          code:
+            'GP_SPAET',
+
+          zeit:
+            zeitSpaetNeu(
+              z.tag
+            ),
+
+          tauschbar:
+            true
+        });
+      }
+
+
+      // ====================================================
+      // WATER PLAZA
+      // FRÜH + SPÄT = GANZTAG
+      // ====================================================
+
+      if (
+        z.wpFrueh &&
+        z.wpSpaet
+      ) {
+
+        dienste.push({
+
+          typ:
+            'wp',
+
+          symbol:
+            '🔵',
+
+          name:
+            'Water Plaza – Ganztag',
+
+          code:
+            'WP_GANZTAG',
+
+          zeit:
+            '09:00 – ' +
+            zeitSpaetEndeNeu(
+              z.tag
+            ),
+
+          tauschbar:
+            true
+        });
+
+      } else {
+
+
+        if (z.wpFrueh) {
+
+          dienste.push({
+
+            typ:
+              'wp',
+
+            symbol:
+              '🌞',
+
+            name:
+              'Water Plaza – Früh',
+
+            code:
+              'WP_FRUEH',
+
+            zeit:
+              zeitFruehNeu(
+                z.tag
+              ),
+
+            tauschbar:
+              true
+          });
+        }
+
+
+        if (z.wpSpaet) {
+
+          dienste.push({
+
+            typ:
+              'wp',
+
+            symbol:
+              '🌙',
+
+            name:
+              'Water Plaza – Spät',
+
+            code:
+              'WP_SPAET',
+
+            zeit:
+              zeitSpaetNeu(
+                z.tag
+              ),
+
+            tauschbar:
+              true
+          });
+        }
+      }
+
+
+      // ====================================================
+      // GP PAUSENABLÖSE
+      // KEIN EIGENER TAUSCHBUTTON
+      // ====================================================
+
+      if (z.gpAbloese) {
+
+        dienste.push({
+
+          typ:
+            'abloese',
+
+          symbol:
+            '🕒',
+
+          name:
+            'Garden Plaza – Pausenablöse',
+
+          code:
+            '',
+
+          zeit:
+            z.gpAbloesezeit || '',
+
+          tauschbar:
+            false
+        });
+      }
+
+
+      // ====================================================
+      // WP PAUSENABLÖSE
+      //
+      // Wenn Mitarbeiter GP Spät hat,
+      // gehört diese automatisch dazu.
+      // ====================================================
+
+      if (
+        z.wpAbloese &&
+        !z.gpSpaet
+      ) {
+
+        dienste.push({
+
+          typ:
+            'abloese',
+
+          symbol:
+            '🕒',
+
+          name:
+            'Water Plaza – Pausenablöse',
+
+          code:
+            '',
+
+          zeit:
+            z.wpAbloesezeit || '',
+
+          tauschbar:
+            false
+        });
+      }
+
+
+      // ====================================================
+      // TAGSKARTE
+      // ====================================================
+
+      html += `
+        <div
+          class="panel"
+          style="
+            padding:18px;
+            margin-bottom:12px;
+          "
+        >
+
+          <div
+            style="
+              margin-bottom:10px;
+            "
+          >
+
+            <strong
+              style="
+                font-size:17px;
+              "
+            >
+              ${escapeHtmlNeu(
+                z.tag || ''
+              )},
+              ${escapeHtmlNeu(
+                z.datum || ''
+              )}
+            </strong>
+
+            <div
+              style="
+                color:#666;
+                font-size:13px;
+                margin-top:4px;
+              "
+            >
+              KW ${escapeHtmlNeu(
+                z.kw || ''
+              )}
+            </div>
+
+          </div>
+      `;
+
+
+      // ====================================================
+      // DIENSTE
+      // ====================================================
+
+      dienste.forEach(
+        function(dienst) {
+
+          let randfarbe =
+            '#999999';
+
+          let hintergrund =
+            '#ffffff';
+
+
+          if (
+            dienst.typ === 'gp'
+          ) {
+
+            randfarbe =
+              '#14943b';
+
+            hintergrund =
+              '#f9fffa';
+          }
+
+
+          if (
+            dienst.typ === 'wp'
+          ) {
+
+            randfarbe =
+              '#1754d1';
+
+            hintergrund =
+              '#f9fbff';
+          }
+
+
+          if (
+            dienst.typ === 'abloese'
+          ) {
+
+            randfarbe =
+              '#f0a14a';
+
+            hintergrund =
+              '#fffdf8';
+          }
+
+
+          html += `
+            <div
+              style="
+                background:${hintergrund};
+                border:1px solid #e1e4e8;
+                border-left:6px solid ${randfarbe};
+                border-radius:10px;
+                padding:13px 14px;
+                margin-top:9px;
+              "
+            >
+
+              <div
+                style="
+                  display:flex;
+                  justify-content:space-between;
+                  align-items:flex-start;
+                  gap:15px;
+                  flex-wrap:wrap;
+                "
+              >
+
+                <div>
+
+                  <div
+                    style="
+                      font-weight:700;
+                    "
+                  >
+                    ${dienst.symbol}
+                    ${escapeHtmlNeu(
+                      dienst.name
+                    )}
+                  </div>
+
+
+                  ${
+                    dienst.zeit
+                      ? `
+                        <div
+                          style="
+                            color:#666;
+                            margin-top:5px;
+                          "
+                        >
+                          🕒
+                          ${escapeHtmlNeu(
+                            dienst.zeit
+                          )}
+                        </div>
+                      `
+                      : ''
+                  }
+
+
+                  ${
+                    dienst.code ===
+                      'GP_SPAET' &&
+                    z.wpAbloese
+                      ? `
+                        <div
+                          style="
+                            color:#8a5a00;
+                            margin-top:7px;
+                            font-size:13px;
+                          "
+                        >
+                          ☕ WP-Pausenablöse:
+                          ${escapeHtmlNeu(
+                            z.wpAbloesezeit ||
+                            '30 Minuten'
+                          )}
+                        </div>
+                      `
+                      : ''
+                  }
+
+                </div>
+
+
+                ${
+                  dienst.tauschbar
+                    ? `
+                      <button
+                        type="button"
+
+                        onclick='starteDirektenTausch(
+                          ${JSON.stringify(
+                            String(
+                              z.datum || ''
+                            )
+                          )},
+                          ${JSON.stringify(
+                            String(
+                              z.tag || ''
+                            )
+                          )},
+                          ${JSON.stringify(
+                            String(
+                              z.kw || ''
+                            )
+                          )},
+                          ${JSON.stringify(
+                            String(
+                              dienst.code || ''
+                            )
+                          )},
+                          ${JSON.stringify(
+                            String(
+                              dienst.name || ''
+                            )
+                          )},
+                          ${JSON.stringify(
+                            String(
+                              dienst.zeit || ''
+                            )
+                          )}
+                        )'
+
+                        style="
+                          border:1px solid #e30613;
+                          background:#ffffff;
+                          color:#e30613;
+                          border-radius:8px;
+                          padding:8px 12px;
+                          font-weight:700;
+                          cursor:pointer;
+                        "
+                      >
+                        🔄 Dienst tauschen
+                      </button>
+                    `
+                    : ''
+                }
+
+              </div>
+
+            </div>
+          `;
+        }
+      );
+
+
+      // ====================================================
+      // NOTIZ
+      // ====================================================
+
+      if (z.notiz) {
+
+        html += `
+          <div
+            style="
+              margin-top:10px;
+              color:#666;
+              font-size:14px;
+            "
+          >
+            📝
+            ${escapeHtmlNeu(
+              z.notiz
+            )}
+          </div>
+        `;
+      }
+
+
+      html +=
+        '</div>';
+    }
+  );
+
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// ABWESENHEITEN RENDERN
+// ==========================================================
+
+function rendereAbwesenheiten(
+  abwesenheiten
+) {
+
+  const liste =
+    document.getElementById(
+      'abwesenheitenListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  if (
+    !abwesenheiten ||
+    abwesenheiten.length === 0
+  ) {
+
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine Abwesenheiten vorhanden.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  let html =
+    '';
+
+
+  abwesenheiten.forEach(
+    function(a) {
+
+      const status =
+        String(
+          a.status ||
+          'Abwesenheit'
+        );
+
+
+      let symbol =
+        '📌';
+
+      let farbe =
+        '#666666';
+
+
+      if (
+        status
+          .toLowerCase()
+          .includes(
+            'urlaub'
+          )
+      ) {
+
+        symbol =
+          '🏖️';
+
+        farbe =
+          '#14943b';
+      }
+
+
+      if (
+        status
+          .toLowerCase()
+          .includes(
+            'krank'
+          )
+      ) {
+
+        symbol =
+          '🤒';
+
+        farbe =
+          '#c62828';
+      }
+
+
+      html += `
+        <div
+          class="panel"
+          style="
+            padding:16px;
+            margin-bottom:10px;
+            border-left:6px solid ${farbe};
+          "
+        >
+
+          <strong>
+            ${symbol}
+            ${escapeHtmlNeu(
+              status
+            )}
+          </strong>
+
+          <div
+            style="
+              color:#666;
+              margin-top:6px;
+            "
+          >
+            ${escapeHtmlNeu(
+              a.von || ''
+            )}
+
+            ${
+              a.bis
+                ? ' – ' +
+                  escapeHtmlNeu(
+                    a.bis
+                  )
+                : ''
+            }
+          </div>
+
+        </div>
+      `;
+    }
+  );
+
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// DIREKTEN TAUSCH STARTEN
+// ==========================================================
+
+function starteDirektenTausch(
+  datum,
+  tag,
+  kw,
+  dienstCode,
+  dienstText,
+  zeit
+) {
+
+  tauschDatum =
+    String(
+      datum || ''
+    );
+
+  tauschTag =
+    String(
+      tag || ''
+    );
+
+  tauschKw =
+    String(
+      kw || ''
+    );
+
+  tauschDienstCode =
+    String(
+      dienstCode || ''
+    );
+
+  tauschDienstText =
+    String(
+      dienstText || ''
+    );
+
+  tauschZeit =
+    String(
+      zeit || ''
+    );
+
+
+  zeigeSeite(
+    'dienstTauschen'
+  );
+
+
+  setTimeout(
+    function() {
+
+      fuelleTauschAnsicht();
+
+    },
+    50
+  );
+}
+
+
+// ==========================================================
+// TAUSCHANSICHT FÜLLEN
+// ==========================================================
+
+function fuelleTauschAnsicht() {
+
+  const ansicht =
+    document.getElementById(
+      'tauschAnsicht'
+    );
+
+
+  if (!ansicht) {
+    return;
+  }
+
+
+  // ========================================================
+  // DATUM
+  // ========================================================
+
+  const datumButton =
+    ansicht.querySelector(
+      '.datum-button'
+    );
+
+
+  if (datumButton) {
+
+    datumButton.innerHTML = `
+      <span>
+        📅
+      </span>
+
+      <strong>
+        ${escapeHtmlNeu(
+          tauschDatum
+        )}
+      </strong>
+
+      <span>
+        (${escapeHtmlNeu(
+          tauschTag
+        )})
+      </span>
+    `;
+  }
+
+
+  // ========================================================
+  // EIGENER DIENST
+  // ========================================================
+
+  const eigeneDienste =
+    ansicht.querySelector(
+      '.eigene-dienste'
+    );
+
+
+  if (eigeneDienste) {
+
+    eigeneDienste.innerHTML = `
+      <h3>
+        Dein ausgewählter Dienst
+      </h3>
+
+      <div
+        class="dienst-mini"
+      >
+
+        <div
+          class="dienst-links"
+        >
+
+          <span
+            class="
+              punkt
+              ${
+                tauschDienstCode
+                  .startsWith('GP')
+                  ? 'gruen'
+                  : 'blau'
+              }
+            "
+          ></span>
+
+          <span>
+            ${escapeHtmlNeu(
+              tauschDienstText
+            )}
+          </span>
+
+        </div>
+
+        <strong
+          class="
+            ${
+              tauschDienstCode
+                .startsWith('GP')
+                ? 'gruen-text'
+                : 'blau-text'
+            }
+          "
+        >
+          ${escapeHtmlNeu(
+            aktuellerBenutzer
+          )}
+        </strong>
+
+      </div>
+
+
+      ${
+        tauschDienstCode ===
+        'GP_SPAET'
+          ? `
+            <div
+              style="
+                margin-top:10px;
+                font-size:13px;
+                color:#666;
+              "
+            >
+              ℹ️ Die zugehörige
+              WP-Pausenablöse gehört
+              zum GP-Spätdienst und
+              wird beim genehmigten
+              Tausch automatisch
+              mitgeführt.
+            </div>
+          `
+          : ''
+      }
+    `;
+  }
+
+
+  // ========================================================
+  // AUSGEWÄHLTER DIENST
+  // ========================================================
+
+  const dienstAuswahl =
+    ansicht.querySelector(
+      '.dienst-auswahl'
+    );
+
+
+  if (dienstAuswahl) {
+
+    const istGp =
+      tauschDienstCode
+        .startsWith(
+          'GP'
+        );
+
+
+    let symbol =
+      '🔵';
+
+
+    if (
+      tauschDienstCode
+        .includes(
+          'FRUEH'
+        )
+    ) {
+
+      symbol =
+        '☀';
+    }
+
+
+    if (
+      tauschDienstCode
+        .includes(
+          'SPAET'
+        )
+    ) {
+
+      symbol =
+        '☾';
+    }
+
+
+    dienstAuswahl.innerHTML = `
+      <button
+        class="
+          dienst-option
+          ausgewaehlt
+        "
+        type="button"
+      >
+
+        <span
+          class="
+            radio
+            aktiv
+          "
+        ></span>
+
+        <div
+          class="dienst-symbol"
+        >
+          ${symbol}
+        </div>
+
+        <div
+          class="dienst-option-text"
+        >
+
+          <strong
+            class="
+              ${
+                istGp
+                  ? 'gruen-text'
+                  : 'blau-text'
+              }
+            "
+          >
+            ${escapeHtmlNeu(
+              tauschDienstText
+            )}
+          </strong>
+
+          <span>
+            Dienstzeit:
+            ${escapeHtmlNeu(
+              tauschZeit
+            )}
+          </span>
+
+          <small
+            class="
+              status-chip
+              ${
+                istGp
+                  ? 'gruen-chip'
+                  : 'blau-chip'
+              }
+            "
+          >
+            Du bist eingetragen
+          </small>
+
+        </div>
+
+      </button>
+    `;
+  }
+
+
+  // ========================================================
+  // WEITER ZU SCHRITT 3
+  // ========================================================
+
+  const buttons =
+    ansicht.querySelectorAll(
+      'button'
+    );
+
+
+  buttons.forEach(
+    function(button) {
+
+      const text =
+        String(
+          button.textContent || ''
+        )
+          .toLowerCase();
+
+
+      if (
+        text.includes(
+          'weiter zu schritt 3'
+        )
+      ) {
+
+        button.onclick =
+          ladeEchteTauschpartner;
+      }
+    }
+  );
+
+
+  // ========================================================
+  // KOLLEGENBEREICH ZUERST AUSBLENDEN
+  // ========================================================
+
+  const kollegenBereich =
+    document.getElementById(
+      'kollegenBereich'
+    );
+
+
+  if (kollegenBereich) {
+
+    kollegenBereich
+      .classList
+      .add(
+        'versteckt'
+      );
+
+    kollegenBereich.innerHTML =
+      '';
+  }
+}
+
+// ==========================================================
+// ECHTE TAUSCHPARTNER LADEN
+// ==========================================================
+
+async function ladeEchteTauschpartner() {
+
+  const bereich =
+    document.getElementById(
+      'kollegenBereich'
+    );
+
+
+  if (!bereich) {
+    return;
+  }
+
+
+  bereich.classList.remove(
+    'versteckt'
+  );
+
+
+  bereich.innerHTML = `
+    <h2>3. Kollegen wählen</h2>
+
+    <p class="beschreibung">
+      Echte Dienste für
+      ${escapeHtmlNeu(tauschDatum)}
+      werden geladen …
+    </p>
+  `;
+
+
+  bereich.scrollIntoView({
+    behavior: 'smooth'
+  });
+
+
+  try {
+
+    const token =
+      localStorage.getItem(
+        SESSION_KEY
+      );
+
+
+    if (!token) {
+
+      throw new Error(
+        'Keine gültige Anmeldung vorhanden.'
+      );
+    }
+
+
+    const result =
+      await apiPost(
+        'tauschMoeglichkeiten',
+        {
+          token: token,
+          datum: tauschDatum
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      if (
+        result &&
+        result.sessionExpired
+      ) {
+
+        localStorage.removeItem(
+          SESSION_KEY
+        );
+
+        zeigeLogin();
+
+        await ladeMitarbeiter();
+
+        return;
+      }
+
+
+      throw new Error(
+        result?.message ||
+        'Tauschpartner konnten nicht geladen werden.'
+      );
+    }
+
+
+    let kandidaten =
+      Array.isArray(
+        result.kandidaten
+      )
+        ? result.kandidaten.slice()
+        : [];
+
+
+    kandidaten =
+      kandidaten.filter(
+        function(k) {
+
+          return (
+            String(
+              k.mitarbeiter || ''
+            ).trim()
+            !==
+            String(
+              aktuellerBenutzer || ''
+            ).trim()
+          );
+        }
+      );
+
+
+    kandidaten =
+      kombiniereWpGanztagKandidaten(
+        kandidaten
+      );
+
+
+    if (
+      kandidaten.length === 0
+    ) {
+
+      bereich.innerHTML = `
+        <h2>3. Kollegen wählen</h2>
+
+        <p class="beschreibung">
+          Für diesen Tag wurden keine
+          anderen tauschbaren Dienste gefunden.
+        </p>
+      `;
+
+      return;
+    }
+
+
+    const frueh =
+      kandidaten.filter(
+        function(k) {
+
+          return (
+            String(
+              k.schicht || ''
+            )
+              .toLowerCase()
+              .trim()
+            ===
+            'früh'
+          );
+        }
+      );
+
+
+    const spaet =
+      kandidaten.filter(
+        function(k) {
+
+          return (
+            String(
+              k.schicht || ''
+            )
+              .toLowerCase()
+              .trim()
+            ===
+            'spät'
+          );
+        }
+      );
+
+
+    const ganztag =
+      kandidaten.filter(
+        function(k) {
+
+          return (
+            String(
+              k.schicht || ''
+            )
+              .toLowerCase()
+              .trim()
+            ===
+            'ganztag'
+          );
+        }
+      );
+
+
+    const sonstige =
+      kandidaten.filter(
+        function(k) {
+
+          const schicht =
+            String(
+              k.schicht || ''
+            )
+              .toLowerCase()
+              .trim();
+
+
+          return (
+            schicht !== 'früh' &&
+            schicht !== 'spät' &&
+            schicht !== 'ganztag'
+          );
+        }
+      );
+
+
+    let html = `
+      <h2>3. Kollegen wählen</h2>
+
+      <p class="beschreibung">
+        Mit wem möchtest du
+        deinen Dienst tauschen?
+      </p>
+
+      <div class="kollegen-grid">
+    `;
+
+
+    if (
+      frueh.length > 0
+    ) {
+
+      html +=
+        baueKollegenBox(
+          '☀️ Frühdienste',
+          'frueh',
+          frueh
+        );
+    }
+
+
+    if (
+      spaet.length > 0
+    ) {
+
+      html +=
+        baueKollegenBox(
+          '🌙 Spätdienste',
+          'spaet',
+          spaet
+        );
+    }
+
+
+    if (
+      ganztag.length > 0
+    ) {
+
+      html +=
+        baueKollegenBox(
+          '🔵 Ganztagsdienste',
+          'ganztag',
+          ganztag
+        );
+    }
+
+
+    if (
+      sonstige.length > 0
+    ) {
+
+      html +=
+        baueKollegenBox(
+          'Weitere Dienste',
+          'weitere',
+          sonstige
+        );
+    }
+
+
+    html += `
+      </div>
+
+
+      <div
+        id="tauschSchritt4"
+        style="
+          display:none;
+          margin-top:24px;
+          padding-top:20px;
+          border-top:1px solid #e0e0e0;
+        "
+      >
+
+        <h2>
+          4. Anfrage senden
+        </h2>
+
+        <p class="beschreibung">
+          Prüfe den Tausch und sende
+          anschließend die Anfrage
+          an deinen Kollegen.
+        </p>
+
+
+        <div
+          id="tauschZusammenfassung"
+          style="
+            background:#f7f7f8;
+            border:1px solid #e1e4e8;
+            border-radius:10px;
+            padding:15px;
+            margin-top:14px;
+          "
+        ></div>
+
+
+        <div
+          style="
+            margin-top:16px;
+          "
+        >
+
+          <label
+            for="tauschNachricht"
+            style="
+              display:block;
+              font-weight:700;
+              margin-bottom:7px;
+            "
+          >
+            Nachricht
+            <span
+              style="
+                font-weight:400;
+                color:#777;
+              "
+            >
+              (optional)
+            </span>
+          </label>
+
+
+          <textarea
+            id="tauschNachricht"
+            maxlength="500"
+            placeholder="Zum Beispiel: Kannst du meinen Dienst übernehmen?"
+            style="
+              width:100%;
+              box-sizing:border-box;
+              min-height:90px;
+              resize:vertical;
+              border:1px solid #ccd0d5;
+              border-radius:8px;
+              padding:10px;
+              font-family:inherit;
+              font-size:14px;
+            "
+          ></textarea>
+
+        </div>
+
+
+        <div
+          id="tauschSendenMeldung"
+          style="
+            display:none;
+            margin-top:14px;
+            padding:11px 12px;
+            border-radius:8px;
+          "
+        ></div>
+
+
+        <button
+          id="tauschSendenButton"
+          type="button"
+          onclick="sendeTauschAnfrageNeu()"
+          style="
+            margin-top:16px;
+            border:0;
+            background:#e30613;
+            color:#ffffff;
+            border-radius:8px;
+            padding:11px 16px;
+            font-weight:700;
+            cursor:pointer;
+          "
+        >
+          📤 Tauschanfrage senden
+        </button>
+
+      </div>
+    `;
+
+
+    bereich.innerHTML =
+      html;
+
+
+  } catch (error) {
+
+    console.error(
+      'Tauschpartner:',
+      error
+    );
+
+
+    bereich.innerHTML = `
+      <h2>3. Kollegen wählen</h2>
+
+      <p
+        class="beschreibung"
+        style="color:#b00020;"
+      >
+        ❌
+        ${escapeHtmlNeu(
+          error.message
+        )}
+      </p>
+    `;
+  }
+}
+
+
+// ==========================================================
+// WP FRÜH + SPÄT DES GLEICHEN MITARBEITERS = GANZTAG
+// ==========================================================
+
+function kombiniereWpGanztagKandidaten(
+  kandidaten
+) {
+
+  const benutzt =
+    new Set();
+
+  const ergebnis =
+    [];
+
+
+  kandidaten.forEach(
+    function(k, index) {
+
+      if (
+        benutzt.has(
+          index
+        )
+      ) {
+        return;
+      }
+
+
+      if (
+        k.code === 'WP_FRUEH'
+      ) {
+
+        const partnerIndex =
+          kandidaten.findIndex(
+            function(x, i) {
+
+              return (
+                i !== index &&
+                !benutzt.has(i) &&
+                x.code === 'WP_SPAET' &&
+                String(
+                  x.mitarbeiter || ''
+                ).trim()
+                ===
+                String(
+                  k.mitarbeiter || ''
+                ).trim()
+              );
+            }
+          );
+
+
+        if (
+          partnerIndex >= 0
+        ) {
+
+          benutzt.add(
+            index
+          );
+
+          benutzt.add(
+            partnerIndex
+          );
+
+
+          ergebnis.push({
+            code:
+              'WP_GANZTAG',
+
+            dienst:
+              '🔵 Water Plaza – Ganztag',
+
+            schicht:
+              'Ganztag',
+
+            mitarbeiter:
+              k.mitarbeiter
+          });
+
+
+          return;
+        }
+      }
+
+
+      benutzt.add(
+        index
+      );
+
+      ergebnis.push(
+        k
+      );
+    }
+  );
+
+
+  return ergebnis;
+}
+
+
+// ==========================================================
+// KOLLEGENBOX
+// ==========================================================
+
+function baueKollegenBox(
+  titel,
+  klasse,
+  kandidaten
+) {
+
+  let html = `
+    <div
+      class="
+        kollegen-box
+        ${escapeHtmlNeu(klasse)}
+      "
+    >
+
+      <h3>
+        ${titel}
+      </h3>
+  `;
+
+
+  kandidaten.forEach(
+    function(k) {
+
+      const name =
+        String(
+          k.mitarbeiter || ''
+        ).trim();
+
+
+      const code =
+        String(
+          k.code || ''
+        ).trim();
+
+
+      const dienst =
+        entferneDienstSymbol(
+          k.dienst || ''
+        );
+
+
+      html += `
+        <label
+          class="kollege"
+        >
+
+          <input
+            type="radio"
+            name="kollege"
+
+            value="${escapeHtmlNeu(
+              code
+            )}"
+
+            data-name="${escapeHtmlNeu(
+              name
+            )}"
+
+            data-dienst="${escapeHtmlNeu(
+              dienst
+            )}"
+
+            onchange="waehleTauschpartnerNeu(this)"
+          >
+
+          <span>
+            ${escapeHtmlNeu(
+              name
+            )}
+          </span>
+
+          <strong>
+            ${escapeHtmlNeu(
+              dienst
+            )}
+          </strong>
+
+        </label>
+      `;
+    }
+  );
+
+
+  html +=
+    '</div>';
+
+
+  return html;
+}
+
+
+// ==========================================================
+// TAUSCHPARTNER AUSWÄHLEN
+// ==========================================================
+
+function waehleTauschpartnerNeu(
+  radio
+) {
+
+  if (!radio) {
+    return;
+  }
+
+
+  const schritt4 =
+    document.getElementById(
+      'tauschSchritt4'
+    );
+
+
+  const zusammenfassung =
+    document.getElementById(
+      'tauschZusammenfassung'
+    );
+
+
+  const meldung =
+    document.getElementById(
+      'tauschSendenMeldung'
+    );
+
+
+  if (!schritt4) {
+    return;
+  }
+
+
+  const partnerName =
+    String(
+      radio.dataset.name || ''
+    ).trim();
+
+
+  const partnerDienst =
+    String(
+      radio.dataset.dienst || ''
+    ).trim();
+
+
+  schritt4.style.display =
+    'block';
+
+
+  if (meldung) {
+
+    meldung.style.display =
+      'none';
+
+    meldung.textContent =
+      '';
+  }
+
+
+  if (zusammenfassung) {
+
+    zusammenfassung.innerHTML = `
+
+      <div
+        style="
+          margin-bottom:10px;
+        "
+      >
+        <strong>
+          📅 Datum:
+        </strong>
+
+        ${escapeHtmlNeu(
+          tauschDatum
+        )}
+
+        (${escapeHtmlNeu(
+          tauschTag
+        )})
+      </div>
+
+
+      <div
+        style="
+          margin-bottom:10px;
+        "
+      >
+        <strong>
+          Dein Dienst:
+        </strong>
+
+        ${escapeHtmlNeu(
+          tauschDienstText
+        )}
+      </div>
+
+
+      <div
+        style="
+          margin-bottom:10px;
+        "
+      >
+        <strong>
+          Tauschpartner:
+        </strong>
+
+        ${escapeHtmlNeu(
+          partnerName
+        )}
+      </div>
+
+
+      <div>
+        <strong>
+          Dienst des Kollegen:
+        </strong>
+
+        ${escapeHtmlNeu(
+          partnerDienst
+        )}
+      </div>
+
+
+      ${
+        tauschDienstCode ===
+        'GP_SPAET'
+          ? `
+            <div
+              style="
+                margin-top:12px;
+                color:#8a5a00;
+                font-size:13px;
+              "
+            >
+              ☕ Die WP-Pausenablöse
+              des GP-Spätdienstes wird
+              bei einem später genehmigten
+              Tausch automatisch mitgeführt.
+            </div>
+          `
+          : ''
+      }
+    `;
+  }
+
+
+  schritt4.scrollIntoView({
+    behavior:
+      'smooth',
+
+    block:
+      'start'
+  });
+}
+
+
+// ==========================================================
+// TAUSCHANFRAGE SENDEN
+// ==========================================================
+
+async function sendeTauschAnfrageNeu() {
+
+  const ausgewaehlt =
+    document.querySelector(
+      'input[name="kollege"]:checked'
+    );
+
+
+  const button =
+    document.getElementById(
+      'tauschSendenButton'
+    );
+
+
+  const nachrichtElement =
+    document.getElementById(
+      'tauschNachricht'
+    );
+
+
+  if (!ausgewaehlt) {
+
+    zeigeTauschSendenMeldung(
+      'Bitte zuerst einen Kollegen auswählen.',
+      false
+    );
+
+    return;
+  }
+
+
+  const partnerName =
+    String(
+      ausgewaehlt.dataset.name || ''
+    ).trim();
+
+
+  const partnerDienstCode =
+    String(
+      ausgewaehlt.value || ''
+    ).trim();
+
+
+  const nachricht =
+    String(
+      nachrichtElement?.value || ''
+    ).trim();
+
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  if (!token) {
+
+    zeigeTauschSendenMeldung(
+      'Deine Anmeldung ist abgelaufen. Bitte neu anmelden.',
+      false
+    );
+
+    return;
+  }
+
+
+  if (
+    !tauschDatum ||
+    !tauschDienstCode ||
+    !partnerName ||
+    !partnerDienstCode
+  ) {
+
+    zeigeTauschSendenMeldung(
+      'Die Tauschanfrage ist unvollständig.',
+      false
+    );
+
+    return;
+  }
+
+
+  if (button) {
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      '⏳ Anfrage wird gesendet …';
+
+    button.style.opacity =
+      '0.7';
+
+    button.style.cursor =
+      'wait';
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'tauschAnfrageSenden',
+        {
+          token:
+            token,
+
+          datum:
+            tauschDatum,
+
+          eigenerDienstCode:
+            tauschDienstCode,
+
+          partnerName:
+            partnerName,
+
+          partnerDienstCode:
+            partnerDienstCode,
+
+          nachricht:
+            nachricht
+        }
+      );
+
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+
+      localStorage.removeItem(
+        SESSION_KEY
+      );
+
+      zeigeLogin();
+
+      await ladeMitarbeiter();
+
+      return;
+    }
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result?.message ||
+        'Die Tauschanfrage konnte nicht gespeichert werden.'
+      );
+    }
+
+
+    zeigeTauschSendenMeldung(
+      result.message ||
+      (
+        'Die Tauschanfrage wurde an ' +
+        partnerName +
+        ' gesendet.'
+      ),
+      true
+    );
+
+
+    document
+      .querySelectorAll(
+        'input[name="kollege"]'
+      )
+      .forEach(
+        function(radio) {
+
+          radio.disabled =
+            true;
+        }
+      );
+
+
+    if (
+      nachrichtElement
+    ) {
+
+      nachrichtElement.disabled =
+        true;
+    }
+
+
+    if (button) {
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        '✅ Tauschanfrage gesendet';
+
+      button.style.opacity =
+        '1';
+
+      button.style.cursor =
+        'default';
+    }
+
+
+    await aktualisiereAnfragenBadgeNeu();
+
+
+  } catch (error) {
+
+    console.error(
+      'Tauschanfrage senden:',
+      error
+    );
+
+
+    zeigeTauschSendenMeldung(
+      '❌ ' +
+      error.message,
+      false
+    );
+
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        '📤 Tauschanfrage senden';
+
+      button.style.opacity =
+        '1';
+
+      button.style.cursor =
+        'pointer';
+    }
+  }
+}
+
+
+// ==========================================================
+// MELDUNG BEIM SENDEN
+// ==========================================================
+
+function zeigeTauschSendenMeldung(
+  text,
+  erfolg
+) {
+
+  const meldung =
+    document.getElementById(
+      'tauschSendenMeldung'
+    );
+
+
+  if (!meldung) {
+
+    alert(
+      text
+    );
+
+    return;
+  }
+
+
+  meldung.style.display =
+    'block';
+
+
+  meldung.textContent =
+    text;
+
+
+  if (erfolg) {
+
+    meldung.style.background =
+      '#eaf7ee';
+
+    meldung.style.border =
+      '1px solid #9bd3aa';
+
+    meldung.style.color =
+      '#176b2c';
+
+  } else {
+
+    meldung.style.background =
+      '#fff0f0';
+
+    meldung.style.border =
+      '1px solid #e3aaaa';
+
+    meldung.style.color =
+      '#a00000';
+  }
+}
+
+
+// ==========================================================
+// DIENSTSYMBOL AUS TEXT ENTFERNEN
+// ==========================================================
+
+function entferneDienstSymbol(
+  text
+) {
+
+  return String(
+    text || ''
+  )
+    .replace(
+      /^[^A-Za-zÄÖÜäöü]+/,
+      ''
+    )
+    .trim();
+}
+
+
+// ==========================================================
+// DIENSTZEITEN
+// ==========================================================
+
+function zeitFruehNeu(
+  tag
+) {
+
+  if (
+    tag === 'Samstag'
+  ) {
+
+    return '09:00 – 18:00';
+  }
+
+
+  return '09:00 – 14:30';
+}
+
+
+function zeitSpaetNeu(
+  tag
+) {
+
+  if (
+    tag === 'Samstag'
+  ) {
+
+    return '11:30 – 16:00';
+  }
+
+
+  if (
+    tag === 'Donnerstag' ||
+    tag === 'Freitag'
+  ) {
+
+    return '14:30 – 20:00';
+  }
+
+
+  return '14:30 – 19:00';
+}
+
+
+function zeitSpaetEndeNeu(
+  tag
+) {
+
+  if (
+    tag === 'Samstag'
+  ) {
+
+    return '18:00';
+  }
+
+
+  if (
+    tag === 'Donnerstag' ||
+    tag === 'Freitag'
+  ) {
+
+    return '20:00';
+  }
+
+
+  return '19:00';
+}
+
+
+// ==========================================================
+// SCHRITT 5 – SEITE "MEINE ANFRAGEN" ERZEUGEN
+// ==========================================================
+
+function installiereMeineAnfragenNeu() {
+
+  const content =
+    document.querySelector(
+      'main.content'
+    );
+
+
+  if (
+    content &&
+    !document.getElementById(
+      'anfragenAnsicht'
+    )
+  ) {
+
+    const section =
+      document.createElement(
+        'section'
+      );
+
+
+    section.id =
+      'anfragenAnsicht';
+
+
+    section.style.display =
+      'none';
+
+
+    section.innerHTML = `
+
+      <div class="content-header">
+
+        <div>
+
+          <h1>
+            Meine Anfragen
+          </h1>
+
+          <p>
+            Hier siehst du deine
+            gesendeten und erhaltenen
+            Tauschanfragen.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="anfragenMeldungNeu"
+        style="
+          display:none;
+          margin-bottom:14px;
+          padding:12px 14px;
+          border-radius:9px;
+        "
+      ></div>
+
+
+      <div
+        id="anfragenLadenNeu"
+        style="
+          color:#666;
+          padding:12px 0;
+        "
+      ></div>
+
+
+      <div
+        id="anfragenListeNeu"
+      ></div>
+    `;
+
+
+    content.appendChild(
+      section
+    );
+  }
+
+
+  const bisherigeZeigeSeite =
+    typeof window.zeigeSeite === 'function'
+      ? window.zeigeSeite
+      : null;
+
+
+  window.zeigeSeite =
+    function(seite) {
+
+      const anfragen =
+        document.getElementById(
+          'anfragenAnsicht'
+        );
+
+
+      if (
+        seite === 'anfragen'
+      ) {
+
+        const dienstplan =
+          document.getElementById(
+            'dienstplanAnsicht'
+          );
+
+
+        const tausch =
+          document.getElementById(
+            'tauschAnsicht'
+          );
+
+
+        const pin =
+          document.getElementById(
+            'pinAnsicht'
+          );
+
+
+        const admin =
+          document.getElementById(
+            'adminAnsicht'
+          );
+
+
+        if (dienstplan) {
+          dienstplan.style.display =
+            'none';
+        }
+
+
+        if (tausch) {
+          tausch.style.display =
+            'none';
+        }
+
+
+        if (pin) {
+          pin.style.display =
+            'none';
+        }
+
+
+        if (admin) {
+          admin.style.display =
+            'none';
+        }
+
+
+        if (anfragen) {
+          anfragen.style.display =
+            'block';
+        }
+
+
+        document
+          .querySelectorAll(
+            '.nav-item, .nav-hauptpunkt'
+          )
+          .forEach(
+            function(element) {
+
+              element.classList.remove(
+                'aktiv'
+              );
+            }
+          );
+
+
+        const anfragenButton =
+          document.querySelector(
+            `[onclick="zeigeSeite('anfragen')"]`
+          );
+
+
+        if (anfragenButton) {
+
+          anfragenButton.classList.add(
+            'aktiv'
+          );
+        }
+
+
+        ladeMeineTauschAnfragenNeu();
+
+
+        const sidebar =
+          document.getElementById(
+            'sidebar'
+          );
+
+
+        if (
+          sidebar &&
+          window.innerWidth <= 900
+        ) {
+
+          sidebar.classList.remove(
+            'mobile-offen'
+          );
+        }
+
+
+        return;
+      }
+
+
+      if (anfragen) {
+
+        anfragen.style.display =
+          'none';
+      }
+
+
+      if (
+        bisherigeZeigeSeite
+      ) {
+
+        bisherigeZeigeSeite(
+          seite
+        );
+      }
+    };
+}
+
+
+// ==========================================================
+// ROTER ZÄHLER BEI "MEINE ANFRAGEN"
+// ==========================================================
+
+async function aktualisiereAnfragenBadgeNeu() {
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  const badge =
+    document.getElementById(
+      'anfragenBadge'
+    );
+
+
+  if (
+    !token ||
+    !badge
+  ) {
+
+    return;
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'tauschAnfragen',
+        {
+          token:
+            token
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      return;
+    }
+
+
+    const erhalten =
+      Array.isArray(
+        result.erhalten
+      )
+        ? result.erhalten
+        : [];
+
+
+    const offen =
+      erhalten.filter(
+        function(a) {
+
+          return (
+            String(
+              a.mitarbeiterStatus || ''
+            )
+              .trim()
+              .toUpperCase()
+            ===
+            'OFFEN'
+            &&
+            String(
+              a.gesamtstatus || ''
+            )
+              .trim()
+              .toUpperCase()
+            ===
+            'WARTET_AUF_KOLLEGEN'
+          );
+        }
+      ).length;
+
+
+    if (
+      offen > 0
+    ) {
+
+      badge.textContent =
+        String(
+          offen
+        );
+
+
+      badge.style.display =
+        'inline-flex';
+
+    } else {
+
+      badge.textContent =
+        '0';
+
+
+      badge.style.display =
+        'none';
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      'Anfragen-Badge:',
+      error
+    );
+  }
+}
+
+// ==========================================================
+// MEINE TAUSCHANFRAGEN LADEN
+// ==========================================================
+
+async function ladeMeineTauschAnfragenNeu() {
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  const laden =
+    document.getElementById(
+      'anfragenLadenNeu'
+    );
+
+
+  const liste =
+    document.getElementById(
+      'anfragenListeNeu'
+    );
+
+
+  if (!token) {
+
+    await logoutAusfuehren();
+
+    return;
+  }
+
+
+  if (laden) {
+
+    laden.style.display =
+      'block';
+
+    laden.textContent =
+      'Anfragen werden geladen …';
+  }
+
+
+  if (liste) {
+
+    liste.innerHTML =
+      '';
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'tauschAnfragen',
+        {
+          token:
+            token
+        }
+      );
+
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+
+      localStorage.removeItem(
+        SESSION_KEY
+      );
+
+      zeigeLogin();
+
+      await ladeMitarbeiter();
+
+      return;
+    }
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result?.message ||
+        'Die Tauschanfragen konnten nicht geladen werden.'
+      );
+    }
+
+
+    rendereMeineTauschAnfragenNeu(
+      result
+    );
+
+
+    if (laden) {
+
+      laden.style.display =
+        'none';
+    }
+
+
+    await aktualisiereAnfragenBadgeNeu();
+
+
+  } catch (error) {
+
+    console.error(
+      'Meine Tauschanfragen:',
+      error
+    );
+
+
+    if (laden) {
+
+      laden.style.display =
+        'block';
+
+      laden.style.color =
+        '#b00020';
+
+      laden.textContent =
+        '❌ ' +
+        error.message;
+    }
+  }
+}
+
+
+// ==========================================================
+// MEINE TAUSCHANFRAGEN ANZEIGEN
+// ==========================================================
+
+function rendereMeineTauschAnfragenNeu(
+  result
+) {
+
+  const liste =
+    document.getElementById(
+      'anfragenListeNeu'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  const erhalten =
+    Array.isArray(
+      result.erhalten
+    )
+      ? result.erhalten
+      : [];
+
+
+  const gesendet =
+    Array.isArray(
+      result.gesendet
+    )
+      ? result.gesendet
+      : [];
+
+
+  let html =
+    '';
+
+
+  // ========================================================
+  // ERHALTENE ANFRAGEN
+  // ========================================================
+
+  html += `
+    <div
+      class="panel"
+      style="
+        padding:18px;
+        margin-bottom:18px;
+      "
+    >
+
+      <h2
+        style="
+          margin-top:0;
+          margin-bottom:6px;
+        "
+      >
+        📥 Erhaltene Tauschanfragen
+      </h2>
+
+      <p
+        style="
+          color:#666;
+          margin-top:0;
+          margin-bottom:16px;
+        "
+      >
+        Hier kannst du Tauschanfragen
+        von Kollegen annehmen oder ablehnen.
+      </p>
+  `;
+
+
+  if (
+    erhalten.length === 0
+  ) {
+
+    html += `
+      <div
+        style="
+          background:#f7f7f8;
+          border-radius:9px;
+          padding:14px;
+          color:#666;
+        "
+      >
+        Du hast aktuell keine
+        erhaltenen Tauschanfragen.
+      </div>
+    `;
+
+  } else {
+
+    erhalten.forEach(
+      function(anfrage) {
+
+        html +=
+          baueTauschAnfrageKarteNeu(
+            anfrage,
+            true
+          );
+      }
+    );
+  }
+
+
+  html +=
+    '</div>';
+
+
+  // ========================================================
+  // GESENDETE ANFRAGEN
+  // ========================================================
+
+  html += `
+    <div
+      class="panel"
+      style="
+        padding:18px;
+        margin-bottom:18px;
+      "
+    >
+
+      <h2
+        style="
+          margin-top:0;
+          margin-bottom:6px;
+        "
+      >
+        📤 Gesendete Tauschanfragen
+      </h2>
+
+      <p
+        style="
+          color:#666;
+          margin-top:0;
+          margin-bottom:16px;
+        "
+      >
+        Hier siehst du den aktuellen
+        Stand deiner Tauschanfragen.
+      </p>
+  `;
+
+
+  if (
+    gesendet.length === 0
+  ) {
+
+    html += `
+      <div
+        style="
+          background:#f7f7f8;
+          border-radius:9px;
+          padding:14px;
+          color:#666;
+        "
+      >
+        Du hast noch keine
+        Tauschanfrage gesendet.
+      </div>
+    `;
+
+  } else {
+
+    gesendet.forEach(
+      function(anfrage) {
+
+        html +=
+          baueTauschAnfrageKarteNeu(
+            anfrage,
+            false
+          );
+      }
+    );
+  }
+
+
+  html +=
+    '</div>';
+
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// EINZELNE TAUSCHANFRAGE
+// ==========================================================
+
+function baueTauschAnfrageKarteNeu(
+  anfrage,
+  istErhalten
+) {
+
+  const gesamtstatus =
+    String(
+      anfrage.gesamtstatus || ''
+    )
+      .trim()
+      .toUpperCase();
+
+
+  const mitarbeiterStatus =
+    String(
+      anfrage.mitarbeiterStatus || ''
+    )
+      .trim()
+      .toUpperCase();
+
+
+  const status =
+    statusTauschAnfrageNeu(
+      anfrage
+    );
+
+
+  const offenFuerKollegen =
+    istErhalten &&
+    mitarbeiterStatus === 'OFFEN' &&
+    gesamtstatus === 'WARTET_AUF_KOLLEGEN';
+
+
+  let html = `
+    <div
+      style="
+        border:1px solid #e0e3e7;
+        border-radius:11px;
+        padding:15px;
+        margin-top:12px;
+        background:#ffffff;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:flex-start;
+          gap:10px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <div>
+
+          <strong
+            style="
+              font-size:16px;
+            "
+          >
+            📅
+            ${escapeHtmlNeu(
+              anfrage.datum || ''
+            )}
+          </strong>
+
+
+          ${
+            anfrage.kw
+              ? `
+                <span
+                  style="
+                    margin-left:7px;
+                    color:#777;
+                    font-size:13px;
+                  "
+                >
+                  KW ${escapeHtmlNeu(
+                    anfrage.kw
+                  )}
+                </span>
+              `
+              : ''
+          }
+
+        </div>
+
+
+        <div
+          style="
+            padding:5px 9px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:700;
+            background:${status.hintergrund};
+            color:${status.farbe};
+          "
+        >
+          ${status.text}
+        </div>
+
+      </div>
+
+
+      <div
+        style="
+          margin-top:14px;
+          display:grid;
+          gap:10px;
+        "
+      >
+  `;
+
+
+  // ========================================================
+  // WER HAT WEM GESENDET
+  // ========================================================
+
+  if (istErhalten) {
+
+    html += `
+      <div>
+        <strong>
+          👤 Von:
+        </strong>
+
+        ${escapeHtmlNeu(
+          anfrage.anfragender || ''
+        )}
+      </div>
+    `;
+
+  } else {
+
+    html += `
+      <div>
+        <strong>
+          👤 An:
+        </strong>
+
+        ${escapeHtmlNeu(
+          anfrage.partner || ''
+        )}
+      </div>
+    `;
+  }
+
+
+  // ========================================================
+  // DIENSTE
+  // ========================================================
+
+  html += `
+      <div
+        style="
+          background:#f7f7f8;
+          border-radius:9px;
+          padding:12px;
+        "
+      >
+  `;
+
+
+  if (istErhalten) {
+
+    html += `
+        <div
+          style="
+            margin-bottom:8px;
+          "
+        >
+          <strong>
+            Dein derzeitiger Dienst:
+          </strong>
+
+          <br>
+
+          ${escapeHtmlNeu(
+            entferneDienstSymbol(
+              anfrage.partnerDienst || ''
+            )
+          )}
+        </div>
+
+
+        <div>
+          <strong>
+            Dienst von
+            ${escapeHtmlNeu(
+              anfrage.anfragender || ''
+            )}:
+          </strong>
+
+          <br>
+
+          ${escapeHtmlNeu(
+            entferneDienstSymbol(
+              anfrage.eigenerDienst || ''
+            )
+          )}
+        </div>
+    `;
+
+  } else {
+
+    html += `
+        <div
+          style="
+            margin-bottom:8px;
+          "
+        >
+          <strong>
+            Dein Dienst:
+          </strong>
+
+          <br>
+
+          ${escapeHtmlNeu(
+            entferneDienstSymbol(
+              anfrage.eigenerDienst || ''
+            )
+          )}
+        </div>
+
+
+        <div>
+          <strong>
+            Dienst von
+            ${escapeHtmlNeu(
+              anfrage.partner || ''
+            )}:
+          </strong>
+
+          <br>
+
+          ${escapeHtmlNeu(
+            entferneDienstSymbol(
+              anfrage.partnerDienst || ''
+            )
+          )}
+        </div>
+    `;
+  }
+
+
+  html +=
+    '</div>';
+
+
+  // ========================================================
+  // NACHRICHT
+  // ========================================================
+
+  if (
+    String(
+      anfrage.nachricht || ''
+    ).trim()
+  ) {
+
+    html += `
+      <div
+        style="
+          border-left:4px solid #e30613;
+          padding:8px 11px;
+          background:#fffafa;
+          border-radius:0 8px 8px 0;
+        "
+      >
+        <strong>
+          💬 Nachricht
+        </strong>
+
+        <div
+          style="
+            margin-top:5px;
+          "
+        >
+          ${escapeHtmlNeu(
+            anfrage.nachricht
+          )}
+        </div>
+      </div>
+    `;
+  }
+
+
+  // ========================================================
+  // ZEITSTEMPEL
+  // ========================================================
+
+  if (
+    anfrage.zeitstempel
+  ) {
+
+    html += `
+      <div
+        style="
+          color:#888;
+          font-size:12px;
+        "
+      >
+        Gesendet:
+        ${escapeHtmlNeu(
+          anfrage.zeitstempel
+        )}
+      </div>
+    `;
+  }
+
+
+  html +=
+    '</div>';
+
+
+  // ========================================================
+  // ANNEHMEN / ABLEHNEN
+  // ========================================================
+
+  if (
+    offenFuerKollegen
+  ) {
+
+    html += `
+      <div
+        id="tauschAntwortBereich_${Number(
+          anfrage.zeile
+        )}"
+        style="
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+          margin-top:15px;
+        "
+      >
+
+        <button
+          id="tauschAnnehmen_${Number(
+            anfrage.zeile
+          )}"
+          type="button"
+
+          onclick="bearbeiteTauschAnfrageNeu(
+            ${Number(
+              anfrage.zeile
+            )},
+            true
+          )"
+
+          style="
+            border:0;
+            background:#188038;
+            color:#ffffff;
+            border-radius:8px;
+            padding:10px 15px;
+            font-weight:700;
+            cursor:pointer;
+          "
+        >
+          ✅ Annehmen
+        </button>
+
+
+        <button
+          id="tauschAblehnen_${Number(
+            anfrage.zeile
+          )}"
+          type="button"
+
+          onclick="bearbeiteTauschAnfrageNeu(
+            ${Number(
+              anfrage.zeile
+            )},
+            false
+          )"
+
+          style="
+            border:1px solid #d93025;
+            background:#ffffff;
+            color:#d93025;
+            border-radius:8px;
+            padding:10px 15px;
+            font-weight:700;
+            cursor:pointer;
+          "
+        >
+          ❌ Ablehnen
+        </button>
+
+      </div>
+    `;
+  }
+
+
+  html +=
+    '</div>';
+
+
+  return html;
+}
+
+
+// ==========================================================
+// STATUS EINER TAUSCHANFRAGE
+// ==========================================================
+
+function statusTauschAnfrageNeu(
+  anfrage
+) {
+
+  const gesamtstatus =
+    String(
+      anfrage.gesamtstatus || ''
+    )
+      .trim()
+      .toUpperCase();
+
+
+  const mitarbeiterStatus =
+    String(
+      anfrage.mitarbeiterStatus || ''
+    )
+      .trim()
+      .toUpperCase();
+
+
+  const adminStatus =
+    String(
+      anfrage.adminStatus || ''
+    )
+      .trim()
+      .toUpperCase();
+
+
+  if (
+    gesamtstatus ===
+    'WARTET_AUF_KOLLEGEN'
+  ) {
+
+    return {
+      text:
+        '🟡 Wartet auf Antwort',
+
+      hintergrund:
+        '#fff4ce',
+
+      farbe:
+        '#7a4f00'
+    };
+  }
+
+
+  if (
+    gesamtstatus ===
+    'WARTET_AUF_ADMIN'
+  ) {
+
+    return {
+      text:
+        '🟠 Wartet auf Babsi',
+
+      hintergrund:
+        '#fff0dc',
+
+      farbe:
+        '#8a4b00'
+    };
+  }
+
+
+  if (
+    gesamtstatus ===
+      'ABGELEHNT' ||
+    mitarbeiterStatus ===
+      'ABGELEHNT' ||
+    adminStatus ===
+      'ABGELEHNT'
+  ) {
+
+    return {
+      text:
+        '🔴 Abgelehnt',
+
+      hintergrund:
+        '#fdecec',
+
+      farbe:
+        '#b00020'
+    };
+  }
+
+
+  if (
+    gesamtstatus ===
+      'GENEHMIGT' ||
+    adminStatus ===
+      'GENEHMIGT'
+  ) {
+
+    return {
+      text:
+        '🟢 Genehmigt',
+
+      hintergrund:
+        '#e7f6ec',
+
+      farbe:
+        '#176b2c'
+    };
+  }
+
+
+  if (
+    mitarbeiterStatus ===
+    'ZUGESTIMMT'
+  ) {
+
+    return {
+      text:
+        '🟠 Kollege hat zugestimmt',
+
+      hintergrund:
+        '#fff0dc',
+
+      farbe:
+        '#8a4b00'
+    };
+  }
+
+
+  return {
+    text:
+      '⚪ In Bearbeitung',
+
+    hintergrund:
+      '#f1f3f4',
+
+    farbe:
+      '#555555'
+  };
+}
+
+
+// ==========================================================
+// TAUSCHANFRAGE ANNEHMEN / ABLEHNEN
+// ==========================================================
+
+async function bearbeiteTauschAnfrageNeu(
+  zeile,
+  genehmigen
+) {
+
+  zeile =
+    Number(
+      zeile
+    );
+
+
+  if (!zeile) {
+    return;
+  }
+
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  if (!token) {
+
+    await logoutAusfuehren();
+
+    return;
+  }
+
+
+  const annehmenButton =
+    document.getElementById(
+      'tauschAnnehmen_' +
+      zeile
+    );
+
+
+  const ablehnenButton =
+    document.getElementById(
+      'tauschAblehnen_' +
+      zeile
+    );
+
+
+  if (annehmenButton) {
+
+    annehmenButton.disabled =
+      true;
+  }
+
+
+  if (ablehnenButton) {
+
+    ablehnenButton.disabled =
+      true;
+  }
+
+
+  if (genehmigen) {
+
+    if (annehmenButton) {
+
+      annehmenButton.textContent =
+        '⏳ Wird angenommen …';
+    }
+
+  } else {
+
+    if (ablehnenButton) {
+
+      ablehnenButton.textContent =
+        '⏳ Wird abgelehnt …';
+    }
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'tauschAnfrageBearbeiten',
+        {
+          token:
+            token,
+
+          zeile:
+            zeile,
+
+          genehmigen:
+            genehmigen === true
+        }
+      );
+
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+
+      localStorage.removeItem(
+        SESSION_KEY
+      );
+
+      zeigeLogin();
+
+      await ladeMitarbeiter();
+
+      return;
+    }
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result?.message ||
+        'Die Tauschanfrage konnte nicht bearbeitet werden.'
+      );
+    }
+
+
+    zeigeAnfragenMeldungNeu(
+      '✅ ' +
+      (
+        result.message ||
+        (
+          genehmigen
+            ? 'Tauschanfrage angenommen.'
+            : 'Tauschanfrage abgelehnt.'
+        )
+      ),
+      true
+    );
+
+
+    await ladeMeineTauschAnfragenNeu();
+
+
+  } catch (error) {
+
+    console.error(
+      'Tauschanfrage bearbeiten:',
+      error
+    );
+
+
+    zeigeAnfragenMeldungNeu(
+      '❌ ' +
+      error.message,
+      false
+    );
+
+
+    if (annehmenButton) {
+
+      annehmenButton.disabled =
+        false;
+
+      annehmenButton.textContent =
+        '✅ Annehmen';
+    }
+
+
+    if (ablehnenButton) {
+
+      ablehnenButton.disabled =
+        false;
+
+      ablehnenButton.textContent =
+        '❌ Ablehnen';
+    }
+  }
+}
+
+
+// ==========================================================
+// MELDUNG AUF "MEINE ANFRAGEN"
+// ==========================================================
+
+function zeigeAnfragenMeldungNeu(
+  text,
+  erfolg
+) {
+
+  const meldung =
+    document.getElementById(
+      'anfragenMeldungNeu'
+    );
+
+
+  if (!meldung) {
+    return;
+  }
+
+
+  meldung.style.display =
+    'block';
+
+
+  meldung.textContent =
+    text;
+
+
+  if (erfolg) {
+
+    meldung.style.background =
+      '#eaf7ee';
+
+    meldung.style.border =
+      '1px solid #9bd3aa';
+
+    meldung.style.color =
+      '#176b2c';
+
+  } else {
+
+    meldung.style.background =
+      '#fff0f0';
+
+    meldung.style.border =
+      '1px solid #e3aaaa';
+
+    meldung.style.color =
+      '#a00000';
+  }
+}
+
+
+// ==========================================================
+// ABMELDEN
+// ==========================================================
+
+async function logoutAusfuehren() {
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  localStorage.removeItem(
+    SESSION_KEY
+  );
+
+
+  aktuellerBenutzer =
+    '';
+
+  aktuellerAdmin =
+    false;
+
+
+  if (token) {
+
+    try {
+
+      await apiPost(
+        'logout',
+        {
+          token:
+            token
+        }
+      );
+
+    } catch (error) {
+
+      console.error(
+        'Logout am Server fehlgeschlagen:',
+        error
+      );
+    }
+  }
+
+
+  const pin =
+    document.getElementById(
+      'loginPin'
+    );
+
+
+  if (pin) {
+
+    pin.value =
+      '';
+  }
+
+
+  const badge =
+    document.getElementById(
+      'anfragenBadge'
+    );
+
+
+  if (badge) {
+
+    badge.style.display =
+      'none';
+
+    badge.textContent =
+      '0';
+  }
+
+
+  zeigeLogin();
+
+  await ladeMitarbeiter();
+}
+
+
+// ==========================================================
+// PIN VERGESSEN
+// ==========================================================
+
+async function pinVergessenNeu() {
+
+  const name =
+    String(
+      document
+        .getElementById(
+          'loginName'
+        )
+        ?.value || ''
+    ).trim();
+
+
+  if (!name) {
+
+    zeigeLoginMeldung(
+      'Bitte wähle zuerst deinen Namen aus.',
+      'fehler'
+    );
+
+    return;
+  }
+
+
+  zeigeLoginMeldung(
+    'Die PIN-vergessen-Funktion verbinden wir später.',
+    'erfolg'
+  );
+}
+
+
+// ==========================================================
+// LOGIN MELDUNGEN
+// ==========================================================
+
+function zeigeLoginMeldung(
+  text,
+  typ
+) {
+
+  const element =
+    document.getElementById(
+      'loginMeldung'
+    );
+
+
+  if (!element) {
+    return;
+  }
+
+
+  element.textContent =
+    text;
+
+
+  element.className =
+    'login-meldung ' +
+    (
+      typ === 'erfolg'
+        ? 'erfolg'
+        : 'fehler'
+    );
+}
+
+
+function loescheLoginMeldung() {
+
+  const element =
+    document.getElementById(
+      'loginMeldung'
+    );
+
+
+  if (!element) {
+    return;
+  }
+
+
+  element.textContent =
+    '';
+
+
+  element.className =
+    'login-meldung';
+}
+
+
+// ==========================================================
+// MOBILE MENÜ
+// ==========================================================
+
+function toggleMobileMenue() {
+
+  const sidebar =
+    document.getElementById(
+      'sidebar'
+    );
+
+
+  if (sidebar) {
+
+    sidebar.classList.toggle(
+      'mobile-offen'
+    );
+  }
+}
+
+
+// ==========================================================
+// TAUSCH-UNTERMENÜ
+// ==========================================================
+
+function toggleTauschMenue() {
+
+  const menue =
+    document.getElementById(
+      'tauschUntermenue'
+    );
+
+
+  if (menue) {
+
+    menue.classList.toggle(
+      'offen'
+    );
+  }
+}
+
+
+// ==========================================================
+// DIENST AUSWÄHLEN
+// ==========================================================
+
+function waehleDienst(
+  button
+) {
+
+  document
+    .querySelectorAll(
+      '.dienst-option'
+    )
+    .forEach(
+      function(element) {
+
+        element.classList.remove(
+          'ausgewaehlt'
+        );
+
+
+        const radio =
+          element.querySelector(
+            '.radio'
+          );
+
+
+        if (radio) {
+
+          radio.classList.remove(
+            'aktiv'
+          );
+        }
+      }
+    );
+
+
+  if (!button) {
+    return;
+  }
+
+
+  button.classList.add(
+    'ausgewaehlt'
+  );
+
+
+  const radio =
+    button.querySelector(
+      '.radio'
+    );
+
+
+  if (radio) {
+
+    radio.classList.add(
+      'aktiv'
+    );
+  }
+}
+
+
+// ==========================================================
+// FALLS INDEX.HTML NOCH zeigeKollegen() VERWENDET
+// ==========================================================
+
+async function zeigeKollegen() {
+
+  await ladeEchteTauschpartner();
+}
+
+
+// ==========================================================
+// ENTER BEIM LOGIN
+// ==========================================================
+
+document.addEventListener(
+  'keydown',
+  function(event) {
+
+    if (
+      event.key !== 'Enter'
+    ) {
+
+      return;
+    }
+
+
+    const login =
+      document.getElementById(
+        'loginAnsicht'
+      );
+
+
+    if (
+      login &&
+      login.style.display !== 'none'
+    ) {
+
+      loginAusfuehren();
+    }
+  }
+);
+
+
+// ==========================================================
+// HTML SICHER
+// ==========================================================
+
+function escapeHtmlNeu(
+  text
+) {
+
+  return String(
+    text ?? ''
+  )
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+}
