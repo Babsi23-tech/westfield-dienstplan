@@ -93,6 +93,7 @@ document.addEventListener(
   async function() {
 
     installiereMeineAnfragenNeu();
+    installiereAdminBereichNeu();
 
     await starteApp();
 
@@ -532,6 +533,7 @@ function zeigeHauptApp(
         : 'none';
   }
 }
+
 // ==========================================================
 // DIENSTPLAN LADEN
 // ==========================================================
@@ -650,6 +652,21 @@ async function ladeMeinDienstplanNeu() {
       profilName.textContent =
         aktuellerBenutzer ||
         'Mitarbeiter';
+    }
+
+
+    const adminNav =
+      document.getElementById(
+        'adminNav'
+      );
+
+
+    if (adminNav) {
+
+      adminNav.style.display =
+        aktuellerAdmin
+          ? 'flex'
+          : 'none';
     }
 
 
@@ -935,7 +952,6 @@ function rendereDienstplan(plan) {
 
       // ====================================================
       // GP PAUSENABLÖSE
-      // KEIN EIGENER TAUSCHBUTTON
       // ====================================================
 
       if (z.gpAbloese) {
@@ -966,8 +982,8 @@ function rendereDienstplan(plan) {
       // ====================================================
       // WP PAUSENABLÖSE
       //
-      // Wenn Mitarbeiter GP Spät hat,
-      // gehört diese automatisch dazu.
+      // Bei GP Spät gehört die WP-Pausenablöse automatisch
+      // zum Spätdienst und bekommt keinen eigenen Tauschbutton.
       // ====================================================
 
       if (
@@ -1485,10 +1501,6 @@ function fuelleTauschAnsicht() {
   }
 
 
-  // ========================================================
-  // DATUM
-  // ========================================================
-
   const datumButton =
     ansicht.querySelector(
       '.datum-button'
@@ -1498,9 +1510,7 @@ function fuelleTauschAnsicht() {
   if (datumButton) {
 
     datumButton.innerHTML = `
-      <span>
-        📅
-      </span>
+      <span>📅</span>
 
       <strong>
         ${escapeHtmlNeu(
@@ -1516,10 +1526,6 @@ function fuelleTauschAnsicht() {
     `;
   }
 
-
-  // ========================================================
-  // EIGENER DIENST
-  // ========================================================
 
   const eigeneDienste =
     ansicht.querySelector(
@@ -1592,10 +1598,9 @@ function fuelleTauschAnsicht() {
               "
             >
               ℹ️ Die zugehörige
-              WP-Pausenablöse gehört
-              zum GP-Spätdienst und
-              wird beim genehmigten
-              Tausch automatisch
+              WP-Pausenablöse gehört zum
+              GP-Spätdienst und wird beim
+              genehmigten Tausch automatisch
               mitgeführt.
             </div>
           `
@@ -1604,10 +1609,6 @@ function fuelleTauschAnsicht() {
     `;
   }
 
-
-  // ========================================================
-  // AUSGEWÄHLTER DIENST
-  // ========================================================
 
   const dienstAuswahl =
     ansicht.querySelector(
@@ -1719,10 +1720,6 @@ function fuelleTauschAnsicht() {
   }
 
 
-  // ========================================================
-  // WEITER ZU SCHRITT 3
-  // ========================================================
-
   const buttons =
     ansicht.querySelectorAll(
       'button'
@@ -1752,10 +1749,6 @@ function fuelleTauschAnsicht() {
   );
 
 
-  // ========================================================
-  // KOLLEGENBEREICH ZUERST AUSBLENDEN
-  // ========================================================
-
   const kollegenBereich =
     document.getElementById(
       'kollegenBereich'
@@ -1769,6 +1762,7 @@ function fuelleTauschAnsicht() {
       .add(
         'versteckt'
       );
+
 
     kollegenBereich.innerHTML =
       '';
@@ -1798,18 +1792,23 @@ async function ladeEchteTauschpartner() {
 
 
   bereich.innerHTML = `
-    <h2>3. Kollegen wählen</h2>
+    <h2>
+      3. Kollegen wählen
+    </h2>
 
     <p class="beschreibung">
       Echte Dienste für
-      ${escapeHtmlNeu(tauschDatum)}
+      ${escapeHtmlNeu(
+        tauschDatum
+      )}
       werden geladen …
     </p>
   `;
 
 
   bereich.scrollIntoView({
-    behavior: 'smooth'
+    behavior:
+      'smooth'
   });
 
 
@@ -1833,8 +1832,11 @@ async function ladeEchteTauschpartner() {
       await apiPost(
         'tauschMoeglichkeiten',
         {
-          token: token,
-          datum: tauschDatum
+          token:
+            token,
+
+          datum:
+            tauschDatum
         }
       );
 
@@ -1893,22 +1895,19 @@ async function ladeEchteTauschpartner() {
       );
 
 
-    kandidaten =
-      kombiniereWpGanztagKandidaten(
-        kandidaten
-      );
-
-
     if (
       kandidaten.length === 0
     ) {
 
       bereich.innerHTML = `
-        <h2>3. Kollegen wählen</h2>
+        <h2>
+          3. Kollegen wählen
+        </h2>
 
         <p class="beschreibung">
-          Für diesen Tag wurden keine
-          anderen tauschbaren Dienste gefunden.
+          Für diesen Tag wurden
+          keine anderen tauschbaren
+          Dienste gefunden.
         </p>
       `;
 
@@ -1924,8 +1923,8 @@ async function ladeEchteTauschpartner() {
             String(
               k.schicht || ''
             )
-              .toLowerCase()
               .trim()
+              .toLowerCase()
             ===
             'früh'
           );
@@ -1941,8 +1940,8 @@ async function ladeEchteTauschpartner() {
             String(
               k.schicht || ''
             )
-              .toLowerCase()
               .trim()
+              .toLowerCase()
             ===
             'spät'
           );
@@ -1958,8 +1957,8 @@ async function ladeEchteTauschpartner() {
             String(
               k.schicht || ''
             )
-              .toLowerCase()
               .trim()
+              .toLowerCase()
             ===
             'ganztag'
           );
@@ -1975,8 +1974,8 @@ async function ladeEchteTauschpartner() {
             String(
               k.schicht || ''
             )
-              .toLowerCase()
-              .trim();
+              .trim()
+              .toLowerCase();
 
 
           return (
@@ -1989,7 +1988,9 @@ async function ladeEchteTauschpartner() {
 
 
     let html = `
-      <h2>3. Kollegen wählen</h2>
+      <h2>
+        3. Kollegen wählen
+      </h2>
 
       <p class="beschreibung">
         Mit wem möchtest du
@@ -2070,6 +2071,7 @@ async function ladeEchteTauschpartner() {
           4. Anfrage senden
         </h2>
 
+
         <p class="beschreibung">
           Prüfe den Tausch und sende
           anschließend die Anfrage
@@ -2104,6 +2106,7 @@ async function ladeEchteTauschpartner() {
             "
           >
             Nachricht
+
             <span
               style="
                 font-weight:400;
@@ -2181,11 +2184,15 @@ async function ladeEchteTauschpartner() {
 
 
     bereich.innerHTML = `
-      <h2>3. Kollegen wählen</h2>
+      <h2>
+        3. Kollegen wählen
+      </h2>
 
       <p
         class="beschreibung"
-        style="color:#b00020;"
+        style="
+          color:#b00020;
+        "
       >
         ❌
         ${escapeHtmlNeu(
@@ -2194,105 +2201,6 @@ async function ladeEchteTauschpartner() {
       </p>
     `;
   }
-}
-
-
-// ==========================================================
-// WP FRÜH + SPÄT DES GLEICHEN MITARBEITERS = GANZTAG
-// ==========================================================
-
-function kombiniereWpGanztagKandidaten(
-  kandidaten
-) {
-
-  const benutzt =
-    new Set();
-
-  const ergebnis =
-    [];
-
-
-  kandidaten.forEach(
-    function(k, index) {
-
-      if (
-        benutzt.has(
-          index
-        )
-      ) {
-        return;
-      }
-
-
-      if (
-        k.code === 'WP_FRUEH'
-      ) {
-
-        const partnerIndex =
-          kandidaten.findIndex(
-            function(x, i) {
-
-              return (
-                i !== index &&
-                !benutzt.has(i) &&
-                x.code === 'WP_SPAET' &&
-                String(
-                  x.mitarbeiter || ''
-                ).trim()
-                ===
-                String(
-                  k.mitarbeiter || ''
-                ).trim()
-              );
-            }
-          );
-
-
-        if (
-          partnerIndex >= 0
-        ) {
-
-          benutzt.add(
-            index
-          );
-
-          benutzt.add(
-            partnerIndex
-          );
-
-
-          ergebnis.push({
-            code:
-              'WP_GANZTAG',
-
-            dienst:
-              '🔵 Water Plaza – Ganztag',
-
-            schicht:
-              'Ganztag',
-
-            mitarbeiter:
-              k.mitarbeiter
-          });
-
-
-          return;
-        }
-      }
-
-
-      benutzt.add(
-        index
-      );
-
-      ergebnis.push(
-        k
-      );
-    }
-  );
-
-
-  return ergebnis;
 }
 
 
@@ -2310,7 +2218,9 @@ function baueKollegenBox(
     <div
       class="
         kollegen-box
-        ${escapeHtmlNeu(klasse)}
+        ${escapeHtmlNeu(
+          klasse
+        )}
       "
     >
 
@@ -2365,11 +2275,13 @@ function baueKollegenBox(
             onchange="waehleTauschpartnerNeu(this)"
           >
 
+
           <span>
             ${escapeHtmlNeu(
               name
             )}
           </span>
+
 
           <strong>
             ${escapeHtmlNeu(
@@ -2530,8 +2442,9 @@ function waehleTauschpartnerNeu(
             >
               ☕ Die WP-Pausenablöse
               des GP-Spätdienstes wird
-              bei einem später genehmigten
-              Tausch automatisch mitgeführt.
+              bei der endgültigen
+              Genehmigung automatisch
+              mitgeführt.
             </div>
           `
           : ''
@@ -2732,9 +2645,7 @@ async function sendeTauschAnfrageNeu() {
       );
 
 
-    if (
-      nachrichtElement
-    ) {
+    if (nachrichtElement) {
 
       nachrichtElement.disabled =
         true;
@@ -2852,96 +2763,7 @@ function zeigeTauschSendenMeldung(
 
 
 // ==========================================================
-// DIENSTSYMBOL AUS TEXT ENTFERNEN
-// ==========================================================
-
-function entferneDienstSymbol(
-  text
-) {
-
-  return String(
-    text || ''
-  )
-    .replace(
-      /^[^A-Za-zÄÖÜäöü]+/,
-      ''
-    )
-    .trim();
-}
-
-
-// ==========================================================
-// DIENSTZEITEN
-// ==========================================================
-
-function zeitFruehNeu(
-  tag
-) {
-
-  if (
-    tag === 'Samstag'
-  ) {
-
-    return '09:00 – 18:00';
-  }
-
-
-  return '09:00 – 14:30';
-}
-
-
-function zeitSpaetNeu(
-  tag
-) {
-
-  if (
-    tag === 'Samstag'
-  ) {
-
-    return '11:30 – 16:00';
-  }
-
-
-  if (
-    tag === 'Donnerstag' ||
-    tag === 'Freitag'
-  ) {
-
-    return '14:30 – 20:00';
-  }
-
-
-  return '14:30 – 19:00';
-}
-
-
-function zeitSpaetEndeNeu(
-  tag
-) {
-
-  if (
-    tag === 'Samstag'
-  ) {
-
-    return '18:00';
-  }
-
-
-  if (
-    tag === 'Donnerstag' ||
-    tag === 'Freitag'
-  ) {
-
-    return '20:00';
-  }
-
-
-  return '19:00';
-}
-
-
-// ==========================================================
-// SCHRITT 5 – SEITE "MEINE ANFRAGEN" ERZEUGEN
+// SEITE "MEINE ANFRAGEN" ERZEUGEN
 // ==========================================================
 
 function installiereMeineAnfragenNeu() {
@@ -3024,265 +2846,8 @@ function installiereMeineAnfragenNeu() {
       section
     );
   }
-
-
-  const bisherigeZeigeSeite =
-    typeof window.zeigeSeite === 'function'
-      ? window.zeigeSeite
-      : null;
-
-
-  window.zeigeSeite =
-    function(seite) {
-
-      const anfragen =
-        document.getElementById(
-          'anfragenAnsicht'
-        );
-
-
-      if (
-        seite === 'anfragen'
-      ) {
-
-        const dienstplan =
-          document.getElementById(
-            'dienstplanAnsicht'
-          );
-
-
-        const tausch =
-          document.getElementById(
-            'tauschAnsicht'
-          );
-
-
-        const pin =
-          document.getElementById(
-            'pinAnsicht'
-          );
-
-
-        const admin =
-          document.getElementById(
-            'adminAnsicht'
-          );
-
-
-        if (dienstplan) {
-          dienstplan.style.display =
-            'none';
-        }
-
-
-        if (tausch) {
-          tausch.style.display =
-            'none';
-        }
-
-
-        if (pin) {
-          pin.style.display =
-            'none';
-        }
-
-
-        if (admin) {
-          admin.style.display =
-            'none';
-        }
-
-
-        if (anfragen) {
-          anfragen.style.display =
-            'block';
-        }
-
-
-        document
-          .querySelectorAll(
-            '.nav-item, .nav-hauptpunkt'
-          )
-          .forEach(
-            function(element) {
-
-              element.classList.remove(
-                'aktiv'
-              );
-            }
-          );
-
-
-        const anfragenButton =
-          document.querySelector(
-            `[onclick="zeigeSeite('anfragen')"]`
-          );
-
-
-        if (anfragenButton) {
-
-          anfragenButton.classList.add(
-            'aktiv'
-          );
-        }
-
-
-        ladeMeineTauschAnfragenNeu();
-
-
-        const sidebar =
-          document.getElementById(
-            'sidebar'
-          );
-
-
-        if (
-          sidebar &&
-          window.innerWidth <= 900
-        ) {
-
-          sidebar.classList.remove(
-            'mobile-offen'
-          );
-        }
-
-
-        return;
-      }
-
-
-      if (anfragen) {
-
-        anfragen.style.display =
-          'none';
-      }
-
-
-      if (
-        bisherigeZeigeSeite
-      ) {
-
-        bisherigeZeigeSeite(
-          seite
-        );
-      }
-    };
 }
 
-
-// ==========================================================
-// ROTER ZÄHLER BEI "MEINE ANFRAGEN"
-// ==========================================================
-
-async function aktualisiereAnfragenBadgeNeu() {
-
-  const token =
-    localStorage.getItem(
-      SESSION_KEY
-    );
-
-
-  const badge =
-    document.getElementById(
-      'anfragenBadge'
-    );
-
-
-  if (
-    !token ||
-    !badge
-  ) {
-
-    return;
-  }
-
-
-  try {
-
-    const result =
-      await apiPost(
-        'tauschAnfragen',
-        {
-          token:
-            token
-        }
-      );
-
-
-    if (
-      !result ||
-      !result.ok
-    ) {
-
-      return;
-    }
-
-
-    const erhalten =
-      Array.isArray(
-        result.erhalten
-      )
-        ? result.erhalten
-        : [];
-
-
-    const offen =
-      erhalten.filter(
-        function(a) {
-
-          return (
-            String(
-              a.mitarbeiterStatus || ''
-            )
-              .trim()
-              .toUpperCase()
-            ===
-            'OFFEN'
-            &&
-            String(
-              a.gesamtstatus || ''
-            )
-              .trim()
-              .toUpperCase()
-            ===
-            'WARTET_AUF_KOLLEGEN'
-          );
-        }
-      ).length;
-
-
-    if (
-      offen > 0
-    ) {
-
-      badge.textContent =
-        String(
-          offen
-        );
-
-
-      badge.style.display =
-        'inline-flex';
-
-    } else {
-
-      badge.textContent =
-        '0';
-
-
-      badge.style.display =
-        'none';
-    }
-
-
-  } catch (error) {
-
-    console.error(
-      'Anfragen-Badge:',
-      error
-    );
-  }
-}
 
 // ==========================================================
 // MEINE TAUSCHANFRAGEN LADEN
@@ -3320,6 +2885,9 @@ async function ladeMeineTauschAnfragenNeu() {
 
     laden.style.display =
       'block';
+
+    laden.style.color =
+      '#666';
 
     laden.textContent =
       'Anfragen werden geladen …';
@@ -3453,7 +3021,7 @@ function rendereMeineTauschAnfragenNeu(
 
 
   // ========================================================
-  // ERHALTENE ANFRAGEN
+  // ERHALTENE
   // ========================================================
 
   html += `
@@ -3478,11 +3046,10 @@ function rendereMeineTauschAnfragenNeu(
         style="
           color:#666;
           margin-top:0;
-          margin-bottom:16px;
         "
       >
-        Hier kannst du Tauschanfragen
-        von Kollegen annehmen oder ablehnen.
+        Hier kannst du Anfragen
+        annehmen oder ablehnen.
       </p>
   `;
 
@@ -3525,7 +3092,7 @@ function rendereMeineTauschAnfragenNeu(
 
 
   // ========================================================
-  // GESENDETE ANFRAGEN
+  // GESENDETE
   // ========================================================
 
   html += `
@@ -3550,11 +3117,10 @@ function rendereMeineTauschAnfragenNeu(
         style="
           color:#666;
           margin-top:0;
-          margin-bottom:16px;
         "
       >
         Hier siehst du den aktuellen
-        Stand deiner Tauschanfragen.
+        Stand deiner Anfragen.
       </p>
   `;
 
@@ -3602,7 +3168,7 @@ function rendereMeineTauschAnfragenNeu(
 
 
 // ==========================================================
-// EINZELNE TAUSCHANFRAGE
+// TAUSCHANFRAGE-KARTE
 // ==========================================================
 
 function baueTauschAnfrageKarteNeu(
@@ -3659,39 +3225,21 @@ function baueTauschAnfrageKarteNeu(
         "
       >
 
-        <div>
-
-          <strong
-            style="
-              font-size:16px;
-            "
-          >
-            📅
-            ${escapeHtmlNeu(
-              anfrage.datum || ''
-            )}
-          </strong>
-
+        <strong>
+          📅
+          ${escapeHtmlNeu(
+            anfrage.datum || ''
+          )}
 
           ${
             anfrage.kw
-              ? `
-                <span
-                  style="
-                    margin-left:7px;
-                    color:#777;
-                    font-size:13px;
-                  "
-                >
-                  KW ${escapeHtmlNeu(
-                    anfrage.kw
-                  )}
-                </span>
-              `
+              ? ' · KW ' +
+                escapeHtmlNeu(
+                  anfrage.kw
+                )
               : ''
           }
-
-        </div>
+        </strong>
 
 
         <div
@@ -3712,17 +3260,11 @@ function baueTauschAnfrageKarteNeu(
 
       <div
         style="
-          margin-top:14px;
-          display:grid;
-          gap:10px;
+          margin-top:12px;
         "
       >
   `;
 
-
-  // ========================================================
-  // WER HAT WEM GESENDET
-  // ========================================================
 
   if (istErhalten) {
 
@@ -3736,49 +3278,20 @@ function baueTauschAnfrageKarteNeu(
           anfrage.anfragender || ''
         )}
       </div>
-    `;
-
-  } else {
-
-    html += `
-      <div>
-        <strong>
-          👤 An:
-        </strong>
-
-        ${escapeHtmlNeu(
-          anfrage.partner || ''
-        )}
-      </div>
-    `;
-  }
 
 
-  // ========================================================
-  // DIENSTE
-  // ========================================================
-
-  html += `
       <div
         style="
+          margin-top:10px;
           background:#f7f7f8;
           border-radius:9px;
           padding:12px;
         "
       >
-  `;
 
-
-  if (istErhalten) {
-
-    html += `
-        <div
-          style="
-            margin-bottom:8px;
-          "
-        >
+        <div>
           <strong>
-            Dein derzeitiger Dienst:
+            Dein Dienst:
           </strong>
 
           <br>
@@ -3791,7 +3304,11 @@ function baueTauschAnfrageKarteNeu(
         </div>
 
 
-        <div>
+        <div
+          style="
+            margin-top:8px;
+          "
+        >
           <strong>
             Dienst von
             ${escapeHtmlNeu(
@@ -3807,16 +3324,34 @@ function baueTauschAnfrageKarteNeu(
             )
           )}
         </div>
+
+      </div>
     `;
 
   } else {
 
     html += `
-        <div
-          style="
-            margin-bottom:8px;
-          "
-        >
+      <div>
+        <strong>
+          👤 An:
+        </strong>
+
+        ${escapeHtmlNeu(
+          anfrage.partner || ''
+        )}
+      </div>
+
+
+      <div
+        style="
+          margin-top:10px;
+          background:#f7f7f8;
+          border-radius:9px;
+          padding:12px;
+        "
+      >
+
+        <div>
           <strong>
             Dein Dienst:
           </strong>
@@ -3831,7 +3366,11 @@ function baueTauschAnfrageKarteNeu(
         </div>
 
 
-        <div>
+        <div
+          style="
+            margin-top:8px;
+          "
+        >
           <strong>
             Dienst von
             ${escapeHtmlNeu(
@@ -3847,17 +3386,11 @@ function baueTauschAnfrageKarteNeu(
             )
           )}
         </div>
+
+      </div>
     `;
   }
 
-
-  html +=
-    '</div>';
-
-
-  // ========================================================
-  // NACHRICHT
-  // ========================================================
 
   if (
     String(
@@ -3872,6 +3405,7 @@ function baueTauschAnfrageKarteNeu(
           padding:8px 11px;
           background:#fffafa;
           border-radius:0 8px 8px 0;
+          margin-top:10px;
         "
       >
         <strong>
@@ -3892,10 +3426,6 @@ function baueTauschAnfrageKarteNeu(
   }
 
 
-  // ========================================================
-  // ZEITSTEMPEL
-  // ========================================================
-
   if (
     anfrage.zeitstempel
   ) {
@@ -3905,6 +3435,7 @@ function baueTauschAnfrageKarteNeu(
         style="
           color:#888;
           font-size:12px;
+          margin-top:10px;
         "
       >
         Gesendet:
@@ -3920,19 +3451,12 @@ function baueTauschAnfrageKarteNeu(
     '</div>';
 
 
-  // ========================================================
-  // ANNEHMEN / ABLEHNEN
-  // ========================================================
-
   if (
     offenFuerKollegen
   ) {
 
     html += `
       <div
-        id="tauschAntwortBereich_${Number(
-          anfrage.zeile
-        )}"
         style="
           display:flex;
           gap:10px;
@@ -4008,7 +3532,7 @@ function baueTauschAnfrageKarteNeu(
 
 
 // ==========================================================
-// STATUS EINER TAUSCHANFRAGE
+// STATUS
 // ==========================================================
 
 function statusTauschAnfrageNeu(
@@ -4076,12 +3600,9 @@ function statusTauschAnfrageNeu(
 
 
   if (
-    gesamtstatus ===
-      'ABGELEHNT' ||
-    mitarbeiterStatus ===
-      'ABGELEHNT' ||
-    adminStatus ===
-      'ABGELEHNT'
+    gesamtstatus === 'ABGELEHNT' ||
+    mitarbeiterStatus === 'ABGELEHNT' ||
+    adminStatus === 'ABGELEHNT'
   ) {
 
     return {
@@ -4098,10 +3619,8 @@ function statusTauschAnfrageNeu(
 
 
   if (
-    gesamtstatus ===
-      'GENEHMIGT' ||
-    adminStatus ===
-      'GENEHMIGT'
+    gesamtstatus === 'GENEHMIGT' ||
+    adminStatus === 'GENEHMIGT'
   ) {
 
     return {
@@ -4149,7 +3668,7 @@ function statusTauschAnfrageNeu(
 
 
 // ==========================================================
-// TAUSCHANFRAGE ANNEHMEN / ABLEHNEN
+// ANNEHMEN / ABLEHNEN
 // ==========================================================
 
 async function bearbeiteTauschAnfrageNeu(
@@ -4207,24 +3726,6 @@ async function bearbeiteTauschAnfrageNeu(
 
     ablehnenButton.disabled =
       true;
-  }
-
-
-  if (genehmigen) {
-
-    if (annehmenButton) {
-
-      annehmenButton.textContent =
-        '⏳ Wird angenommen …';
-    }
-
-  } else {
-
-    if (ablehnenButton) {
-
-      ablehnenButton.textContent =
-        '⏳ Wird abgelehnt …';
-    }
   }
 
 
@@ -4330,7 +3831,7 @@ async function bearbeiteTauschAnfrageNeu(
 
 
 // ==========================================================
-// MELDUNG AUF "MEINE ANFRAGEN"
+// MELDUNG "MEINE ANFRAGEN"
 // ==========================================================
 
 function zeigeAnfragenMeldungNeu(
@@ -4383,6 +3884,1382 @@ function zeigeAnfragenMeldungNeu(
 
 
 // ==========================================================
+// BADGE "MEINE ANFRAGEN"
+// ==========================================================
+
+async function aktualisiereAnfragenBadgeNeu() {
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  const badge =
+    document.getElementById(
+      'anfragenBadge'
+    );
+
+
+  if (
+    !token ||
+    !badge
+  ) {
+
+    return;
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'tauschAnfragen',
+        {
+          token:
+            token
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      return;
+    }
+
+
+    const erhalten =
+      Array.isArray(
+        result.erhalten
+      )
+        ? result.erhalten
+        : [];
+
+
+    const offen =
+      erhalten.filter(
+        function(a) {
+
+          return (
+            String(
+              a.mitarbeiterStatus || ''
+            )
+              .trim()
+              .toUpperCase()
+            ===
+            'OFFEN'
+            &&
+            String(
+              a.gesamtstatus || ''
+            )
+              .trim()
+              .toUpperCase()
+            ===
+            'WARTET_AUF_KOLLEGEN'
+          );
+        }
+      ).length;
+
+
+    if (
+      offen > 0
+    ) {
+
+      badge.textContent =
+        String(
+          offen
+        );
+
+
+      badge.style.display =
+        'inline-flex';
+
+    } else {
+
+      badge.textContent =
+        '0';
+
+
+      badge.style.display =
+        'none';
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      'Anfragen-Badge:',
+      error
+    );
+  }
+}
+
+// ==========================================================
+// ADMIN-BEREICH ERZEUGEN
+// ==========================================================
+
+function installiereAdminBereichNeu() {
+
+  const content =
+    document.querySelector(
+      'main.content'
+    );
+
+
+  if (
+    content &&
+    !document.getElementById(
+      'adminAnsicht'
+    )
+  ) {
+
+    const section =
+      document.createElement(
+        'section'
+      );
+
+
+    section.id =
+      'adminAnsicht';
+
+
+    section.style.display =
+      'none';
+
+
+    section.innerHTML = `
+
+      <div class="content-header">
+
+        <div>
+
+          <h1>
+            🛡 Admin-Bereich
+          </h1>
+
+          <p>
+            Hier genehmigt oder lehnt
+            Babsi Tauschanfragen endgültig ab.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="adminMeldungNeu"
+        style="
+          display:none;
+          margin-bottom:14px;
+          padding:12px 14px;
+          border-radius:9px;
+        "
+      ></div>
+
+
+      <div
+        id="adminLadenNeu"
+        style="
+          color:#666;
+          padding:12px 0;
+        "
+      ></div>
+
+
+      <div
+        id="adminListeNeu"
+      ></div>
+    `;
+
+
+    content.appendChild(
+      section
+    );
+  }
+
+
+  // ========================================================
+  // ADMIN-BADGE
+  // ========================================================
+
+  const adminNav =
+    document.getElementById(
+      'adminNav'
+    );
+
+
+  if (
+    adminNav &&
+    !document.getElementById(
+      'adminBadgeNeu'
+    )
+  ) {
+
+    const badge =
+      document.createElement(
+        'span'
+      );
+
+
+    badge.id =
+      'adminBadgeNeu';
+
+
+    badge.className =
+      'badge';
+
+
+    badge.style.display =
+      'none';
+
+
+    badge.textContent =
+      '0';
+
+
+    adminNav.appendChild(
+      badge
+    );
+  }
+
+
+  // ========================================================
+  // BESTEHENDE NAVIGATION ERWEITERN
+  // ========================================================
+
+  const bisherigeZeigeSeite =
+    typeof window.zeigeSeite ===
+      'function'
+      ? window.zeigeSeite
+      : null;
+
+
+  window.zeigeSeite =
+    function(seite) {
+
+      const anfragen =
+        document.getElementById(
+          'anfragenAnsicht'
+        );
+
+
+      const admin =
+        document.getElementById(
+          'adminAnsicht'
+        );
+
+
+      // ====================================================
+      // MEINE ANFRAGEN
+      // ====================================================
+
+      if (
+        seite === 'anfragen'
+      ) {
+
+        versteckeStandardAnsichtenNeu();
+
+
+        if (admin) {
+
+          admin.style.display =
+            'none';
+        }
+
+
+        if (anfragen) {
+
+          anfragen.style.display =
+            'block';
+        }
+
+
+        markiereNavigationNeu(
+          'anfragen'
+        );
+
+
+        ladeMeineTauschAnfragenNeu();
+
+
+        schliesseMobileNavigationNeu();
+
+
+        return;
+      }
+
+
+      // ====================================================
+      // ADMIN
+      // ====================================================
+
+      if (
+        seite === 'admin'
+      ) {
+
+        versteckeStandardAnsichtenNeu();
+
+
+        if (anfragen) {
+
+          anfragen.style.display =
+            'none';
+        }
+
+
+        if (admin) {
+
+          admin.style.display =
+            'block';
+        }
+
+
+        markiereNavigationNeu(
+          'admin'
+        );
+
+
+        if (
+          !aktuellerAdmin
+        ) {
+
+          const laden =
+            document.getElementById(
+              'adminLadenNeu'
+            );
+
+
+          const liste =
+            document.getElementById(
+              'adminListeNeu'
+            );
+
+
+          if (laden) {
+
+            laden.style.display =
+              'block';
+
+            laden.style.color =
+              '#b00020';
+
+            laden.textContent =
+              '❌ Keine Admin-Berechtigung.';
+          }
+
+
+          if (liste) {
+
+            liste.innerHTML =
+              '';
+          }
+
+        } else {
+
+          ladeAdminTauschAnfragenNeu();
+        }
+
+
+        schliesseMobileNavigationNeu();
+
+
+        return;
+      }
+
+
+      // ====================================================
+      // DYNAMISCHE SEITEN AUSBLENDEN
+      // ====================================================
+
+      if (anfragen) {
+
+        anfragen.style.display =
+          'none';
+      }
+
+
+      if (admin) {
+
+        admin.style.display =
+          'none';
+      }
+
+
+      // Alte Navigation weiterverwenden
+      if (
+        bisherigeZeigeSeite
+      ) {
+
+        bisherigeZeigeSeite(
+          seite
+        );
+      }
+    };
+}
+
+
+// ==========================================================
+// STANDARD-ANSICHTEN AUSBLENDEN
+// ==========================================================
+
+function versteckeStandardAnsichtenNeu() {
+
+  const dienstplan =
+    document.getElementById(
+      'dienstplanAnsicht'
+    );
+
+
+  const tausch =
+    document.getElementById(
+      'tauschAnsicht'
+    );
+
+
+  if (dienstplan) {
+
+    dienstplan.style.display =
+      'none';
+  }
+
+
+  if (tausch) {
+
+    tausch.style.display =
+      'none';
+  }
+}
+
+
+// ==========================================================
+// NAVIGATION MARKIEREN
+// ==========================================================
+
+function markiereNavigationNeu(
+  seite
+) {
+
+  document
+    .querySelectorAll(
+      '.nav-item'
+    )
+    .forEach(
+      function(button) {
+
+        button.classList.remove(
+          'aktiv'
+        );
+      }
+    );
+
+
+  document
+    .querySelectorAll(
+      '.nav-untermenue button'
+    )
+    .forEach(
+      function(button) {
+
+        button.classList.remove(
+          'aktiv'
+        );
+      }
+    );
+
+
+  const tauschGruppe =
+    document.querySelector(
+      '.nav-gruppe'
+    );
+
+
+  if (tauschGruppe) {
+
+    tauschGruppe.classList.remove(
+      'aktiv'
+    );
+  }
+
+
+  const button =
+    document.querySelector(
+      `[onclick="zeigeSeite('${seite}')"]`
+    );
+
+
+  if (button) {
+
+    button.classList.add(
+      'aktiv'
+    );
+  }
+}
+
+
+// ==========================================================
+// MOBILE NAVIGATION SCHLIESSEN
+// ==========================================================
+
+function schliesseMobileNavigationNeu() {
+
+  if (
+    window.innerWidth <= 900
+  ) {
+
+    const sidebar =
+      document.getElementById(
+        'sidebar'
+      );
+
+
+    if (sidebar) {
+
+      sidebar.classList.remove(
+        'mobile-offen'
+      );
+    }
+  }
+}
+
+
+// ==========================================================
+// ADMIN-TAUSCHANFRAGEN LADEN
+// ==========================================================
+
+async function ladeAdminTauschAnfragenNeu() {
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  const laden =
+    document.getElementById(
+      'adminLadenNeu'
+    );
+
+
+  const liste =
+    document.getElementById(
+      'adminListeNeu'
+    );
+
+
+  if (!token) {
+
+    await logoutAusfuehren();
+
+    return;
+  }
+
+
+  if (laden) {
+
+    laden.style.display =
+      'block';
+
+    laden.style.color =
+      '#666';
+
+    laden.textContent =
+      'Offene Tauschanfragen werden geladen …';
+  }
+
+
+  if (liste) {
+
+    liste.innerHTML =
+      '';
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'adminTauschAnfragen',
+        {
+          token:
+            token
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result?.message ||
+        'Admin-Tauschanfragen konnten nicht geladen werden.'
+      );
+    }
+
+
+    const anfragen =
+      Array.isArray(
+        result.anfragen
+      )
+        ? result.anfragen
+        : [];
+
+
+    rendereAdminTauschAnfragenNeu(
+      anfragen
+    );
+
+
+    setzeAdminBadgeNeu(
+      anfragen.length
+    );
+
+
+    if (laden) {
+
+      laden.style.display =
+        'none';
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      'Admin-Tauschanfragen:',
+      error
+    );
+
+
+    if (laden) {
+
+      laden.style.display =
+        'block';
+
+      laden.style.color =
+        '#b00020';
+
+      laden.textContent =
+        '❌ ' +
+        error.message;
+    }
+  }
+}
+
+
+// ==========================================================
+// ADMIN-ANFRAGEN ANZEIGEN
+// ==========================================================
+
+function rendereAdminTauschAnfragenNeu(
+  anfragen
+) {
+
+  const liste =
+    document.getElementById(
+      'adminListeNeu'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  let html = `
+
+    <div
+      class="panel"
+      style="
+        padding:18px;
+        margin-bottom:18px;
+      "
+    >
+
+      <h2
+        style="
+          margin-top:0;
+          margin-bottom:6px;
+        "
+      >
+        🔄 Offene Diensttausche
+      </h2>
+
+
+      <p
+        style="
+          color:#666;
+          margin-top:0;
+          margin-bottom:16px;
+        "
+      >
+        Diese Tausche wurden bereits
+        vom Tauschpartner bestätigt
+        und warten auf deine endgültige
+        Entscheidung.
+      </p>
+  `;
+
+
+  if (
+    !anfragen ||
+    anfragen.length === 0
+  ) {
+
+    html += `
+
+      <div
+        style="
+          background:#f7f7f8;
+          border-radius:9px;
+          padding:14px;
+          color:#666;
+        "
+      >
+        ✅ Aktuell wartet keine
+        Tauschanfrage auf deine Freigabe.
+      </div>
+    `;
+
+  } else {
+
+    anfragen.forEach(
+      function(anfrage) {
+
+        html +=
+          baueAdminTauschKarteNeu(
+            anfrage
+          );
+      }
+    );
+  }
+
+
+  html +=
+    '</div>';
+
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// ADMIN-TAUSCHKARTE
+// ==========================================================
+
+function baueAdminTauschKarteNeu(
+  anfrage
+) {
+
+  const zeile =
+    Number(
+      anfrage.zeile || 0
+    );
+
+
+  return `
+
+    <div
+      style="
+        border:1px solid #e0e3e7;
+        border-radius:11px;
+        padding:15px;
+        margin-top:12px;
+        background:#ffffff;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:flex-start;
+          gap:10px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <strong>
+          📅
+          ${escapeHtmlNeu(
+            anfrage.datum || ''
+          )}
+
+          ${
+            anfrage.kw
+              ? ' · KW ' +
+                escapeHtmlNeu(
+                  anfrage.kw
+                )
+              : ''
+          }
+        </strong>
+
+
+        <div
+          style="
+            padding:5px 9px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:700;
+            background:#fff0dc;
+            color:#8a4b00;
+          "
+        >
+          🟠 Wartet auf Babsi
+        </div>
+
+      </div>
+
+
+      <div
+        style="
+          margin-top:13px;
+        "
+      >
+        <strong>
+          👥 Tausch:
+        </strong>
+
+        ${escapeHtmlNeu(
+          anfrage.anfragender || ''
+        )}
+
+        ↔
+
+        ${escapeHtmlNeu(
+          anfrage.partner || ''
+        )}
+      </div>
+
+
+      <div
+        style="
+          margin-top:10px;
+          background:#f7f7f8;
+          border-radius:9px;
+          padding:12px;
+        "
+      >
+
+        <div>
+
+          <strong>
+            ${escapeHtmlNeu(
+              anfrage.anfragender || ''
+            )}:
+          </strong>
+
+          <br>
+
+          ${escapeHtmlNeu(
+            entferneDienstSymbol(
+              anfrage.eigenerDienst || ''
+            )
+          )}
+
+        </div>
+
+
+        <div
+          style="
+            margin-top:9px;
+          "
+        >
+
+          <strong>
+            ${escapeHtmlNeu(
+              anfrage.partner || ''
+            )}:
+          </strong>
+
+          <br>
+
+          ${escapeHtmlNeu(
+            entferneDienstSymbol(
+              anfrage.partnerDienst || ''
+            )
+          )}
+
+        </div>
+
+      </div>
+
+
+      ${
+        String(
+          anfrage.nachricht || ''
+        ).trim()
+          ? `
+
+            <div
+              style="
+                border-left:4px solid #e30613;
+                padding:8px 11px;
+                background:#fffafa;
+                border-radius:0 8px 8px 0;
+                margin-top:10px;
+              "
+            >
+
+              <strong>
+                💬 Nachricht
+              </strong>
+
+              <div
+                style="
+                  margin-top:5px;
+                "
+              >
+                ${escapeHtmlNeu(
+                  anfrage.nachricht || ''
+                )}
+              </div>
+
+            </div>
+          `
+          : ''
+      }
+
+
+      <div
+        style="
+          margin-top:12px;
+          color:#666;
+          font-size:13px;
+        "
+      >
+        ℹ️ Erst mit deiner Genehmigung
+        wird der Dienstplan tatsächlich
+        geändert.
+      </div>
+
+
+      <div
+        style="
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+          margin-top:15px;
+        "
+      >
+
+        <button
+          id="adminGenehmigen_${zeile}"
+          type="button"
+
+          onclick="bearbeiteAdminTauschNeu(
+            ${zeile},
+            true
+          )"
+
+          style="
+            border:0;
+            background:#188038;
+            color:#ffffff;
+            border-radius:8px;
+            padding:10px 15px;
+            font-weight:700;
+            cursor:pointer;
+          "
+        >
+          ✅ Tausch genehmigen
+        </button>
+
+
+        <button
+          id="adminAblehnen_${zeile}"
+          type="button"
+
+          onclick="bearbeiteAdminTauschNeu(
+            ${zeile},
+            false
+          )"
+
+          style="
+            border:1px solid #d93025;
+            background:#ffffff;
+            color:#d93025;
+            border-radius:8px;
+            padding:10px 15px;
+            font-weight:700;
+            cursor:pointer;
+          "
+        >
+          ❌ Tausch ablehnen
+        </button>
+
+      </div>
+
+    </div>
+  `;
+}
+
+
+// ==========================================================
+// ADMIN GENEHMIGT / LEHNT AB
+// ==========================================================
+
+async function bearbeiteAdminTauschNeu(
+  zeile,
+  genehmigen
+) {
+
+  zeile =
+    Number(
+      zeile
+    );
+
+
+  if (!zeile) {
+    return;
+  }
+
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  if (!token) {
+
+    await logoutAusfuehren();
+
+    return;
+  }
+
+
+  const genehmigenButton =
+    document.getElementById(
+      'adminGenehmigen_' +
+      zeile
+    );
+
+
+  const ablehnenButton =
+    document.getElementById(
+      'adminAblehnen_' +
+      zeile
+    );
+
+
+  if (genehmigenButton) {
+
+    genehmigenButton.disabled =
+      true;
+  }
+
+
+  if (ablehnenButton) {
+
+    ablehnenButton.disabled =
+      true;
+  }
+
+
+  if (
+    genehmigen &&
+    genehmigenButton
+  ) {
+
+    genehmigenButton.textContent =
+      '⏳ Wird genehmigt …';
+  }
+
+
+  if (
+    !genehmigen &&
+    ablehnenButton
+  ) {
+
+    ablehnenButton.textContent =
+      '⏳ Wird abgelehnt …';
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'adminTauschAnfrageBearbeiten',
+        {
+          token:
+            token,
+
+          zeile:
+            zeile,
+
+          genehmigen:
+            genehmigen === true
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result?.message ||
+        'Die Admin-Entscheidung konnte nicht gespeichert werden.'
+      );
+    }
+
+
+    zeigeAdminMeldungNeu(
+      '✅ ' +
+      (
+        result.message ||
+        (
+          genehmigen
+            ? 'Der Diensttausch wurde genehmigt.'
+            : 'Der Diensttausch wurde abgelehnt.'
+        )
+      ),
+      true
+    );
+
+
+    await ladeAdminTauschAnfragenNeu();
+
+
+  } catch (error) {
+
+    console.error(
+      'Admin-Tausch bearbeiten:',
+      error
+    );
+
+
+    zeigeAdminMeldungNeu(
+      '❌ ' +
+      error.message,
+      false
+    );
+
+
+    if (genehmigenButton) {
+
+      genehmigenButton.disabled =
+        false;
+
+      genehmigenButton.textContent =
+        '✅ Tausch genehmigen';
+    }
+
+
+    if (ablehnenButton) {
+
+      ablehnenButton.disabled =
+        false;
+
+      ablehnenButton.textContent =
+        '❌ Tausch ablehnen';
+    }
+  }
+}
+
+
+// ==========================================================
+// ADMIN-MELDUNG
+// ==========================================================
+
+function zeigeAdminMeldungNeu(
+  text,
+  erfolg
+) {
+
+  const meldung =
+    document.getElementById(
+      'adminMeldungNeu'
+    );
+
+
+  if (!meldung) {
+    return;
+  }
+
+
+  meldung.style.display =
+    'block';
+
+
+  meldung.textContent =
+    text;
+
+
+  if (erfolg) {
+
+    meldung.style.background =
+      '#eaf7ee';
+
+    meldung.style.border =
+      '1px solid #9bd3aa';
+
+    meldung.style.color =
+      '#176b2c';
+
+  } else {
+
+    meldung.style.background =
+      '#fff0f0';
+
+    meldung.style.border =
+      '1px solid #e3aaaa';
+
+    meldung.style.color =
+      '#a00000';
+  }
+}
+
+
+// ==========================================================
+// ADMIN-BADGE
+// ==========================================================
+
+function setzeAdminBadgeNeu(
+  anzahl
+) {
+
+  const badge =
+    document.getElementById(
+      'adminBadgeNeu'
+    );
+
+
+  if (!badge) {
+    return;
+  }
+
+
+  anzahl =
+    Number(
+      anzahl || 0
+    );
+
+
+  if (
+    anzahl > 0
+  ) {
+
+    badge.textContent =
+      String(
+        anzahl
+      );
+
+
+    badge.style.display =
+      'inline-flex';
+
+  } else {
+
+    badge.textContent =
+      '0';
+
+
+    badge.style.display =
+      'none';
+  }
+}
+
+
+// ==========================================================
+// DIENSTSYMBOL ENTFERNEN
+// ==========================================================
+
+function entferneDienstSymbol(
+  text
+) {
+
+  return String(
+    text || ''
+  )
+    .replace(
+      /^[^A-Za-zÄÖÜäöü]+/,
+      ''
+    )
+    .trim();
+}
+
+
+// ==========================================================
+// DIENSTZEITEN
+// ==========================================================
+
+function zeitFruehNeu(
+  tag
+) {
+
+  if (
+    tag === 'Samstag'
+  ) {
+
+    return '09:00 – 18:00';
+  }
+
+
+  return '09:00 – 14:30';
+}
+
+
+function zeitSpaetNeu(
+  tag
+) {
+
+  if (
+    tag === 'Samstag'
+  ) {
+
+    return '11:30 – 16:00';
+  }
+
+
+  if (
+    tag === 'Donnerstag' ||
+    tag === 'Freitag'
+  ) {
+
+    return '14:30 – 20:00';
+  }
+
+
+  return '14:30 – 19:00';
+}
+
+
+function zeitSpaetEndeNeu(
+  tag
+) {
+
+  if (
+    tag === 'Samstag'
+  ) {
+
+    return '18:00';
+  }
+
+
+  if (
+    tag === 'Donnerstag' ||
+    tag === 'Freitag'
+  ) {
+
+    return '20:00';
+  }
+
+
+  return '19:00';
+}
+
+
+// ==========================================================
 // ABMELDEN
 // ==========================================================
 
@@ -4401,6 +5278,7 @@ async function logoutAusfuehren() {
 
   aktuellerBenutzer =
     '';
+
 
   aktuellerAdmin =
     false;
@@ -4441,23 +5319,30 @@ async function logoutAusfuehren() {
   }
 
 
-  const badge =
+  const anfragenBadge =
     document.getElementById(
       'anfragenBadge'
     );
 
 
-  if (badge) {
+  if (anfragenBadge) {
 
-    badge.style.display =
+    anfragenBadge.style.display =
       'none';
 
-    badge.textContent =
+
+    anfragenBadge.textContent =
       '0';
   }
 
 
+  setzeAdminBadgeNeu(
+    0
+  );
+
+
   zeigeLogin();
+
 
   await ladeMitarbeiter();
 }
@@ -4498,7 +5383,7 @@ async function pinVergessenNeu() {
 
 
 // ==========================================================
-// LOGIN MELDUNGEN
+// LOGIN-MELDUNGEN
 // ==========================================================
 
 function zeigeLoginMeldung(
@@ -4664,39 +5549,6 @@ async function zeigeKollegen() {
 
   await ladeEchteTauschpartner();
 }
-
-
-// ==========================================================
-// ENTER BEIM LOGIN
-// ==========================================================
-
-document.addEventListener(
-  'keydown',
-  function(event) {
-
-    if (
-      event.key !== 'Enter'
-    ) {
-
-      return;
-    }
-
-
-    const login =
-      document.getElementById(
-        'loginAnsicht'
-      );
-
-
-    if (
-      login &&
-      login.style.display !== 'none'
-    ) {
-
-      loginAusfuehren();
-    }
-  }
-);
 
 
 // ==========================================================
