@@ -9,11 +9,14 @@ const SESSION_KEY =
   'scs_team_session';
 
 
-let aktuellerBenutzer =
-  '';
+let aktuellerBenutzer = '';
+let aktuellerAdmin = false;
 
-let aktuellerAdmin =
-  false;
+let geladenerDienstplan = [];
+let geladeneAbwesenheiten = [];
+
+let verfuegbareKws = [];
+let aktuelleKwIndex = 0;
 
 
 // ==========================================================
@@ -29,8 +32,7 @@ async function apiPost(
     await fetch(
       API_URL,
       {
-        method:
-          'POST',
+        method: 'POST',
 
         headers: {
           'Content-Type':
@@ -39,14 +41,11 @@ async function apiPost(
 
         body:
           JSON.stringify({
-            action:
-              action,
-
+            action: action,
             ...daten
           }),
 
-        redirect:
-          'follow'
+        redirect: 'follow'
       }
     );
 
@@ -63,18 +62,13 @@ async function apiPost(
   );
 
 
-  if (
-    !response.ok
-  ) {
+  if (!response.ok) {
 
     throw new Error(
       'HTTP ' +
       response.status +
       ': ' +
-      text.substring(
-        0,
-        300
-      )
+      text.substring(0, 300)
     );
   }
 
@@ -89,10 +83,7 @@ async function apiPost(
 
     throw new Error(
       'Server hat kein gültiges JSON zurückgegeben: ' +
-      text.substring(
-        0,
-        300
-      )
+      text.substring(0, 300)
     );
   }
 }
@@ -120,9 +111,7 @@ async function starteApp() {
     );
 
 
-  if (
-    token
-  ) {
+  if (token) {
 
     try {
 
@@ -130,8 +119,7 @@ async function starteApp() {
         await apiPost(
           'session',
           {
-            token:
-              token
+            token: token
           }
         );
 
@@ -179,7 +167,6 @@ async function starteApp() {
 
   zeigeLogin();
 
-
   await ladeMitarbeiter();
 }
 
@@ -195,25 +182,20 @@ function zeigeLogin() {
       'loginAnsicht'
     );
 
-
   const app =
     document.getElementById(
       'hauptApp'
     );
 
 
-  if (
-    login
-  ) {
+  if (login) {
 
     login.style.display =
       'flex';
   }
 
 
-  if (
-    app
-  ) {
+  if (app) {
 
     app.style.display =
       'none';
@@ -233,9 +215,7 @@ async function ladeMitarbeiter() {
     );
 
 
-  if (
-    !select
-  ) {
+  if (!select) {
 
     return;
   }
@@ -378,9 +358,7 @@ async function loginAusfuehren() {
   loescheLoginMeldung();
 
 
-  if (
-    !name
-  ) {
+  if (!name) {
 
     zeigeLoginMeldung(
       'Bitte wähle deinen Namen aus.',
@@ -411,9 +389,7 @@ async function loginAusfuehren() {
   }
 
 
-  if (
-    button
-  ) {
+  if (button) {
 
     button.disabled =
       true;
@@ -430,11 +406,8 @@ async function loginAusfuehren() {
       await apiPost(
         'login',
         {
-          name:
-            name,
-
-          pin:
-            pin
+          name: name,
+          pin: pin
         }
       );
 
@@ -469,9 +442,7 @@ async function loginAusfuehren() {
       result.admin === true;
 
 
-    if (
-      pinElement
-    ) {
+    if (pinElement) {
 
       pinElement.value =
         '';
@@ -503,9 +474,7 @@ async function loginAusfuehren() {
 
   } finally {
 
-    if (
-      button
-    ) {
+    if (button) {
 
       button.disabled =
         false;
@@ -539,18 +508,14 @@ function zeigeHauptApp(
     );
 
 
-  if (
-    login
-  ) {
+  if (login) {
 
     login.style.display =
       'none';
   }
 
 
-  if (
-    app
-  ) {
+  if (app) {
 
     app.style.display =
       'flex';
@@ -563,9 +528,7 @@ function zeigeHauptApp(
     );
 
 
-  if (
-    profilName
-  ) {
+  if (profilName) {
 
     profilName.textContent =
       name || 'Mitarbeiter';
@@ -578,9 +541,7 @@ function zeigeHauptApp(
     );
 
 
-  if (
-    adminNav
-  ) {
+  if (adminNav) {
 
     adminNav.style.display =
       admin
@@ -602,9 +563,7 @@ async function ladeMeinDienstplanNeu() {
     );
 
 
-  if (
-    !token
-  ) {
+  if (!token) {
 
     zeigeLogin();
 
@@ -632,15 +591,7 @@ async function ladeMeinDienstplanNeu() {
     );
 
 
-  const abwesenheitenListe =
-    document.getElementById(
-      'abwesenheitenListe'
-    );
-
-
-  if (
-    laden
-  ) {
+  if (laden) {
 
     laden.style.display =
       'block';
@@ -651,9 +602,7 @@ async function ladeMeinDienstplanNeu() {
   }
 
 
-  if (
-    liste
-  ) {
+  if (liste) {
 
     liste.innerHTML =
       '';
@@ -666,8 +615,7 @@ async function ladeMeinDienstplanNeu() {
       await apiPost(
         'meinDienstplan',
         {
-          token:
-            token
+          token: token
         }
       );
 
@@ -719,9 +667,7 @@ async function ladeMeinDienstplanNeu() {
       );
 
 
-    if (
-      profilName
-    ) {
+    if (profilName) {
 
       profilName.textContent =
         aktuellerBenutzer ||
@@ -729,9 +675,7 @@ async function ladeMeinDienstplanNeu() {
     }
 
 
-    if (
-      sollstundenElement
-    ) {
+    if (sollstundenElement) {
 
       const soll =
         Number(
@@ -741,38 +685,43 @@ async function ladeMeinDienstplanNeu() {
 
       sollstundenElement.textContent =
         soll
-          .toFixed(
-            1
-          )
-          .replace(
-            '.',
-            ','
-          ) +
+          .toFixed(1)
+          .replace('.', ',') +
         ' Std.';
     }
 
 
-    rendereDienstplan(
+    geladenerDienstplan =
       Array.isArray(
         result.dienstplan
       )
         ? result.dienstplan
-        : []
-    );
+        : [];
 
 
-    rendereAbwesenheiten(
+    geladeneAbwesenheiten =
       Array.isArray(
         result.abwesenheiten
       )
         ? result.abwesenheiten
-        : []
+        : [];
+
+
+    baueKwListe();
+
+
+    aktualisiereWochenAnsicht();
+
+
+    rendereAbwesenheiten(
+      geladeneAbwesenheiten
     );
 
 
-    if (
-      laden
-    ) {
+    setzeAktualisiertZeit();
+
+
+    if (laden) {
 
       laden.style.display =
         'none';
@@ -785,9 +734,7 @@ async function ladeMeinDienstplanNeu() {
     );
 
 
-    if (
-      laden
-    ) {
+    if (laden) {
 
       laden.style.display =
         'block';
@@ -797,16 +744,216 @@ async function ladeMeinDienstplanNeu() {
         'Fehler beim Laden: ' +
         error.message;
     }
-
-
-    if (
-      abwesenheitenListe
-    ) {
-
-      abwesenheitenListe.innerHTML =
-        '<div class="empty-state">Abwesenheiten konnten nicht geladen werden.</div>';
-    }
   }
+}
+
+
+// ==========================================================
+// VERFÜGBARE WOCHEN ERMITTELN
+// ==========================================================
+
+function baueKwListe() {
+
+  const kws =
+    [];
+
+
+  geladenerDienstplan.forEach(
+    function(tag) {
+
+      const kw =
+        Number(
+          tag.kw
+        );
+
+
+      if (
+        Number.isFinite(kw) &&
+        kw > 0 &&
+        !kws.includes(kw)
+      ) {
+
+        kws.push(
+          kw
+        );
+      }
+    }
+  );
+
+
+  kws.sort(
+    function(a, b) {
+
+      return a - b;
+    }
+  );
+
+
+  verfuegbareKws =
+    kws;
+
+
+  if (
+    verfuegbareKws.length === 0
+  ) {
+
+    aktuelleKwIndex =
+      0;
+
+
+    return;
+  }
+
+
+  // Beim Neuladen zunächst die erste vorhandene Woche anzeigen.
+  aktuelleKwIndex =
+    0;
+}
+
+
+// ==========================================================
+// WOCHE WECHSELN
+// ==========================================================
+
+function wechselWoche(
+  richtung
+) {
+
+  if (
+    verfuegbareKws.length === 0
+  ) {
+
+    return;
+  }
+
+
+  const neuerIndex =
+    aktuelleKwIndex +
+    Number(
+      richtung || 0
+    );
+
+
+  if (
+    neuerIndex < 0 ||
+    neuerIndex >=
+      verfuegbareKws.length
+  ) {
+
+    return;
+  }
+
+
+  aktuelleKwIndex =
+    neuerIndex;
+
+
+  aktualisiereWochenAnsicht();
+}
+
+
+// ==========================================================
+// WOCHEN-ANSICHT AKTUALISIEREN
+// ==========================================================
+
+function aktualisiereWochenAnsicht() {
+
+  const kwAnzeige =
+    document.getElementById(
+      'kwAnzeige'
+    );
+
+
+  const zurueck =
+    document.getElementById(
+      'kwZurueck'
+    );
+
+
+  const weiter =
+    document.getElementById(
+      'kwWeiter'
+    );
+
+
+  if (
+    verfuegbareKws.length === 0
+  ) {
+
+    if (kwAnzeige) {
+
+      kwAnzeige.textContent =
+        'KW —';
+    }
+
+
+    if (zurueck) {
+
+      zurueck.disabled =
+        true;
+    }
+
+
+    if (weiter) {
+
+      weiter.disabled =
+        true;
+    }
+
+
+    rendereDienstplan(
+      []
+    );
+
+
+    return;
+  }
+
+
+  const kw =
+    verfuegbareKws[
+      aktuelleKwIndex
+    ];
+
+
+  if (kwAnzeige) {
+
+    kwAnzeige.textContent =
+      'KW ' + kw;
+  }
+
+
+  if (zurueck) {
+
+    zurueck.disabled =
+      aktuelleKwIndex === 0;
+  }
+
+
+  if (weiter) {
+
+    weiter.disabled =
+      aktuelleKwIndex ===
+      verfuegbareKws.length - 1;
+  }
+
+
+  const planDerWoche =
+    geladenerDienstplan.filter(
+      function(tag) {
+
+        return (
+          Number(
+            tag.kw
+          ) === kw
+        );
+      }
+    );
+
+
+  rendereDienstplan(
+    planDerWoche
+  );
 }
 
 
@@ -824,9 +971,7 @@ function rendereDienstplan(
     );
 
 
-  if (
-    !liste
-  ) {
+  if (!liste) {
 
     return;
   }
@@ -854,8 +999,8 @@ function rendereDienstplan(
 
     liste.innerHTML =
       `
-        <div class="panel">
-          Keine Dienste gefunden.
+        <div class="empty-state">
+          In dieser Woche hast du keine Dienste.
         </div>
       `;
 
@@ -875,124 +1020,68 @@ function rendereDienstplan(
         [];
 
 
-      if (
-        z.gpFrueh
-      ) {
+      if (z.gpFrueh) {
 
         dienste.push({
-
-          typ:
-            'gp',
-
-          name:
-            'Garden Plaza – Früh',
-
-          zeit:
-            zeitFruehNeu(
-              z.tag
-            )
-
+          typ: 'gp',
+          symbol: '☀️',
+          name: 'Garden Plaza – Früh',
+          zeit: zeitFruehNeu(z.tag)
         });
       }
 
 
-      if (
-        z.gpSpaet
-      ) {
+      if (z.gpSpaet) {
 
         dienste.push({
-
-          typ:
-            'gp',
-
-          name:
-            'Garden Plaza – Spät',
-
-          zeit:
-            zeitSpaetNeu(
-              z.tag
-            )
-
+          typ: 'gp',
+          symbol: '🌙',
+          name: 'Garden Plaza – Spät',
+          zeit: zeitSpaetNeu(z.tag)
         });
       }
 
 
-      if (
-        z.gpAbloese
-      ) {
+      if (z.gpAbloese) {
 
         dienste.push({
-
-          typ:
-            'abloese',
-
-          name:
-            'Garden Plaza – Pausenablöse',
-
-          zeit:
-            z.gpAbloesezeit || ''
-
+          typ: 'abloese',
+          symbol: '🕒',
+          name: 'Garden Plaza – Pausenablöse',
+          zeit: z.gpAbloesezeit || ''
         });
       }
 
 
-      if (
-        z.wpFrueh
-      ) {
+      if (z.wpFrueh) {
 
         dienste.push({
-
-          typ:
-            'wp',
-
-          name:
-            'Water Plaza – Früh',
-
-          zeit:
-            zeitFruehNeu(
-              z.tag
-            )
-
+          typ: 'wp',
+          symbol: '☀️',
+          name: 'Water Plaza – Früh',
+          zeit: zeitFruehNeu(z.tag)
         });
       }
 
 
-      if (
-        z.wpSpaet
-      ) {
+      if (z.wpSpaet) {
 
         dienste.push({
-
-          typ:
-            'wp',
-
-          name:
-            'Water Plaza – Spät',
-
-          zeit:
-            zeitSpaetNeu(
-              z.tag
-            )
-
+          typ: 'wp',
+          symbol: '🌙',
+          name: 'Water Plaza – Spät',
+          zeit: zeitSpaetNeu(z.tag)
         });
       }
 
 
-      if (
-        z.wpAbloese
-      ) {
+      if (z.wpAbloese) {
 
         dienste.push({
-
-          typ:
-            'abloese',
-
-          name:
-            'Water Plaza – Pausenablöse',
-
-          zeit:
-            z.wpAbloesezeit || ''
-
+          typ: 'abloese',
+          symbol: '🕒',
+          name: 'Water Plaza – Pausenablöse',
+          zeit: z.wpAbloesezeit || ''
         });
       }
 
@@ -1000,13 +1089,10 @@ function rendereDienstplan(
       html +=
         `
           <div
+            class="panel"
             style="
-              background:#ffffff;
-              border:1px solid #e1e4e8;
-              border-radius:14px;
               padding:18px;
-              margin-bottom:14px;
-              box-shadow:0 4px 18px rgba(0,0,0,0.05);
+              margin-bottom:12px;
             "
           >
 
@@ -1014,8 +1100,9 @@ function rendereDienstplan(
               style="
                 display:flex;
                 justify-content:space-between;
-                gap:15px;
+                gap:16px;
                 align-items:flex-start;
+                margin-bottom:10px;
               "
             >
 
@@ -1023,7 +1110,7 @@ function rendereDienstplan(
 
                 <strong
                   style="
-                    font-size:18px;
+                    font-size:17px;
                   "
                 >
                   ${escapeHtmlNeu(z.tag || '')},
@@ -1032,9 +1119,9 @@ function rendereDienstplan(
 
                 <div
                   style="
-                    margin-top:4px;
                     color:#666;
                     font-size:13px;
+                    margin-top:4px;
                   "
                 >
                   KW ${escapeHtmlNeu(z.kw || '')}
@@ -1058,8 +1145,7 @@ function rendereDienstplan(
 
 
           if (
-            dienst.typ ===
-            'gp'
+            dienst.typ === 'gp'
           ) {
 
             randfarbe =
@@ -1072,8 +1158,7 @@ function rendereDienstplan(
 
 
           if (
-            dienst.typ ===
-            'wp'
+            dienst.typ === 'wp'
           ) {
 
             randfarbe =
@@ -1086,8 +1171,7 @@ function rendereDienstplan(
 
 
           if (
-            dienst.typ ===
-            'abloese'
+            dienst.typ === 'abloese'
           ) {
 
             randfarbe =
@@ -1107,35 +1191,33 @@ function rendereDienstplan(
                   border:1px solid #e1e4e8;
                   border-left:6px solid ${randfarbe};
                   border-radius:10px;
-                  padding:14px;
-                  margin-top:10px;
+                  padding:13px 14px;
+                  margin-top:9px;
                 "
               >
 
                 <div
                   style="
                     font-weight:700;
-                    font-size:16px;
                   "
                 >
+                  ${dienst.symbol}
                   ${escapeHtmlNeu(dienst.name)}
                 </div>
 
 
                 ${
                   dienst.zeit
-
                     ? `
                       <div
                         style="
                           color:#666;
-                          margin-top:6px;
+                          margin-top:5px;
                         "
                       >
                         🕒 ${escapeHtmlNeu(dienst.zeit)}
                       </div>
                     `
-
                     : ''
                 }
 
@@ -1145,15 +1227,13 @@ function rendereDienstplan(
       );
 
 
-      if (
-        z.notiz
-      ) {
+      if (z.notiz) {
 
         html +=
           `
             <div
               style="
-                margin-top:11px;
+                margin-top:10px;
                 color:#666;
                 font-size:14px;
               "
@@ -1191,9 +1271,7 @@ function rendereAbwesenheiten(
     );
 
 
-  if (
-    !liste
-  ) {
+  if (!liste) {
 
     return;
   }
@@ -1206,12 +1284,7 @@ function rendereAbwesenheiten(
 
     liste.innerHTML =
       `
-        <div
-          style="
-            color:#666;
-            padding:14px 0;
-          "
-        >
+        <div class="empty-state">
           Keine Abwesenheiten vorhanden.
         </div>
       `;
@@ -1230,7 +1303,8 @@ function rendereAbwesenheiten(
 
       const status =
         String(
-          a.status || 'Abwesenheit'
+          a.status ||
+          'Abwesenheit'
         );
 
 
@@ -1279,13 +1353,11 @@ function rendereAbwesenheiten(
       html +=
         `
           <div
+            class="panel"
             style="
-              background:#ffffff;
-              border:1px solid #e1e4e8;
+              padding:16px;
+              margin-bottom:10px;
               border-left:6px solid ${farbe};
-              border-radius:10px;
-              padding:14px;
-              margin-top:10px;
             "
           >
 
@@ -1294,6 +1366,7 @@ function rendereAbwesenheiten(
               ${escapeHtmlNeu(status)}
             </strong>
 
+
             <div
               style="
                 color:#666;
@@ -1301,6 +1374,7 @@ function rendereAbwesenheiten(
               "
             >
               ${escapeHtmlNeu(a.von || '')}
+
               ${
                 a.bis
                   ? ' – ' +
@@ -1319,6 +1393,73 @@ function rendereAbwesenheiten(
 
   liste.innerHTML =
     html;
+}
+
+
+// ==========================================================
+// AKTUALISIERT AM
+// ==========================================================
+
+function setzeAktualisiertZeit() {
+
+  /*
+    Wir unterstützen mehrere mögliche IDs.
+    Dadurch funktioniert es auch, wenn deine index.html
+    für die Anzeige einen etwas anderen Namen verwendet.
+  */
+
+  const element =
+    document.getElementById(
+      'sidebarAktualisiert'
+    ) ||
+    document.getElementById(
+      'aktualisiertAnzeige'
+    ) ||
+    document.getElementById(
+      'aktualisiertAm'
+    );
+
+
+  if (!element) {
+
+    console.log(
+      'Keine Aktualisiert-am-Anzeige gefunden.'
+    );
+
+
+    return;
+  }
+
+
+  const jetzt =
+    new Date();
+
+
+  const datum =
+    jetzt.toLocaleDateString(
+      'de-AT',
+      {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }
+    );
+
+
+  const zeit =
+    jetzt.toLocaleTimeString(
+      'de-AT',
+      {
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    );
+
+
+  element.textContent =
+    datum +
+    ' · ' +
+    zeit;
 }
 
 
@@ -1392,17 +1533,30 @@ async function logoutAusfuehren() {
     false;
 
 
-  if (
-    token
-  ) {
+  geladenerDienstplan =
+    [];
+
+
+  geladeneAbwesenheiten =
+    [];
+
+
+  verfuegbareKws =
+    [];
+
+
+  aktuelleKwIndex =
+    0;
+
+
+  if (token) {
 
     try {
 
       await apiPost(
         'logout',
         {
-          token:
-            token
+          token: token
         }
       );
 
@@ -1422,9 +1576,7 @@ async function logoutAusfuehren() {
     );
 
 
-  if (
-    pin
-  ) {
+  if (pin) {
 
     pin.value =
       '';
@@ -1454,9 +1606,7 @@ async function pinVergessenNeu() {
     ).trim();
 
 
-  if (
-    !name
-  ) {
+  if (!name) {
 
     zeigeLoginMeldung(
       'Bitte wähle zuerst deinen Namen aus.',
@@ -1490,9 +1640,7 @@ function zeigeLoginMeldung(
     );
 
 
-  if (
-    !element
-  ) {
+  if (!element) {
 
     return;
   }
@@ -1520,9 +1668,7 @@ function loescheLoginMeldung() {
     );
 
 
-  if (
-    !element
-  ) {
+  if (!element) {
 
     return;
   }
