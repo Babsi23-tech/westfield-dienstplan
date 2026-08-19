@@ -94,6 +94,7 @@ document.addEventListener(
 
     installiereAbwesenheitenAnsichtNeu();
     installiereMeineAnfragenNeu();
+    installierePinAnsichtNeu();
     installiereAdminBereichNeu();
 
     await ladeAppInfoNeu();
@@ -516,6 +517,7 @@ function zeigeHauptApp(
 
 
   if (profilName) {
+
     profilName.textContent =
       name || 'Mitarbeiter';
   }
@@ -579,6 +581,7 @@ async function ladeMeinDienstplanNeu() {
 
 
   if (laden) {
+
     laden.style.display =
       'block';
 
@@ -588,6 +591,7 @@ async function ladeMeinDienstplanNeu() {
 
 
   if (liste) {
+
     liste.innerHTML =
       '';
   }
@@ -634,7 +638,9 @@ async function ladeMeinDienstplanNeu() {
 
 
     aktuellerBenutzer =
-      result.name || aktuellerBenutzer;
+      result.name ||
+      aktuellerBenutzer;
+
 
     aktuellerAdmin =
       result.admin === true;
@@ -647,8 +653,25 @@ async function ladeMeinDienstplanNeu() {
 
 
     if (profilName) {
+
       profilName.textContent =
-        aktuellerBenutzer || 'Mitarbeiter';
+        aktuellerBenutzer ||
+        'Mitarbeiter';
+    }
+
+
+    const adminNav =
+      document.getElementById(
+        'adminNav'
+      );
+
+
+    if (adminNav) {
+
+      adminNav.style.display =
+        aktuellerAdmin
+          ? 'flex'
+          : 'none';
     }
 
 
@@ -659,6 +682,7 @@ async function ladeMeinDienstplanNeu() {
           result.sollstunden || 0
         );
 
+
       sollstundenElement.textContent =
         soll
           .toFixed(1)
@@ -668,14 +692,18 @@ async function ladeMeinDienstplanNeu() {
 
 
     rendereDienstplan(
-      Array.isArray(result.dienstplan)
+      Array.isArray(
+        result.dienstplan
+      )
         ? result.dienstplan
         : []
     );
 
 
     rendereAbwesenheiten(
-      Array.isArray(result.abwesenheiten)
+      Array.isArray(
+        result.abwesenheiten
+      )
         ? result.abwesenheiten
         : []
     );
@@ -685,9 +713,11 @@ async function ladeMeinDienstplanNeu() {
 
 
     if (laden) {
+
       laden.style.display =
         'none';
     }
+
 
   } catch (error) {
 
@@ -715,10 +745,6 @@ async function ladeMeinDienstplanNeu() {
   }
 }
 
-
-// ==========================================================
-// DIENSTPLAN RENDERN
-// ==========================================================
 // ==========================================================
 // DIENSTPLAN RENDERN
 // ==========================================================
@@ -1040,10 +1066,6 @@ function rendereDienstplan(plan) {
       `;
 
 
-      // ====================================================
-      // DIENSTE
-      // ====================================================
-
       dienste.forEach(
         function(dienst) {
 
@@ -1232,10 +1254,6 @@ function rendereDienstplan(plan) {
         }
       );
 
-
-      // ====================================================
-      // NOTIZ
-      // ====================================================
 
       if (z.notiz) {
 
@@ -1576,10 +1594,6 @@ function rendereAbwesenheiten(
         '#ffffff';
 
 
-      // ====================================================
-      // URLAUB
-      // ====================================================
-
       if (
         statusKlein.includes(
           'urlaub'
@@ -1596,10 +1610,6 @@ function rendereAbwesenheiten(
           '#f8fff9';
       }
 
-
-      // ====================================================
-      // KRANK
-      // ====================================================
 
       if (
         statusKlein.includes(
@@ -1618,10 +1628,6 @@ function rendereAbwesenheiten(
       }
 
 
-      // ====================================================
-      // ZEITAUSGLEICH
-      // ====================================================
-
       if (
         statusKlein.includes(
           'zeitausgleich'
@@ -1638,10 +1644,6 @@ function rendereAbwesenheiten(
           '#f9fbff';
       }
 
-
-      // ====================================================
-      // FREI
-      // ====================================================
 
       if (
         statusKlein === 'frei' ||
@@ -3765,27 +3767,6 @@ function baueTauschAnfrageKarteNeu(
   }
 
 
-  if (
-    anfrage.zeitstempel
-  ) {
-
-    html += `
-      <div
-        style="
-          color:#888;
-          font-size:12px;
-          margin-top:10px;
-        "
-      >
-        Gesendet:
-        ${escapeHtmlNeu(
-          anfrage.zeitstempel
-        )}
-      </div>
-    `;
-  }
-
-
   html +=
     '</div>';
 
@@ -3975,24 +3956,6 @@ function statusTauschAnfrageNeu(
   }
 
 
-  if (
-    mitarbeiterStatus ===
-    'ZUGESTIMMT'
-  ) {
-
-    return {
-      text:
-        '🟠 Kollege hat zugestimmt',
-
-      hintergrund:
-        '#fff0dc',
-
-      farbe:
-        '#8a4b00'
-    };
-  }
-
-
   return {
     text:
       '⚪ In Bearbeitung',
@@ -4087,23 +4050,6 @@ async function bearbeiteTauschAnfrageNeu(
 
 
     if (
-      result &&
-      result.sessionExpired
-    ) {
-
-      localStorage.removeItem(
-        SESSION_KEY
-      );
-
-      zeigeLogin();
-
-      await ladeMitarbeiter();
-
-      return;
-    }
-
-
-    if (
       !result ||
       !result.ok
     ) {
@@ -4117,14 +4063,7 @@ async function bearbeiteTauschAnfrageNeu(
 
     zeigeAnfragenMeldungNeu(
       '✅ ' +
-      (
-        result.message ||
-        (
-          genehmigen
-            ? 'Tauschanfrage angenommen.'
-            : 'Tauschanfrage abgelehnt.'
-        )
-      ),
+      result.message,
       true
     );
 
@@ -4133,12 +4072,6 @@ async function bearbeiteTauschAnfrageNeu(
 
 
   } catch (error) {
-
-    console.error(
-      'Tauschanfrage bearbeiten:',
-      error
-    );
-
 
     zeigeAnfragenMeldungNeu(
       '❌ ' +
@@ -4192,33 +4125,26 @@ function zeigeAnfragenMeldungNeu(
   meldung.style.display =
     'block';
 
-
   meldung.textContent =
     text;
 
 
-  if (erfolg) {
+  meldung.style.background =
+    erfolg
+      ? '#eaf7ee'
+      : '#fff0f0';
 
-    meldung.style.background =
-      '#eaf7ee';
 
-    meldung.style.border =
-      '1px solid #9bd3aa';
+  meldung.style.border =
+    erfolg
+      ? '1px solid #9bd3aa'
+      : '1px solid #e3aaaa';
 
-    meldung.style.color =
-      '#176b2c';
 
-  } else {
-
-    meldung.style.background =
-      '#fff0f0';
-
-    meldung.style.border =
-      '1px solid #e3aaaa';
-
-    meldung.style.color =
-      '#a00000';
-  }
+  meldung.style.color =
+    erfolg
+      ? '#176b2c'
+      : '#a00000';
 }
 
 
@@ -4312,7 +4238,6 @@ async function aktualisiereAnfragenBadgeNeu() {
           offen
         );
 
-
       badge.style.display =
         'inline-flex';
 
@@ -4320,7 +4245,6 @@ async function aktualisiereAnfragenBadgeNeu() {
 
       badge.textContent =
         '0';
-
 
       badge.style.display =
         'none';
@@ -4337,7 +4261,617 @@ async function aktualisiereAnfragenBadgeNeu() {
 }
 
 // ==========================================================
-// APP INFO / "AKTUALISIERT AM"
+// PIN & SICHERHEIT – ANSICHT ERZEUGEN
+// ==========================================================
+
+function installierePinAnsichtNeu() {
+
+  const content =
+    document.querySelector(
+      'main.content'
+    );
+
+
+  if (
+    !content ||
+    document.getElementById(
+      'pinAnsicht'
+    )
+  ) {
+
+    return;
+  }
+
+
+  const section =
+    document.createElement(
+      'section'
+    );
+
+
+  section.id =
+    'pinAnsicht';
+
+
+  section.style.display =
+    'none';
+
+
+  section.innerHTML = `
+
+    <div class="content-header">
+
+      <div>
+
+        <h1>
+          🔐 PIN & Sicherheit
+        </h1>
+
+        <p>
+          Hier kannst du deinen persönlichen
+          4-stelligen PIN ändern.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="panel"
+      style="
+        padding:20px;
+        max-width:600px;
+      "
+    >
+
+      <h2
+        style="
+          margin-top:0;
+        "
+      >
+        PIN ändern
+      </h2>
+
+
+      <p
+        style="
+          color:#666;
+          margin-bottom:20px;
+        "
+      >
+        Gib zuerst deinen bisherigen PIN
+        und danach zweimal deinen neuen
+        4-stelligen PIN ein.
+      </p>
+
+
+      <div
+        style="
+          margin-bottom:16px;
+        "
+      >
+
+        <label
+          for="pinAltNeu"
+          style="
+            display:block;
+            font-weight:700;
+            margin-bottom:7px;
+          "
+        >
+          Bisheriger PIN
+        </label>
+
+
+        <input
+          id="pinAltNeu"
+          type="password"
+          inputmode="numeric"
+          maxlength="4"
+          autocomplete="current-password"
+          placeholder="••••"
+
+          style="
+            width:100%;
+            box-sizing:border-box;
+            max-width:260px;
+            padding:11px 12px;
+            border:1px solid #ccd0d5;
+            border-radius:8px;
+            font-size:18px;
+            letter-spacing:5px;
+          "
+        >
+
+      </div>
+
+
+      <div
+        style="
+          margin-bottom:16px;
+        "
+      >
+
+        <label
+          for="pinNeu1"
+          style="
+            display:block;
+            font-weight:700;
+            margin-bottom:7px;
+          "
+        >
+          Neuer PIN
+        </label>
+
+
+        <input
+          id="pinNeu1"
+          type="password"
+          inputmode="numeric"
+          maxlength="4"
+          autocomplete="new-password"
+          placeholder="••••"
+
+          style="
+            width:100%;
+            box-sizing:border-box;
+            max-width:260px;
+            padding:11px 12px;
+            border:1px solid #ccd0d5;
+            border-radius:8px;
+            font-size:18px;
+            letter-spacing:5px;
+          "
+        >
+
+      </div>
+
+
+      <div
+        style="
+          margin-bottom:18px;
+        "
+      >
+
+        <label
+          for="pinNeu2"
+          style="
+            display:block;
+            font-weight:700;
+            margin-bottom:7px;
+          "
+        >
+          Neuen PIN wiederholen
+        </label>
+
+
+        <input
+          id="pinNeu2"
+          type="password"
+          inputmode="numeric"
+          maxlength="4"
+          autocomplete="new-password"
+          placeholder="••••"
+
+          style="
+            width:100%;
+            box-sizing:border-box;
+            max-width:260px;
+            padding:11px 12px;
+            border:1px solid #ccd0d5;
+            border-radius:8px;
+            font-size:18px;
+            letter-spacing:5px;
+          "
+        >
+
+      </div>
+
+
+      <div
+        id="pinMeldungNeu"
+        style="
+          display:none;
+          margin-bottom:15px;
+          padding:11px 12px;
+          border-radius:8px;
+        "
+      ></div>
+
+
+      <button
+        id="pinSpeichernButtonNeu"
+        type="button"
+        onclick="aenderePinNeu()"
+
+        style="
+          border:0;
+          background:#e30613;
+          color:#ffffff;
+          border-radius:8px;
+          padding:11px 17px;
+          font-weight:700;
+          cursor:pointer;
+        "
+      >
+        🔐 PIN ändern
+      </button>
+
+
+      <div
+        style="
+          margin-top:20px;
+          padding-top:16px;
+          border-top:1px solid #e1e4e8;
+          color:#666;
+          font-size:13px;
+        "
+      >
+        🔒 Dein PIN wird nicht in der App
+        angezeigt. Nach der Änderung verwendest
+        du beim nächsten Login nur noch den
+        neuen PIN.
+      </div>
+
+    </div>
+  `;
+
+
+  content.appendChild(
+    section
+  );
+
+
+  // Nur Zahlen zulassen
+  [
+    'pinAltNeu',
+    'pinNeu1',
+    'pinNeu2'
+  ].forEach(
+    function(id) {
+
+      const input =
+        document.getElementById(
+          id
+        );
+
+
+      if (!input) {
+        return;
+      }
+
+
+      input.addEventListener(
+        'input',
+        function() {
+
+          this.value =
+            String(
+              this.value || ''
+            )
+              .replace(
+                /\D/g,
+                ''
+              )
+              .slice(
+                0,
+                4
+              );
+        }
+      );
+    }
+  );
+}
+
+
+// ==========================================================
+// PIN ÄNDERN
+// ==========================================================
+
+async function aenderePinNeu() {
+
+  const alterPinElement =
+    document.getElementById(
+      'pinAltNeu'
+    );
+
+
+  const neuerPin1Element =
+    document.getElementById(
+      'pinNeu1'
+    );
+
+
+  const neuerPin2Element =
+    document.getElementById(
+      'pinNeu2'
+    );
+
+
+  const button =
+    document.getElementById(
+      'pinSpeichernButtonNeu'
+    );
+
+
+  const alterPin =
+    String(
+      alterPinElement?.value || ''
+    ).trim();
+
+
+  const neuerPin1 =
+    String(
+      neuerPin1Element?.value || ''
+    ).trim();
+
+
+  const neuerPin2 =
+    String(
+      neuerPin2Element?.value || ''
+    ).trim();
+
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+
+  if (!token) {
+
+    await logoutAusfuehren();
+
+    return;
+  }
+
+
+  if (
+    !/^\d{4}$/.test(
+      alterPin
+    )
+  ) {
+
+    zeigePinMeldungNeu(
+      'Bitte gib deinen bisherigen 4-stelligen PIN ein.',
+      false
+    );
+
+    alterPinElement?.focus();
+
+    return;
+  }
+
+
+  if (
+    !/^\d{4}$/.test(
+      neuerPin1
+    )
+  ) {
+
+    zeigePinMeldungNeu(
+      'Der neue PIN muss genau 4 Zahlen haben.',
+      false
+    );
+
+    neuerPin1Element?.focus();
+
+    return;
+  }
+
+
+  if (
+    neuerPin1 !==
+    neuerPin2
+  ) {
+
+    zeigePinMeldungNeu(
+      'Die beiden neuen PINs stimmen nicht überein.',
+      false
+    );
+
+    neuerPin2Element?.focus();
+
+    return;
+  }
+
+
+  if (
+    alterPin ===
+    neuerPin1
+  ) {
+
+    zeigePinMeldungNeu(
+      'Der neue PIN muss sich vom bisherigen PIN unterscheiden.',
+      false
+    );
+
+    return;
+  }
+
+
+  if (button) {
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      '⏳ PIN wird geändert …';
+
+    button.style.opacity =
+      '0.7';
+
+    button.style.cursor =
+      'wait';
+  }
+
+
+  try {
+
+    const result =
+      await apiPost(
+        'pinAendern',
+        {
+          token:
+            token,
+
+          alterPin:
+            alterPin,
+
+          neuerPin1:
+            neuerPin1,
+
+          neuerPin2:
+            neuerPin2
+        }
+      );
+
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+
+      localStorage.removeItem(
+        SESSION_KEY
+      );
+
+      zeigeLogin();
+
+      await ladeMitarbeiter();
+
+      return;
+    }
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result?.message ||
+        'Der PIN konnte nicht geändert werden.'
+      );
+    }
+
+
+    if (alterPinElement) {
+
+      alterPinElement.value =
+        '';
+    }
+
+
+    if (neuerPin1Element) {
+
+      neuerPin1Element.value =
+        '';
+    }
+
+
+    if (neuerPin2Element) {
+
+      neuerPin2Element.value =
+        '';
+    }
+
+
+    zeigePinMeldungNeu(
+      '✅ ' +
+      (
+        result.message ||
+        'Dein PIN wurde geändert.'
+      ),
+      true
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      'PIN ändern:',
+      error
+    );
+
+
+    zeigePinMeldungNeu(
+      '❌ ' +
+      error.message,
+      false
+    );
+
+
+  } finally {
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        '🔐 PIN ändern';
+
+      button.style.opacity =
+        '1';
+
+      button.style.cursor =
+        'pointer';
+    }
+  }
+}
+
+
+// ==========================================================
+// PIN MELDUNG
+// ==========================================================
+
+function zeigePinMeldungNeu(
+  text,
+  erfolg
+) {
+
+  const meldung =
+    document.getElementById(
+      'pinMeldungNeu'
+    );
+
+
+  if (!meldung) {
+    return;
+  }
+
+
+  meldung.style.display =
+    'block';
+
+
+  meldung.textContent =
+    text;
+
+
+  meldung.style.background =
+    erfolg
+      ? '#eaf7ee'
+      : '#fff0f0';
+
+
+  meldung.style.border =
+    erfolg
+      ? '1px solid #9bd3aa'
+      : '1px solid #e3aaaa';
+
+
+  meldung.style.color =
+    erfolg
+      ? '#176b2c'
+      : '#a00000';
+}
+
+
+// ==========================================================
+// APP INFO / AKTUALISIERT AM
 // ==========================================================
 
 async function ladeAppInfoNeu() {
@@ -4478,10 +5012,6 @@ function installiereAdminBereichNeu() {
   }
 
 
-  // ========================================================
-  // ADMIN BADGE
-  // ========================================================
-
   const adminNav =
     document.getElementById(
       'adminNav'
@@ -4524,7 +5054,7 @@ function installiereAdminBereichNeu() {
 
 
   // ========================================================
-  // BESTEHENDE SEITENNAVIGATION ÜBERNEHMEN
+  // BESTEHENDE NAVIGATION ERWEITERN
   // ========================================================
 
   const bisherigeZeigeSeite =
@@ -4549,6 +5079,12 @@ function installiereAdminBereichNeu() {
         );
 
 
+      const pin =
+        document.getElementById(
+          'pinAnsicht'
+        );
+
+
       const admin =
         document.getElementById(
           'adminAnsicht'
@@ -4568,21 +5104,24 @@ function installiereAdminBereichNeu() {
 
 
         if (anfragen) {
-
           anfragen.style.display =
             'none';
         }
 
 
-        if (admin) {
+        if (pin) {
+          pin.style.display =
+            'none';
+        }
 
+
+        if (admin) {
           admin.style.display =
             'none';
         }
 
 
         if (abwesenheiten) {
-
           abwesenheiten.style.display =
             'block';
         }
@@ -4616,21 +5155,24 @@ function installiereAdminBereichNeu() {
 
 
         if (abwesenheiten) {
-
           abwesenheiten.style.display =
             'none';
         }
 
 
-        if (admin) {
+        if (pin) {
+          pin.style.display =
+            'none';
+        }
 
+
+        if (admin) {
           admin.style.display =
             'none';
         }
 
 
         if (anfragen) {
-
           anfragen.style.display =
             'block';
         }
@@ -4642,6 +5184,107 @@ function installiereAdminBereichNeu() {
 
 
         ladeMeineTauschAnfragenNeu();
+
+
+        schliesseMobileNavigationNeu();
+
+
+        return;
+      }
+
+
+      // ====================================================
+      // PIN & SICHERHEIT
+      // ====================================================
+
+      if (
+        seite ===
+        'pin'
+      ) {
+
+        versteckeStandardAnsichtenNeu();
+
+
+        if (abwesenheiten) {
+          abwesenheiten.style.display =
+            'none';
+        }
+
+
+        if (anfragen) {
+          anfragen.style.display =
+            'none';
+        }
+
+
+        if (admin) {
+          admin.style.display =
+            'none';
+        }
+
+
+        if (pin) {
+
+          pin.style.display =
+            'block';
+        }
+
+
+        markiereNavigationNeu(
+          'pin'
+        );
+
+
+        const alt =
+          document.getElementById(
+            'pinAltNeu'
+          );
+
+
+        const neu1 =
+          document.getElementById(
+            'pinNeu1'
+          );
+
+
+        const neu2 =
+          document.getElementById(
+            'pinNeu2'
+          );
+
+
+        const meldung =
+          document.getElementById(
+            'pinMeldungNeu'
+          );
+
+
+        if (alt) {
+          alt.value =
+            '';
+        }
+
+
+        if (neu1) {
+          neu1.value =
+            '';
+        }
+
+
+        if (neu2) {
+          neu2.value =
+            '';
+        }
+
+
+        if (meldung) {
+
+          meldung.style.display =
+            'none';
+
+          meldung.textContent =
+            '';
+        }
 
 
         schliesseMobileNavigationNeu();
@@ -4664,21 +5307,24 @@ function installiereAdminBereichNeu() {
 
 
         if (abwesenheiten) {
-
           abwesenheiten.style.display =
             'none';
         }
 
 
         if (anfragen) {
-
           anfragen.style.display =
             'none';
         }
 
 
-        if (admin) {
+        if (pin) {
+          pin.style.display =
+            'none';
+        }
 
+
+        if (admin) {
           admin.style.display =
             'block';
         }
@@ -4738,25 +5384,28 @@ function installiereAdminBereichNeu() {
 
 
       // ====================================================
-      // DYNAMISCHE ANSICHTEN AUSBLENDEN
+      // DYNAMISCHE SEITEN AUSBLENDEN
       // ====================================================
 
       if (abwesenheiten) {
-
         abwesenheiten.style.display =
           'none';
       }
 
 
       if (anfragen) {
-
         anfragen.style.display =
           'none';
       }
 
 
-      if (admin) {
+      if (pin) {
+        pin.style.display =
+          'none';
+      }
 
+
+      if (admin) {
         admin.style.display =
           'none';
       }
@@ -5395,7 +6044,7 @@ function baueAdminTauschKarteNeu(
 
 
 // ==========================================================
-// ADMIN GENEHMIGT / LEHNT AB
+// ADMIN GENEHMIGEN / ABLEHNEN
 // ==========================================================
 
 async function bearbeiteAdminTauschNeu(
@@ -5456,26 +6105,6 @@ async function bearbeiteAdminTauschNeu(
   }
 
 
-  if (
-    genehmigen &&
-    genehmigenButton
-  ) {
-
-    genehmigenButton.textContent =
-      '⏳ Wird genehmigt …';
-  }
-
-
-  if (
-    !genehmigen &&
-    ablehnenButton
-  ) {
-
-    ablehnenButton.textContent =
-      '⏳ Wird abgelehnt …';
-  }
-
-
   try {
 
     const result =
@@ -5525,33 +6154,17 @@ async function bearbeiteAdminTauschNeu(
 
     zeigeAdminMeldungNeu(
       '✅ ' +
-      (
-        result.message ||
-        (
-          genehmigen
-            ? 'Der Diensttausch wurde genehmigt.'
-            : 'Der Diensttausch wurde abgelehnt.'
-        )
-      ),
+      result.message,
       true
     );
 
 
-    // Nach genehmigtem Tausch
-    // "Aktualisiert am" neu laden
     await ladeAppInfoNeu();
-
 
     await ladeAdminTauschAnfragenNeu();
 
 
   } catch (error) {
-
-    console.error(
-      'Admin-Tausch bearbeiten:',
-      error
-    );
-
 
     zeigeAdminMeldungNeu(
       '❌ ' +
@@ -5583,7 +6196,7 @@ async function bearbeiteAdminTauschNeu(
 
 
 // ==========================================================
-// ADMIN-MELDUNG
+// ADMIN MELDUNG
 // ==========================================================
 
 function zeigeAdminMeldungNeu(
@@ -5610,33 +6223,27 @@ function zeigeAdminMeldungNeu(
     text;
 
 
-  if (erfolg) {
+  meldung.style.background =
+    erfolg
+      ? '#eaf7ee'
+      : '#fff0f0';
 
-    meldung.style.background =
-      '#eaf7ee';
 
-    meldung.style.border =
-      '1px solid #9bd3aa';
+  meldung.style.border =
+    erfolg
+      ? '1px solid #9bd3aa'
+      : '1px solid #e3aaaa';
 
-    meldung.style.color =
-      '#176b2c';
 
-  } else {
-
-    meldung.style.background =
-      '#fff0f0';
-
-    meldung.style.border =
-      '1px solid #e3aaaa';
-
-    meldung.style.color =
-      '#a00000';
-  }
+  meldung.style.color =
+    erfolg
+      ? '#176b2c'
+      : '#a00000';
 }
 
 
 // ==========================================================
-// ADMIN-BADGE
+// ADMIN BADGE
 // ==========================================================
 
 function setzeAdminBadgeNeu(
@@ -5669,7 +6276,6 @@ function setzeAdminBadgeNeu(
         anzahl
       );
 
-
     badge.style.display =
       'inline-flex';
 
@@ -5677,7 +6283,6 @@ function setzeAdminBadgeNeu(
 
     badge.textContent =
       '0';
-
 
     badge.style.display =
       'none';
@@ -5821,15 +6426,15 @@ async function logoutAusfuehren() {
   }
 
 
-  const pin =
+  const loginPin =
     document.getElementById(
       'loginPin'
     );
 
 
-  if (pin) {
+  if (loginPin) {
 
-    pin.value =
+    loginPin.value =
       '';
   }
 
@@ -5844,7 +6449,6 @@ async function logoutAusfuehren() {
 
     anfragenBadge.style.display =
       'none';
-
 
     anfragenBadge.textContent =
       '0';
@@ -5898,7 +6502,7 @@ async function pinVergessenNeu() {
 
 
 // ==========================================================
-// LOGIN-MELDUNGEN
+// LOGIN MELDUNGEN
 // ==========================================================
 
 function zeigeLoginMeldung(
@@ -6057,7 +6661,7 @@ function waehleDienst(
 
 
 // ==========================================================
-// FALLS INDEX.HTML NOCH zeigeKollegen() VERWENDET
+// INDEX-KOMPATIBILITÄT
 // ==========================================================
 
 async function zeigeKollegen() {
