@@ -5,9 +5,7 @@
 const API_URL =
   'https://script.google.com/macros/s/AKfycbxL-vdBIT5xLORL2k8xdNJXC4bRWt97X-QcvWQ5_bB1xXz083yntxCwimdaiqkoPMKBbg/exec';
 
-const SESSION_KEY =
-  'scs_team_session';
-
+const SESSION_KEY = 'scs_team_session';
 
 let aktuellerBenutzer = '';
 let aktuellerAdmin = false;
@@ -18,40 +16,40 @@ let geladeneAbwesenheiten = [];
 let verfuegbareKws = [];
 let aktuelleKwIndex = 0;
 
+// Für direkten Diensttausch
+let tauschDatum = '';
+let tauschTag = '';
+let tauschDienst = '';
+let tauschZeit = '';
+let tauschKw = '';
+
 
 // ==========================================================
 // API
 // ==========================================================
 
-async function apiPost(
-  action,
-  daten = {}
-) {
+async function apiPost(action, daten = {}) {
 
-  const response =
-    await fetch(
-      API_URL,
-      {
-        method: 'POST',
+  const response = await fetch(
+    API_URL,
+    {
+      method: 'POST',
 
-        headers: {
-          'Content-Type':
-            'text/plain;charset=utf-8'
-        },
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
 
-        body:
-          JSON.stringify({
-            action: action,
-            ...daten
-          }),
+      body: JSON.stringify({
+        action: action,
+        ...daten
+      }),
 
-        redirect: 'follow'
-      }
-    );
+      redirect: 'follow'
+    }
+  );
 
 
-  const text =
-    await response.text();
+  const text = await response.text();
 
 
   console.log(
@@ -75,9 +73,7 @@ async function apiPost(
 
   try {
 
-    return JSON.parse(
-      text
-    );
+    return JSON.parse(text);
 
   } catch (error) {
 
@@ -189,16 +185,12 @@ function zeigeLogin() {
 
 
   if (login) {
-
-    login.style.display =
-      'flex';
+    login.style.display = 'flex';
   }
 
 
   if (app) {
-
-    app.style.display =
-      'none';
+    app.style.display = 'none';
   }
 }
 
@@ -216,14 +208,11 @@ async function ladeMitarbeiter() {
 
 
   if (!select) {
-
     return;
   }
 
 
-  select.disabled =
-    true;
-
+  select.disabled = true;
 
   select.innerHTML =
     '<option value="">Mitarbeiter werden geladen …</option>';
@@ -269,14 +258,8 @@ async function ladeMitarbeiter() {
             'option'
           );
 
-
-        option.value =
-          name;
-
-
-        option.textContent =
-          name;
-
+        option.value = name;
+        option.textContent = name;
 
         select.appendChild(
           option
@@ -285,26 +268,12 @@ async function ladeMitarbeiter() {
     );
 
 
-    select.disabled =
-      false;
+    select.disabled = false;
 
-
-    if (
-      mitarbeiter.length === 0
-    ) {
-
-      zeigeLoginMeldung(
-        'Es wurden keine aktiven Mitarbeiter gefunden.',
-        'fehler'
-      );
-    }
 
   } catch (error) {
 
-    console.error(
-      error
-    );
-
+    console.error(error);
 
     select.innerHTML =
       '<option value="">Mitarbeiter konnten nicht geladen werden</option>';
@@ -320,7 +289,7 @@ async function ladeMitarbeiter() {
 
 
 // ==========================================================
-// LOGIN AUSFÜHREN
+// LOGIN
 // ==========================================================
 
 async function loginAusfuehren() {
@@ -330,12 +299,10 @@ async function loginAusfuehren() {
       'loginName'
     );
 
-
   const pinElement =
     document.getElementById(
       'loginPin'
     );
-
 
   const button =
     document.getElementById(
@@ -347,7 +314,6 @@ async function loginAusfuehren() {
     String(
       nameElement?.value || ''
     ).trim();
-
 
   const pin =
     String(
@@ -365,25 +331,18 @@ async function loginAusfuehren() {
       'fehler'
     );
 
-
     return;
   }
 
 
-  if (
-    !/^\d{4}$/.test(
-      pin
-    )
-  ) {
+  if (!/^\d{4}$/.test(pin)) {
 
     zeigeLoginMeldung(
       'Bitte gib deinen 4-stelligen PIN ein.',
       'fehler'
     );
 
-
     pinElement?.focus();
-
 
     return;
   }
@@ -391,10 +350,7 @@ async function loginAusfuehren() {
 
   if (button) {
 
-    button.disabled =
-      true;
-
-
+    button.disabled = true;
     button.textContent =
       'Anmeldung läuft …';
   }
@@ -423,7 +379,6 @@ async function loginAusfuehren() {
         'fehler'
       );
 
-
       return;
     }
 
@@ -437,15 +392,12 @@ async function loginAusfuehren() {
     aktuellerBenutzer =
       result.name || name;
 
-
     aktuellerAdmin =
       result.admin === true;
 
 
     if (pinElement) {
-
-      pinElement.value =
-        '';
+      pinElement.value = '';
     }
 
 
@@ -459,12 +411,10 @@ async function loginAusfuehren() {
       'dienstplan'
     );
 
+
   } catch (error) {
 
-    console.error(
-      error
-    );
-
+    console.error(error);
 
     zeigeLoginMeldung(
       'Serverfehler: ' +
@@ -476,10 +426,7 @@ async function loginAusfuehren() {
 
     if (button) {
 
-      button.disabled =
-        false;
-
-
+      button.disabled = false;
       button.textContent =
         '🔐 Anmelden';
     }
@@ -488,7 +435,7 @@ async function loginAusfuehren() {
 
 
 // ==========================================================
-// HAUPT-APP ANZEIGEN
+// HAUPT-APP
 // ==========================================================
 
 function zeigeHauptApp(
@@ -501,7 +448,6 @@ function zeigeHauptApp(
       'loginAnsicht'
     );
 
-
   const app =
     document.getElementById(
       'hauptApp'
@@ -509,16 +455,12 @@ function zeigeHauptApp(
 
 
   if (login) {
-
-    login.style.display =
-      'none';
+    login.style.display = 'none';
   }
 
 
   if (app) {
-
-    app.style.display =
-      'flex';
+    app.style.display = 'flex';
   }
 
 
@@ -552,7 +494,7 @@ function zeigeHauptApp(
 
 
 // ==========================================================
-// MEIN DIENSTPLAN LADEN
+// DIENSTPLAN LADEN
 // ==========================================================
 
 async function ladeMeinDienstplanNeu() {
@@ -566,7 +508,6 @@ async function ladeMeinDienstplanNeu() {
   if (!token) {
 
     zeigeLogin();
-
     await ladeMitarbeiter();
 
     return;
@@ -578,12 +519,10 @@ async function ladeMeinDienstplanNeu() {
       'dienstplanLaden'
     );
 
-
   const liste =
     document.getElementById(
       'dienstplanListe'
     );
-
 
   const sollstundenElement =
     document.getElementById(
@@ -593,19 +532,14 @@ async function ladeMeinDienstplanNeu() {
 
   if (laden) {
 
-    laden.style.display =
-      'block';
-
-
+    laden.style.display = 'block';
     laden.textContent =
       'Dienstplan wird geladen …';
   }
 
 
   if (liste) {
-
-    liste.innerHTML =
-      '';
+    liste.innerHTML = '';
   }
 
 
@@ -634,12 +568,8 @@ async function ladeMeinDienstplanNeu() {
           SESSION_KEY
         );
 
-
         zeigeLogin();
-
-
         await ladeMitarbeiter();
-
 
         return;
       }
@@ -709,36 +639,28 @@ async function ladeMeinDienstplanNeu() {
 
     baueKwListe();
 
-
     aktualisiereWochenAnsicht();
-
 
     rendereAbwesenheiten(
       geladeneAbwesenheiten
     );
 
-
     setzeAktualisiertZeit();
 
 
     if (laden) {
-
-      laden.style.display =
-        'none';
+      laden.style.display = 'none';
     }
+
 
   } catch (error) {
 
-    console.error(
-      error
-    );
+    console.error(error);
 
 
     if (laden) {
 
-      laden.style.display =
-        'block';
-
+      laden.style.display = 'block';
 
       laden.textContent =
         'Fehler beim Laden: ' +
@@ -749,13 +671,12 @@ async function ladeMeinDienstplanNeu() {
 
 
 // ==========================================================
-// VERFÜGBARE WOCHEN ERMITTELN
+// KW LISTE
 // ==========================================================
 
 function baueKwListe() {
 
-  const kws =
-    [];
+  const kws = [];
 
 
   geladenerDienstplan.forEach(
@@ -773,9 +694,7 @@ function baueKwListe() {
         !kws.includes(kw)
       ) {
 
-        kws.push(
-          kw
-        );
+        kws.push(kw);
       }
     }
   );
@@ -783,31 +702,14 @@ function baueKwListe() {
 
   kws.sort(
     function(a, b) {
-
       return a - b;
     }
   );
 
 
-  verfuegbareKws =
-    kws;
+  verfuegbareKws = kws;
 
-
-  if (
-    verfuegbareKws.length === 0
-  ) {
-
-    aktuelleKwIndex =
-      0;
-
-
-    return;
-  }
-
-
-  // Beim Neuladen zunächst die erste vorhandene Woche anzeigen.
-  aktuelleKwIndex =
-    0;
+  aktuelleKwIndex = 0;
 }
 
 
@@ -822,7 +724,6 @@ function wechselWoche(
   if (
     verfuegbareKws.length === 0
   ) {
-
     return;
   }
 
@@ -839,7 +740,6 @@ function wechselWoche(
     neuerIndex >=
       verfuegbareKws.length
   ) {
-
     return;
   }
 
@@ -853,7 +753,7 @@ function wechselWoche(
 
 
 // ==========================================================
-// WOCHEN-ANSICHT AKTUALISIEREN
+// WOCHENANSICHT
 // ==========================================================
 
 function aktualisiereWochenAnsicht() {
@@ -863,12 +763,10 @@ function aktualisiereWochenAnsicht() {
       'kwAnzeige'
     );
 
-
   const zurueck =
     document.getElementById(
       'kwZurueck'
     );
-
 
   const weiter =
     document.getElementById(
@@ -881,30 +779,20 @@ function aktualisiereWochenAnsicht() {
   ) {
 
     if (kwAnzeige) {
-
       kwAnzeige.textContent =
         'KW —';
     }
 
-
     if (zurueck) {
-
-      zurueck.disabled =
-        true;
+      zurueck.disabled = true;
     }
-
 
     if (weiter) {
-
-      weiter.disabled =
-        true;
+      weiter.disabled = true;
     }
 
 
-    rendereDienstplan(
-      []
-    );
-
+    rendereDienstplan([]);
 
     return;
   }
@@ -943,9 +831,7 @@ function aktualisiereWochenAnsicht() {
       function(tag) {
 
         return (
-          Number(
-            tag.kw
-          ) === kw
+          Number(tag.kw) === kw
         );
       }
     );
@@ -958,7 +844,7 @@ function aktualisiereWochenAnsicht() {
 
 
 // ==========================================================
-// DIENSTPLAN ANZEIGEN
+// DIENSTPLAN RENDERN
 // ==========================================================
 
 function rendereDienstplan(
@@ -972,7 +858,6 @@ function rendereDienstplan(
 
 
   if (!liste) {
-
     return;
   }
 
@@ -1004,32 +889,40 @@ function rendereDienstplan(
         </div>
       `;
 
-
     return;
   }
 
 
-  let html =
-    '';
+  let html = '';
 
 
   relevanteTage.forEach(
     function(z) {
 
-      const dienste =
-        [];
+      const dienste = [];
 
+
+      // ------------------------------------------------------
+      // GP FRÜH
+      // ------------------------------------------------------
 
       if (z.gpFrueh) {
 
         dienste.push({
           typ: 'gp',
-          symbol: '☀️',
+          symbol: '🌞',
           name: 'Garden Plaza – Früh',
-          zeit: zeitFruehNeu(z.tag)
+          tauschDienst: 'GP Früh',
+          zeit: zeitFruehNeu(z.tag),
+          tauschbar: true
         });
       }
 
+
+      // ------------------------------------------------------
+      // GP SPÄT
+      // WP-PAUSENABLÖSE GEHÖRT INTERN ZU DIESEM DIENST
+      // ------------------------------------------------------
 
       if (z.gpSpaet) {
 
@@ -1037,51 +930,105 @@ function rendereDienstplan(
           typ: 'gp',
           symbol: '🌙',
           name: 'Garden Plaza – Spät',
-          zeit: zeitSpaetNeu(z.tag)
+          tauschDienst: 'GP Spät',
+          zeit: zeitSpaetNeu(z.tag),
+          tauschbar: true
         });
       }
 
 
-      if (z.gpAbloese) {
+      // ------------------------------------------------------
+      // WP GANZTAG
+      // Wenn Früh + Spät bei derselben Person liegen
+      // ------------------------------------------------------
+
+      if (
+        z.wpFrueh &&
+        z.wpSpaet
+      ) {
+
+        dienste.push({
+          typ: 'wp',
+          symbol: '🔵',
+          name: 'Water Plaza – Ganztag',
+          tauschDienst: 'WP Ganztag',
+          zeit:
+            zeitFruehStartNeu(z.tag) +
+            ' – ' +
+            zeitSpaetEndeNeu(z.tag),
+          tauschbar: true
+        });
+
+      } else {
+
+        // WP Früh einzeln
+        if (z.wpFrueh) {
+
+          dienste.push({
+            typ: 'wp',
+            symbol: '🌞',
+            name: 'Water Plaza – Früh',
+            tauschDienst: 'WP Früh',
+            zeit: zeitFruehNeu(z.tag),
+            tauschbar: true
+          });
+        }
+
+
+        // WP Spät einzeln
+        if (z.wpSpaet) {
+
+          dienste.push({
+            typ: 'wp',
+            symbol: '🌙',
+            name: 'Water Plaza – Spät',
+            tauschDienst: 'WP Spät',
+            zeit: zeitSpaetNeu(z.tag),
+            tauschbar: true
+          });
+        }
+      }
+
+
+      // ------------------------------------------------------
+      // ABLÖSEN
+      // Nur anzeigen, wenn sie NICHT bereits als automatische
+      // Begleitaufgabe des GP-Spätdienstes behandelt wird.
+      // Sie bekommt KEINEN eigenen Tauschbutton.
+      // ------------------------------------------------------
+
+      if (
+        z.gpAbloese &&
+        !z.wpSpaet
+      ) {
 
         dienste.push({
           typ: 'abloese',
           symbol: '🕒',
-          name: 'Garden Plaza – Pausenablöse',
-          zeit: z.gpAbloesezeit || ''
+          name:
+            'Garden Plaza – Pausenablöse',
+          tauschDienst: '',
+          zeit:
+            z.gpAbloesezeit || '',
+          tauschbar: false
         });
       }
 
 
-      if (z.wpFrueh) {
-
-        dienste.push({
-          typ: 'wp',
-          symbol: '☀️',
-          name: 'Water Plaza – Früh',
-          zeit: zeitFruehNeu(z.tag)
-        });
-      }
-
-
-      if (z.wpSpaet) {
-
-        dienste.push({
-          typ: 'wp',
-          symbol: '🌙',
-          name: 'Water Plaza – Spät',
-          zeit: zeitSpaetNeu(z.tag)
-        });
-      }
-
-
-      if (z.wpAbloese) {
+      if (
+        z.wpAbloese &&
+        !z.gpSpaet
+      ) {
 
         dienste.push({
           typ: 'abloese',
           symbol: '🕒',
-          name: 'Water Plaza – Pausenablöse',
-          zeit: z.wpAbloesezeit || ''
+          name:
+            'Water Plaza – Pausenablöse',
+          tauschDienst: '',
+          zeit:
+            z.wpAbloesezeit || '',
+          tauschbar: false
         });
       }
 
@@ -1098,35 +1045,27 @@ function rendereDienstplan(
 
             <div
               style="
-                display:flex;
-                justify-content:space-between;
-                gap:16px;
-                align-items:flex-start;
                 margin-bottom:10px;
               "
             >
 
-              <div>
+              <strong
+                style="
+                  font-size:17px;
+                "
+              >
+                ${escapeHtmlNeu(z.tag || '')},
+                ${escapeHtmlNeu(z.datum || '')}
+              </strong>
 
-                <strong
-                  style="
-                    font-size:17px;
-                  "
-                >
-                  ${escapeHtmlNeu(z.tag || '')},
-                  ${escapeHtmlNeu(z.datum || '')}
-                </strong>
-
-                <div
-                  style="
-                    color:#666;
-                    font-size:13px;
-                    margin-top:4px;
-                  "
-                >
-                  KW ${escapeHtmlNeu(z.kw || '')}
-                </div>
-
+              <div
+                style="
+                  color:#666;
+                  font-size:13px;
+                  margin-top:4px;
+                "
+              >
+                KW ${escapeHtmlNeu(z.kw || '')}
               </div>
 
             </div>
@@ -1139,7 +1078,6 @@ function rendereDienstplan(
           let randfarbe =
             '#999999';
 
-
           let hintergrund =
             '#ffffff';
 
@@ -1150,7 +1088,6 @@ function rendereDienstplan(
 
             randfarbe =
               '#14943b';
-
 
             hintergrund =
               '#f9fffa';
@@ -1164,7 +1101,6 @@ function rendereDienstplan(
             randfarbe =
               '#1754d1';
 
-
             hintergrund =
               '#f9fbff';
           }
@@ -1176,7 +1112,6 @@ function rendereDienstplan(
 
             randfarbe =
               '#f0a14a';
-
 
             hintergrund =
               '#fffdf8';
@@ -1198,28 +1133,73 @@ function rendereDienstplan(
 
                 <div
                   style="
-                    font-weight:700;
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:flex-start;
+                    gap:15px;
+                    flex-wrap:wrap;
                   "
                 >
-                  ${dienst.symbol}
-                  ${escapeHtmlNeu(dienst.name)}
+
+                  <div>
+
+                    <div
+                      style="
+                        font-weight:700;
+                      "
+                    >
+                      ${dienst.symbol}
+                      ${escapeHtmlNeu(dienst.name)}
+                    </div>
+
+                    ${
+                      dienst.zeit
+                        ? `
+                          <div
+                            style="
+                              color:#666;
+                              margin-top:5px;
+                            "
+                          >
+                            🕒
+                            ${escapeHtmlNeu(dienst.zeit)}
+                          </div>
+                        `
+                        : ''
+                    }
+
+                  </div>
+
+
+                  ${
+                    dienst.tauschbar
+                      ? `
+                        <button
+                          type="button"
+                          onclick='starteDirektenTausch(
+                            ${JSON.stringify(String(z.datum || ''))},
+                            ${JSON.stringify(String(z.tag || ''))},
+                            ${JSON.stringify(String(z.kw || ''))},
+                            ${JSON.stringify(String(dienst.tauschDienst || ''))},
+                            ${JSON.stringify(String(dienst.zeit || ''))}
+                          )'
+                          style="
+                            border:1px solid #e30613;
+                            background:#ffffff;
+                            color:#e30613;
+                            border-radius:8px;
+                            padding:8px 12px;
+                            font-weight:700;
+                            cursor:pointer;
+                          "
+                        >
+                          🔄 Dienst tauschen
+                        </button>
+                      `
+                      : ''
+                  }
+
                 </div>
-
-
-                ${
-                  dienst.zeit
-                    ? `
-                      <div
-                        style="
-                          color:#666;
-                          margin-top:5px;
-                        "
-                      >
-                        🕒 ${escapeHtmlNeu(dienst.zeit)}
-                      </div>
-                    `
-                    : ''
-                }
 
               </div>
             `;
@@ -1252,13 +1232,329 @@ function rendereDienstplan(
   );
 
 
-  liste.innerHTML =
-    html;
+  liste.innerHTML = html;
 }
 
 
 // ==========================================================
-// ABWESENHEITEN ANZEIGEN
+// DIREKTEN TAUSCH STARTEN
+// ==========================================================
+
+function starteDirektenTausch(
+  datum,
+  tag,
+  kw,
+  dienst,
+  zeit
+) {
+
+  tauschDatum =
+    String(datum || '');
+
+  tauschTag =
+    String(tag || '');
+
+  tauschKw =
+    String(kw || '');
+
+  tauschDienst =
+    String(dienst || '');
+
+  tauschZeit =
+    String(zeit || '');
+
+
+  console.log(
+    'Direkter Tausch:',
+    {
+      datum: tauschDatum,
+      tag: tauschTag,
+      kw: tauschKw,
+      dienst: tauschDienst,
+      zeit: tauschZeit
+    }
+  );
+
+
+  zeigeSeite(
+    'dienstTauschen'
+  );
+
+
+  setTimeout(
+    function() {
+
+      fuelleTauschAnsicht();
+
+    },
+    50
+  );
+}
+
+
+// ==========================================================
+// TAUSCHANSICHT MIT ECHTEN DATEN FÜLLEN
+// ==========================================================
+
+function fuelleTauschAnsicht() {
+
+  const ansicht =
+    document.getElementById(
+      'tauschAnsicht'
+    );
+
+
+  if (!ansicht) {
+    return;
+  }
+
+
+  // --------------------------------------------------------
+  // DATUM
+  // --------------------------------------------------------
+
+  const datumButton =
+    ansicht.querySelector(
+      '.datum-button'
+    );
+
+
+  if (datumButton) {
+
+    datumButton.innerHTML =
+      `
+        <span>📅</span>
+
+        <strong>
+          ${escapeHtmlNeu(tauschDatum)}
+        </strong>
+
+        <span>
+          (${escapeHtmlNeu(tauschTag)})
+        </span>
+      `;
+  }
+
+
+  // --------------------------------------------------------
+  // EIGENE DIENSTE
+  // --------------------------------------------------------
+
+  const eigeneDienste =
+    ansicht.querySelector(
+      '.eigene-dienste'
+    );
+
+
+  if (eigeneDienste) {
+
+    eigeneDienste.innerHTML =
+      `
+        <h3>
+          Dein ausgewählter Dienst
+        </h3>
+
+        <div class="dienst-mini">
+
+          <div class="dienst-links">
+
+            <span
+              class="punkt ${
+                tauschDienst.startsWith('GP')
+                  ? 'gruen'
+                  : 'blau'
+              }"
+            ></span>
+
+            <span>
+              ${escapeHtmlNeu(
+                dienstNameLang(
+                  tauschDienst
+                )
+              )}
+            </span>
+
+          </div>
+
+          <strong
+            class="${
+              tauschDienst.startsWith('GP')
+                ? 'gruen-text'
+                : 'blau-text'
+            }"
+          >
+            ${escapeHtmlNeu(
+              aktuellerBenutzer
+            )}
+          </strong>
+
+        </div>
+
+        ${
+          tauschDienst === 'GP Spät'
+            ? `
+              <div
+                style="
+                  margin-top:10px;
+                  font-size:13px;
+                  color:#666;
+                "
+              >
+                ℹ️ Die zugehörige
+                WP-Pausenablöse wird beim
+                genehmigten Tausch automatisch
+                mit dem GP-Spätdienst übernommen.
+              </div>
+            `
+            : ''
+        }
+      `;
+  }
+
+
+  // --------------------------------------------------------
+  // DIENSTAUSWAHL
+  // --------------------------------------------------------
+
+  const dienstAuswahl =
+    ansicht.querySelector(
+      '.dienst-auswahl'
+    );
+
+
+  if (dienstAuswahl) {
+
+    const istGp =
+      tauschDienst.startsWith(
+        'GP'
+      );
+
+
+    const symbol =
+      tauschDienst.includes(
+        'Früh'
+      )
+        ? '☀'
+        : tauschDienst.includes(
+            'Spät'
+          )
+          ? '☾'
+          : '🔵';
+
+
+    dienstAuswahl.innerHTML =
+      `
+        <button
+          class="dienst-option ausgewaehlt"
+          type="button"
+          onclick="waehleDienst(this)"
+        >
+
+          <span
+            class="radio aktiv"
+          ></span>
+
+          <div
+            class="dienst-symbol ${
+              tauschDienst.includes('Spät')
+                ? 'mond'
+                : 'sonne'
+            }"
+          >
+            ${symbol}
+          </div>
+
+          <div
+            class="dienst-option-text"
+          >
+
+            <strong
+              class="${
+                istGp
+                  ? 'gruen-text'
+                  : 'blau-text'
+              }"
+            >
+              ${escapeHtmlNeu(
+                dienstNameLang(
+                  tauschDienst
+                )
+              )}
+            </strong>
+
+            <span>
+              Dienstzeit:
+              ${escapeHtmlNeu(
+                tauschZeit
+              )}
+            </span>
+
+            <small
+              class="status-chip ${
+                istGp
+                  ? 'gruen-chip'
+                  : 'blau-chip'
+              }"
+            >
+              Du bist eingetragen
+            </small>
+
+          </div>
+
+        </button>
+      `;
+  }
+
+
+  // Schritt 3 wieder schließen
+  const kollegenBereich =
+    document.getElementById(
+      'kollegenBereich'
+    );
+
+
+  if (kollegenBereich) {
+
+    kollegenBereich.classList.add(
+      'versteckt'
+    );
+  }
+}
+
+
+// ==========================================================
+// DIENSTNAME
+// ==========================================================
+
+function dienstNameLang(
+  dienst
+) {
+
+  switch (dienst) {
+
+    case 'GP Früh':
+      return 'Garden Plaza – Früh';
+
+    case 'GP Spät':
+      return 'Garden Plaza – Spät';
+
+    case 'WP Früh':
+      return 'Water Plaza – Früh';
+
+    case 'WP Spät':
+      return 'Water Plaza – Spät';
+
+    case 'WP Ganztag':
+      return 'Water Plaza – Ganztag';
+
+    default:
+      return dienst || 'Dienst';
+  }
+}
+
+
+// ==========================================================
+// ABWESENHEITEN
 // ==========================================================
 
 function rendereAbwesenheiten(
@@ -1272,7 +1568,6 @@ function rendereAbwesenheiten(
 
 
   if (!liste) {
-
     return;
   }
 
@@ -1289,13 +1584,11 @@ function rendereAbwesenheiten(
         </div>
       `;
 
-
     return;
   }
 
 
-  let html =
-    '';
+  let html = '';
 
 
   abwesenheiten.forEach(
@@ -1308,45 +1601,29 @@ function rendereAbwesenheiten(
         );
 
 
-      let symbol =
-        '📌';
-
-
-      let farbe =
-        '#666666';
+      let symbol = '📌';
+      let farbe = '#666666';
 
 
       if (
         status
           .toLowerCase()
-          .includes(
-            'urlaub'
-          )
+          .includes('urlaub')
       ) {
 
-        symbol =
-          '🏖️';
-
-
-        farbe =
-          '#14943b';
+        symbol = '🏖️';
+        farbe = '#14943b';
       }
 
 
       if (
         status
           .toLowerCase()
-          .includes(
-            'krank'
-          )
+          .includes('krank')
       ) {
 
-        symbol =
-          '🤒';
-
-
-        farbe =
-          '#c62828';
+        symbol = '🤒';
+        farbe = '#c62828';
       }
 
 
@@ -1366,7 +1643,6 @@ function rendereAbwesenheiten(
               ${escapeHtmlNeu(status)}
             </strong>
 
-
             <div
               style="
                 color:#666;
@@ -1378,9 +1654,7 @@ function rendereAbwesenheiten(
               ${
                 a.bis
                   ? ' – ' +
-                    escapeHtmlNeu(
-                      a.bis
-                    )
+                    escapeHtmlNeu(a.bis)
                   : ''
               }
             </div>
@@ -1391,8 +1665,7 @@ function rendereAbwesenheiten(
   );
 
 
-  liste.innerHTML =
-    html;
+  liste.innerHTML = html;
 }
 
 
@@ -1401,12 +1674,6 @@ function rendereAbwesenheiten(
 // ==========================================================
 
 function setzeAktualisiertZeit() {
-
-  /*
-    Wir unterstützen mehrere mögliche IDs.
-    Dadurch funktioniert es auch, wenn deine index.html
-    für die Anzeige einen etwas anderen Namen verwendet.
-  */
 
   const element =
     document.getElementById(
@@ -1421,12 +1688,6 @@ function setzeAktualisiertZeit() {
 
 
   if (!element) {
-
-    console.log(
-      'Keine Aktualisiert-am-Anzeige gefunden.'
-    );
-
-
     return;
   }
 
@@ -1467,30 +1728,19 @@ function setzeAktualisiertZeit() {
 // DIENSTZEITEN
 // ==========================================================
 
-function zeitFruehNeu(
-  tag
-) {
+function zeitFruehNeu(tag) {
 
-  if (
-    tag === 'Samstag'
-  ) {
-
+  if (tag === 'Samstag') {
     return '09:00 – 18:00';
   }
-
 
   return '09:00 – 14:30';
 }
 
 
-function zeitSpaetNeu(
-  tag
-) {
+function zeitSpaetNeu(tag) {
 
-  if (
-    tag === 'Samstag'
-  ) {
-
+  if (tag === 'Samstag') {
     return '11:30 – 16:00';
   }
 
@@ -1505,6 +1755,32 @@ function zeitSpaetNeu(
 
 
   return '14:30 – 19:00';
+}
+
+
+function zeitFruehStartNeu(tag) {
+
+  return '09:00';
+}
+
+
+function zeitSpaetEndeNeu(tag) {
+
+  if (tag === 'Samstag') {
+    return '18:00';
+  }
+
+
+  if (
+    tag === 'Donnerstag' ||
+    tag === 'Freitag'
+  ) {
+
+    return '20:00';
+  }
+
+
+  return '19:00';
 }
 
 
@@ -1525,28 +1801,14 @@ async function logoutAusfuehren() {
   );
 
 
-  aktuellerBenutzer =
-    '';
+  aktuellerBenutzer = '';
+  aktuellerAdmin = false;
 
+  geladenerDienstplan = [];
+  geladeneAbwesenheiten = [];
 
-  aktuellerAdmin =
-    false;
-
-
-  geladenerDienstplan =
-    [];
-
-
-  geladeneAbwesenheiten =
-    [];
-
-
-  verfuegbareKws =
-    [];
-
-
-  aktuelleKwIndex =
-    0;
+  verfuegbareKws = [];
+  aktuelleKwIndex = 0;
 
 
   if (token) {
@@ -1577,14 +1839,11 @@ async function logoutAusfuehren() {
 
 
   if (pin) {
-
-    pin.value =
-      '';
+    pin.value = '';
   }
 
 
   zeigeLogin();
-
 
   await ladeMitarbeiter();
 }
@@ -1613,7 +1872,6 @@ async function pinVergessenNeu() {
       'fehler'
     );
 
-
     return;
   }
 
@@ -1641,13 +1899,11 @@ function zeigeLoginMeldung(
 
 
   if (!element) {
-
     return;
   }
 
 
-  element.textContent =
-    text;
+  element.textContent = text;
 
 
   element.className =
@@ -1669,15 +1925,11 @@ function loescheLoginMeldung() {
 
 
   if (!element) {
-
     return;
   }
 
 
-  element.textContent =
-    '';
-
-
+  element.textContent = '';
   element.className =
     'login-meldung';
 }
