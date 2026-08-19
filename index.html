@@ -993,56 +993,209 @@ function zeigeKollegen() {
 function zeigeSeite(seite) {
 
   const dienstplanAnsicht =
-    document.getElementById('dienstplanAnsicht');
+    document.getElementById(
+      'dienstplanAnsicht'
+    );
 
   const tauschAnsicht =
-    document.getElementById('tauschAnsicht');
+    document.getElementById(
+      'tauschAnsicht'
+    );
 
 
-  if (seite === 'dienstplan') {
+  // ======================================================
+  // ALLE ROTEN MARKIERUNGEN ZUERST ENTFERNEN
+  // ======================================================
 
-    if (dienstplanAnsicht) {
-      dienstplanAnsicht.style.display = 'block';
-    }
+  document
+    .querySelectorAll(
+      '.nav-item'
+    )
+    .forEach(
+      function(button) {
 
-    if (tauschAnsicht) {
-      tauschAnsicht.style.display = 'none';
-    }
+        button.classList.remove(
+          'aktiv'
+        );
+      }
+    );
 
-    if (typeof ladeMeinDienstplanNeu === 'function') {
-      ladeMeinDienstplanNeu();
-    }
 
-  } else if (seite === 'dienstTauschen') {
+  document
+    .querySelectorAll(
+      '.nav-untermenue button'
+    )
+    .forEach(
+      function(button) {
 
-    if (dienstplanAnsicht) {
-      dienstplanAnsicht.style.display = 'none';
-    }
+        button.classList.remove(
+          'aktiv'
+        );
+      }
+    );
 
-    if (tauschAnsicht) {
-      tauschAnsicht.style.display = 'block';
-    }
 
-  } else {
+  const tauschGruppe =
+    document.querySelector(
+      '.nav-gruppe'
+    );
 
-    console.log(
-      'Ansicht noch nicht verbunden:',
-      seite
+
+  if (
+    tauschGruppe
+  ) {
+
+    tauschGruppe.classList.remove(
+      'aktiv'
     );
   }
 
 
-  if (window.innerWidth <= 900) {
+  // ======================================================
+  // MEIN DIENSTPLAN
+  // ======================================================
+
+  if (
+    seite === 'dienstplan'
+  ) {
+
+    if (
+      dienstplanAnsicht
+    ) {
+
+      dienstplanAnsicht.style.display =
+        'block';
+    }
+
+
+    if (
+      tauschAnsicht
+    ) {
+
+      tauschAnsicht.style.display =
+        'none';
+    }
+
+
+    const dienstplanButton =
+      document.querySelector(
+        `[onclick="zeigeSeite('dienstplan')"]`
+      );
+
+
+    if (
+      dienstplanButton
+    ) {
+
+      dienstplanButton.classList.add(
+        'aktiv'
+      );
+    }
+
+
+    if (
+      typeof ladeMeinDienstplanNeu ===
+      'function'
+    ) {
+
+      ladeMeinDienstplanNeu();
+    }
+  }
+
+
+  // ======================================================
+  // DIENST TAUSCHEN
+  // ======================================================
+
+  else if (
+    seite === 'dienstTauschen'
+  ) {
+
+    if (
+      dienstplanAnsicht
+    ) {
+
+      dienstplanAnsicht.style.display =
+        'none';
+    }
+
+
+    if (
+      tauschAnsicht
+    ) {
+
+      tauschAnsicht.style.display =
+        'block';
+    }
+
+
+    const tauschHauptButton =
+      document.querySelector(
+        '.nav-hauptpunkt'
+      );
+
+
+    if (
+      tauschHauptButton
+    ) {
+
+      tauschHauptButton.classList.add(
+        'aktiv'
+      );
+    }
+
+
+    if (
+      tauschGruppe
+    ) {
+
+      tauschGruppe.classList.add(
+        'aktiv'
+      );
+    }
+
+
+    const tauschButton =
+      document.querySelector(
+        `[onclick="zeigeSeite('dienstTauschen')"]`
+      );
+
+
+    if (
+      tauschButton
+    ) {
+
+      tauschButton.classList.add(
+        'aktiv'
+      );
+    }
+  }
+
+
+  // ======================================================
+  // HANDY-MENÜ SCHLIESSEN
+  // ======================================================
+
+  if (
+    window.innerWidth <= 900
+  ) {
 
     const sidebar =
-      document.getElementById('sidebar');
+      document.getElementById(
+        'sidebar'
+      );
 
-    if (sidebar) {
-      sidebar.classList.remove('mobile-offen');
+
+    if (
+      sidebar
+    ) {
+
+      sidebar.classList.remove(
+        'mobile-offen'
+      );
     }
   }
 }
-
 
 document.addEventListener('keydown', function(event) {
   if (
