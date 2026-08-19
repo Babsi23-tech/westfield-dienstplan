@@ -6,7 +6,7 @@
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
   >
 
   <meta
@@ -16,101 +16,199 @@
 
   <title>SCS Team</title>
 
+  <!-- Neue Versionsnummer verhindert alte CSS-Datei aus dem Cache -->
   <link
     rel="stylesheet"
-    href="style.css"
+    href="style.css?v=20260819-2"
   >
 
   <link
     rel="manifest"
     href="manifest.json"
   >
+
+
+  <!-- ======================================================
+       ZUSÄTZLICHE LAYOUT-SICHERUNG
+       Damit Handy/iPhone garantiert volle Breite verwenden
+       ====================================================== -->
+
+  <style>
+
+    /*
+      Wichtig:
+      app.js kann #hauptApp als display:flex öffnen.
+      Deshalb wird hier die Richtung fest auf untereinander
+      gesetzt, damit Menüleiste und Inhalt NICHT nebeneinander
+      stehen.
+    */
+
+    #hauptApp {
+      flex-direction: column !important;
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+
+
+    /*
+      Hauptinhalt darf niemals von einer linken Spalte
+      zusammengedrückt werden.
+    */
+
+    #hauptApp .content {
+      width: 100% !important;
+      margin-left: 0 !important;
+      min-width: 0 !important;
+    }
+
+
+    /*
+      Im mobilen Kopf befindet sich nur der ☰ Button.
+    */
+
+    .mobile-header {
+      flex: 0 0 auto !important;
+      width: 100% !important;
+    }
+
+
+    /*
+      Falls ein Browser noch alten Text im Header kennt:
+      alles außer dem Button ausblenden.
+    */
+
+    .mobile-header > div {
+      display: none !important;
+    }
+
+
+    @media screen and (max-width: 900px) {
+
+      #hauptApp {
+        flex-direction: column !important;
+        width: 100% !important;
+      }
+
+
+      .mobile-header {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1200 !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+
+        width: 100% !important;
+
+        min-height: 64px !important;
+
+        padding-top:
+          max(8px, env(safe-area-inset-top)) !important;
+
+        padding-right:
+          max(12px, env(safe-area-inset-right)) !important;
+
+        padding-bottom:
+          8px !important;
+
+        padding-left:
+          max(12px, env(safe-area-inset-left)) !important;
+
+        background:
+          #f7f8fa !important;
+
+        border-bottom:
+          0 !important;
+      }
+
+
+      .mobile-menu {
+        flex:
+          0 0 auto !important;
+      }
+
+
+      #hauptApp .content {
+        display:
+          block !important;
+
+        width:
+          100% !important;
+
+        max-width:
+          none !important;
+
+        min-width:
+          0 !important;
+
+        margin:
+          0 !important;
+
+        padding-top:
+          8px !important;
+
+        padding-right:
+          max(12px, env(safe-area-inset-right)) !important;
+
+        padding-bottom:
+          max(35px, env(safe-area-inset-bottom)) !important;
+
+        padding-left:
+          max(12px, env(safe-area-inset-left)) !important;
+      }
+
+
+      #dienstplanAnsicht {
+        width:
+          100% !important;
+
+        max-width:
+          none !important;
+
+        min-width:
+          0 !important;
+      }
+
+
+      #dienstplanAnsicht .content-header,
+      #dienstplanAnsicht .dienstplan-info,
+      #dienstplanAnsicht .dienstplan-bereich {
+        width:
+          100% !important;
+
+        max-width:
+          none !important;
+
+        margin-left:
+          0 !important;
+
+        margin-right:
+          0 !important;
+      }
+
+    }
+
+  </style>
+
 </head>
 
 
 <body>
 
+
 <!-- ======================================================
      LOGIN
      ====================================================== -->
 
-<section id="loginAnsicht" class="login-seite">
+<section
+  id="loginAnsicht"
+  class="login-seite"
+>
 
   <div class="login-karte">
 
     <div class="login-brand">
-      <div class="brand-westfield">Westfield</div>
-      <div class="brand-scs">SCS</div>
-    </div>
-
-    <div class="login-kopf">
-      <h1>Willkommen 👋</h1>
-      <p>Melde dich mit deinem Mitarbeiter-PIN an.</p>
-    </div>
-
-    <label class="login-label" for="loginName">
-      Mitarbeiter
-    </label>
-
-    <select id="loginName" class="login-eingabe">
-      <option value="">👤 Mitarbeiter auswählen</option>
-    </select>
-
-    <label class="login-label" for="loginPin">
-      PIN
-    </label>
-
-    <input
-      id="loginPin"
-      class="login-eingabe login-pin"
-      type="password"
-      inputmode="numeric"
-      maxlength="4"
-      autocomplete="current-password"
-      placeholder="4-stellige PIN"
-    >
-
-    <button
-      id="loginButton"
-      class="login-button"
-      type="button"
-      onclick="loginAusfuehren()"
-    >
-      🔐 Anmelden
-    </button>
-
-    <button
-      class="login-link"
-      type="button"
-      onclick="pinVergessenNeu()"
-    >
-      PIN vergessen?
-    </button>
-
-    <div
-      id="loginMeldung"
-      class="login-meldung"
-      aria-live="polite"
-    ></div>
-
-  </div>
-
-</section>
-
-
-<div id="hauptApp" class="app-shell" style="display:none;">
-
-
-  <!-- ======================================================
-       SIDEBAR
-       ====================================================== -->
-
-  <aside
-    id="sidebar"
-    class="sidebar"
-  >
-
-    <div class="brand">
 
       <div class="brand-westfield">
         Westfield
@@ -123,6 +221,110 @@
     </div>
 
 
+    <div class="login-kopf">
+
+      <h1>
+        Willkommen 👋
+      </h1>
+
+      <p>
+        Melde dich mit deinem Mitarbeiter-PIN an.
+      </p>
+
+    </div>
+
+
+    <label
+      class="login-label"
+      for="loginName"
+    >
+      Mitarbeiter
+    </label>
+
+
+    <select
+      id="loginName"
+      class="login-eingabe"
+    >
+      <option value="">
+        👤 Mitarbeiter auswählen
+      </option>
+    </select>
+
+
+    <label
+      class="login-label"
+      for="loginPin"
+    >
+      PIN
+    </label>
+
+
+    <input
+      id="loginPin"
+      class="login-eingabe login-pin"
+      type="password"
+      inputmode="numeric"
+      maxlength="4"
+      autocomplete="current-password"
+      placeholder="4-stellige PIN"
+    >
+
+
+    <button
+      id="loginButton"
+      class="login-button"
+      type="button"
+      onclick="loginAusfuehren()"
+    >
+      🔐 Anmelden
+    </button>
+
+
+    <button
+      class="login-link"
+      type="button"
+      onclick="pinVergessenNeu()"
+    >
+      PIN vergessen?
+    </button>
+
+
+    <div
+      id="loginMeldung"
+      class="login-meldung"
+      aria-live="polite"
+    ></div>
+
+  </div>
+
+</section>
+
+
+
+<!-- ======================================================
+     HAUPT-APP
+     ====================================================== -->
+
+<div
+  id="hauptApp"
+  class="app-shell"
+  style="display:none;"
+>
+
+
+  <!-- ====================================================
+       SEITENMENÜ
+       ==================================================== -->
+
+  <aside
+    id="sidebar"
+    class="sidebar"
+  >
+
+
+    <!-- PROFIL -->
+
     <div class="profil">
 
       <div class="profil-icon">
@@ -130,13 +332,18 @@
       </div>
 
       <div>
-        <div class="profil-name" id="profilNameAnzeige">
+
+        <div
+          class="profil-name"
+          id="profilNameAnzeige"
+        >
           Mitarbeiter
         </div>
 
         <div class="profil-rolle">
-          Mitarbeiterin
+          SCS Team
         </div>
+
       </div>
 
     </div>
@@ -145,7 +352,25 @@
     <div class="sidebar-trenner"></div>
 
 
+
+    <!-- NAVIGATION -->
+
     <nav class="nav">
+
+
+      <!-- HAUPTSEITE -->
+
+      <div
+        style="
+          padding:10px 10px 5px;
+          color:#777;
+          font-size:12px;
+          font-weight:700;
+          letter-spacing:.5px;
+        "
+      >
+        HAUPTSEITE
+      </div>
 
 
       <button
@@ -164,6 +389,22 @@
       </button>
 
 
+
+      <!-- MEIN BEREICH -->
+
+      <div
+        style="
+          padding:20px 10px 5px;
+          color:#777;
+          font-size:12px;
+          font-weight:700;
+          letter-spacing:.5px;
+        "
+      >
+        MEIN BEREICH
+      </div>
+
+
       <button
         class="nav-item"
         onclick="zeigeSeite('abwesenheiten')"
@@ -180,57 +421,6 @@
       </button>
 
 
-      <div class="nav-gruppe aktiv">
-
-        <button
-          class="nav-item nav-hauptpunkt aktiv"
-          onclick="toggleTauschMenue()"
-        >
-
-          <span class="nav-icon">
-            🔄
-          </span>
-
-          <span>
-            Änderung / Tausch
-          </span>
-
-          <span class="nav-pfeil">
-           ⌃
-          </span>
-
-        </button>
-
-
-        <div
-          id="tauschUntermenue"
-          class="nav-untermenue"
-        >
-
-          <button
-            onclick="zeigeSeite('dienstAendern')"
-          >
-            Dienst ändern
-          </button>
-
-          <button
-            class="aktiv"
-            onclick="zeigeSeite('dienstTauschen')"
-          >
-            Dienst tauschen
-          </button>
-
-          <button
-            onclick="zeigeSeite('sonstigerWunsch')"
-          >
-            Sonstiger Wunsch
-          </button>
-
-        </div>
-
-      </div>
-
-
       <button
         class="nav-item"
         onclick="zeigeSeite('anfragen')"
@@ -244,7 +434,11 @@
           Meine Anfragen
         </span>
 
-        <span id="anfragenBadge" class="badge" style="display:none;">
+        <span
+          id="anfragenBadge"
+          class="badge"
+          style="display:none;"
+        >
           0
         </span>
 
@@ -268,6 +462,89 @@
 
 
 
+      <!-- ÄNDERUNG / TAUSCH -->
+
+      <div
+        style="
+          padding:20px 10px 5px;
+          color:#777;
+          font-size:12px;
+          font-weight:700;
+          letter-spacing:.5px;
+        "
+      >
+        ÄNDERUNG / TAUSCH
+      </div>
+
+
+      <div class="nav-gruppe">
+
+        <button
+          class="nav-item nav-hauptpunkt"
+          onclick="toggleTauschMenue()"
+        >
+
+          <span class="nav-icon">
+            🔄
+          </span>
+
+          <span>
+            Änderung / Tausch
+          </span>
+
+          <span class="nav-pfeil">
+            ⌄
+          </span>
+
+        </button>
+
+
+        <div
+          id="tauschUntermenue"
+          class="nav-untermenue"
+        >
+
+          <button
+            onclick="zeigeSeite('dienstAendern')"
+          >
+            Dienst ändern
+          </button>
+
+
+          <button
+            onclick="zeigeSeite('dienstTauschen')"
+          >
+            Dienst tauschen
+          </button>
+
+
+          <button
+            onclick="zeigeSeite('sonstigerWunsch')"
+          >
+            Sonstiger Wunsch
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ADMIN -->
+
+      <div
+        style="
+          padding:20px 10px 5px;
+          color:#777;
+          font-size:12px;
+          font-weight:700;
+          letter-spacing:.5px;
+        "
+      >
+        ADMIN
+      </div>
+
+
       <button
         id="adminNav"
         class="nav-item"
@@ -286,6 +563,9 @@
       </button>
 
 
+
+      <!-- ABMELDEN -->
+
       <button
         class="nav-item logout"
         onclick="logoutAusfuehren()"
@@ -303,6 +583,9 @@
 
     </nav>
 
+
+
+    <!-- AKTUALISIERT -->
 
     <div class="sidebar-update">
 
@@ -328,623 +611,572 @@
 
 
 
-  <!-- ======================================================
-       MOBILE HEADER
-       ====================================================== -->
+  <!-- ====================================================
+       OBERER BALKEN
+       NUR ☰ – KEIN "SCS TEAM"
+       ==================================================== -->
 
   <header class="mobile-header">
 
     <button
       class="mobile-menu"
+      type="button"
+      aria-label="Menü öffnen"
       onclick="toggleMobileMenue()"
     >
       ☰
     </button>
 
-    <div>
-
-      <strong>
-        SCS Team
-      </strong>
-
-      <small>
-        Dienstplan
-      </small>
-
-    </div>
-
   </header>
 
 
 
-  <!-- ======================================================
+  <!-- ====================================================
        HAUPTBEREICH
-       ====================================================== -->
+       ==================================================== -->
 
   <main class="content">
 
-<!-- ======================================================
-     MEIN DIENSTPLAN
-     ====================================================== -->
 
-<section
-  id="dienstplanAnsicht"
-  style="display: none;"
->
-  
-    <div class="content-header">
+    <!-- ==================================================
+         MEIN DIENSTPLAN
+         ================================================== -->
 
-      <div>
-        <h1>Mein Dienstplan</h1>
+    <section
+      id="dienstplanAnsicht"
+      style="display:none;"
+    >
 
-      <p>
-        Hier siehst du deine persönlichen Dienste.
-      </p>
-    </div>
-
-  </div>
-
-
-  <div class="dienstplan-info">
-
-    <div>
-      <strong>⏱️ Wochenstunden</strong>
-      <span id="dienstplanSollstunden">—</span>
-    </div>
-
-  </div>
-
-
-  <div class="dienstplan-bereich">
-
-    <h2>📅 Meine Dienste</h2>
-
-    <div id="wochenNavigation" class="wochen-navigation">
-      <button
-        id="kwZurueck"
-        class="wochen-button"
-        type="button"
-        onclick="wechselWoche(-1)"
-      >
-        ← Vorherige Woche
-      </button>
-
-      <div class="wochen-mitte">
-        <span class="wochen-label">Ausgewählte Woche</span>
-        <strong id="kwAnzeige">KW —</strong>
-      </div>
-
-      <button
-        id="kwWeiter"
-        class="wochen-button"
-        type="button"
-        onclick="wechselWoche(1)"
-      >
-        Nächste Woche →
-      </button>
-    </div>
-
-    <div id="dienstplanLaden">
-      Dienstplan wird geladen …
-    </div>
-
-    <div id="dienstplanListe"></div>
-
-  </div>
-
-
-  <div class="dienstplan-bereich">
-
-    <h2>🏖️ Meine Abwesenheiten</h2>
-
-    <div id="abwesenheitenListe">
-      Keine Abwesenheiten vorhanden.
-      </div>
-
-    </div>
-
-  </section>
-    
-<section id="tauschAnsicht">
-   
-  <div class="content-header">
-
-      <div>
-
-        <h1>
-          Dienst tauschen
-        </h1>
-
-        <p>
-          Wähle einen Tag aus und tausche deinen Dienst direkt
-          mit einem Kollegen.
-        </p>
-
-      </div>
-
-
-      <button class="close-button">
-        ×
-      </button>
-
-    </div>
-
-
-
-    <!-- ====================================================
-         SCHRITTE
-         ==================================================== -->
-
-    <div class="schritte">
-
-      <div class="schritt aktiv">
-
-        <div class="schritt-kreis">
-          1
-        </div>
-
-        <span>
-          Tag auswählen
-        </span>
-
-      </div>
-
-
-      <div class="schritt-linie aktiv"></div>
-
-
-      <div class="schritt aktiv">
-
-        <div class="schritt-kreis">
-          2
-        </div>
-
-        <span>
-          Dienst wählen
-        </span>
-
-      </div>
-
-
-      <div class="schritt-linie"></div>
-
-
-      <div class="schritt">
-
-        <div class="schritt-kreis">
-          3
-        </div>
-
-        <span>
-          Kollegen wählen
-        </span>
-
-      </div>
-
-
-      <div class="schritt-linie"></div>
-
-
-      <div class="schritt">
-
-        <div class="schritt-kreis">
-          4
-        </div>
-
-        <span>
-          Anfrage senden
-        </span>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- ====================================================
-         SCHRITT 1
-         ==================================================== -->
-
-    <section class="panel">
-
-      <div class="panel-grid">
-
+      <div class="content-header">
 
         <div>
 
-          <h2>
-            1. Tag auswählen
-          </h2>
+          <h1>
+            Mein Dienstplan
+          </h1>
 
-          <p class="beschreibung">
-            Für welchen Tag möchtest du tauschen?
+          <p>
+            Hier siehst du deine persönlichen Dienste.
           </p>
 
+        </div>
 
-          <div class="datum-navigation">
-
-            <button class="pfeil-button">
-              ←
-            </button>
+      </div>
 
 
-            <button class="datum-button">
+      <div class="dienstplan-info">
 
-              <span>
-                📅
-              </span>
+        <div>
 
-              <strong>
-                05.01.2027
-              </strong>
+          <strong>
+            ⏱️ Wochenstunden
+          </strong>
 
-              <span>
-                (Dienstag)
-              </span>
+          <span id="dienstplanSollstunden">
+            —
+          </span>
 
-            </button>
+        </div>
 
-
-            <button class="pfeil-button">
-              →
-            </button>
-
-          </div>
+      </div>
 
 
-          <div class="info-box">
+      <div class="dienstplan-bereich">
 
-            <span>
-              ℹ️
+        <h2>
+          📅 Meine Dienste
+        </h2>
+
+
+        <div
+          id="wochenNavigation"
+          class="wochen-navigation"
+        >
+
+          <button
+            id="kwZurueck"
+            class="wochen-button"
+            type="button"
+            onclick="wechselWoche(-1)"
+          >
+            ← Vorherige Woche
+          </button>
+
+
+          <div class="wochen-mitte">
+
+            <span class="wochen-label">
+              Ausgewählte Woche
             </span>
 
-            <div>
-              Es werden nur Tage angezeigt, an denen du
-              einen Früh- oder Spätdienst eingetragen hast.
-            </div>
+            <strong id="kwAnzeige">
+              KW —
+            </strong>
 
           </div>
 
 
-          <button class="secondary-button">
-            📅 Anderen Tag wählen
+          <button
+            id="kwWeiter"
+            class="wochen-button"
+            type="button"
+            onclick="wechselWoche(1)"
+          >
+            Nächste Woche →
           </button>
 
         </div>
 
 
-
-        <div class="eigene-dienste">
-
-          <h3>
-            Deine Dienste an diesem Tag
-          </h3>
-
-
-          <div class="dienst-mini">
-
-            <div class="dienst-links">
-
-              <span class="punkt gruen"></span>
-
-              <span>
-                Garden Plaza – Früh
-              </span>
-
-            </div>
-
-            <strong class="gruen-text">
-              Babsi
-            </strong>
-
-          </div>
-
-
-          <div class="dienst-mini">
-
-            <div class="dienst-links">
-
-              <span class="punkt blau"></span>
-
-              <span>
-                Water Plaza – Spät
-              </span>
-
-            </div>
-
-            <strong class="blau-text">
-              Babsi
-            </strong>
-
-          </div>
-
+        <div id="dienstplanLaden">
+          Dienstplan wird geladen …
         </div>
 
+
+        <div id="dienstplanListe"></div>
+
+      </div>
+
+
+      <div class="dienstplan-bereich">
+
+        <h2>
+          🏖️ Meine Abwesenheiten
+        </h2>
+
+        <div id="abwesenheitenListe">
+          Keine Abwesenheiten vorhanden.
+        </div>
 
       </div>
 
     </section>
 
+        <!-- ==================================================
+         DIENST TAUSCHEN
+         ================================================== -->
 
+    <section id="tauschAnsicht">
 
-    <!-- ====================================================
-         SCHRITT 2
-         ==================================================== -->
+      <div class="content-header">
 
-    <section class="panel">
+        <div>
 
-      <h2>
-        2. Dienst wählen
-      </h2>
+          <h1>
+            Dienst tauschen
+          </h1>
 
-      <p class="beschreibung">
-        Wähle den Dienst, den du tauschen möchtest.
-      </p>
+          <p>
+            Wähle einen Tag aus und tausche deinen Dienst direkt
+            mit einem Kollegen.
+          </p>
 
-
-      <div class="dienst-auswahl">
-
-
-        <button
-          class="dienst-option ausgewaehlt"
-          onclick="waehleDienst(this)"
-        >
-
-          <span class="radio aktiv"></span>
-
-
-          <div class="dienst-symbol sonne">
-            ☀
-          </div>
-
-
-          <div class="dienst-option-text">
-
-            <strong class="gruen-text">
-              Garden Plaza – Früh
-            </strong>
-
-            <span>
-              Dienstzeit: 09:00 – 14:30
-            </span>
-
-            <small class="status-chip gruen-chip">
-              Du bist eingetragen
-            </small>
-
-          </div>
-
-        </button>
-
-
+        </div>
 
         <button
-          class="dienst-option"
-          onclick="waehleDienst(this)"
+          class="close-button"
+          type="button"
         >
-
-          <span class="radio"></span>
-
-
-          <div class="dienst-symbol mond">
-            ☾
-          </div>
-
-
-          <div class="dienst-option-text">
-
-            <strong class="blau-text">
-              Water Plaza – Spät
-            </strong>
-
-            <span>
-              Dienstzeit: 14:30 – 19:00
-            </span>
-
-            <small class="status-chip blau-chip">
-              Du bist eingetragen
-            </small>
-
-          </div>
-
+          ×
         </button>
-
 
       </div>
 
 
 
-      <div class="panel-unten">
+      <!-- ==================================================
+           SCHRITTE
+           ================================================== -->
 
-        <div class="hinweis-box">
+      <div class="schritte">
 
-          <span class="hinweis-icon">
-            💡
+        <div class="schritt aktiv">
+
+          <div class="schritt-kreis">
+            1
+          </div>
+
+          <span>
+            Tag auswählen
           </span>
+
+        </div>
+
+
+        <div class="schritt-linie aktiv"></div>
+
+
+        <div class="schritt aktiv">
+
+          <div class="schritt-kreis">
+            2
+          </div>
+
+          <span>
+            Dienst wählen
+          </span>
+
+        </div>
+
+
+        <div class="schritt-linie"></div>
+
+
+        <div class="schritt">
+
+          <div class="schritt-kreis">
+            3
+          </div>
+
+          <span>
+            Kollegen wählen
+          </span>
+
+        </div>
+
+
+        <div class="schritt-linie"></div>
+
+
+        <div class="schritt">
+
+          <div class="schritt-kreis">
+            4
+          </div>
+
+          <span>
+            Anfrage senden
+          </span>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ==================================================
+           SCHRITT 1
+           TAG AUSWÄHLEN
+           ================================================== -->
+
+      <section class="panel">
+
+        <div class="panel-grid">
+
 
           <div>
 
-            <strong>
-              Hinweis
-            </strong>
+            <h2>
+              1. Tag auswählen
+            </h2>
 
-            <p>
-              Du wählst deinen Dienst aus,
-              anschließend den Kollegen,
-              mit dem du tauschen möchtest.
+            <p class="beschreibung">
+              Für welchen Tag möchtest du tauschen?
             </p>
+
+
+            <div class="datum-navigation">
+
+              <button
+                class="pfeil-button"
+                type="button"
+              >
+                ←
+              </button>
+
+
+              <button
+                class="datum-button"
+                type="button"
+              >
+
+                <span>
+                  📅
+                </span>
+
+                <strong>
+                  —
+                </strong>
+
+                <span>
+                </span>
+
+              </button>
+
+
+              <button
+                class="pfeil-button"
+                type="button"
+              >
+                →
+              </button>
+
+            </div>
+
+
+            <div class="info-box">
+
+              <span>
+                ℹ️
+              </span>
+
+              <div>
+                Es werden nur Tage angezeigt, an denen du
+                einen passenden Dienst eingetragen hast.
+              </div>
+
+            </div>
+
+
+            <button
+              class="secondary-button"
+              type="button"
+            >
+              📅 Anderen Tag wählen
+            </button>
+
+          </div>
+
+
+
+          <!-- EIGENE DIENSTE -->
+
+          <div class="eigene-dienste">
+
+            <h3>
+              Deine Dienste an diesem Tag
+            </h3>
+
+            <div class="empty-state">
+              Bitte wähle zuerst einen Tag aus.
+            </div>
 
           </div>
 
         </div>
 
-
-        <button
-          class="weiter-button"
-          onclick="zeigeKollegen()"
-        >
-          Weiter zu Schritt 3
-          <span>→</span>
-        </button>
-
-      </div>
-
-    </section>
+      </section>
 
 
 
-    <!-- ====================================================
-         SCHRITT 3
-         ==================================================== -->
+      <!-- ==================================================
+           SCHRITT 2
+           DIENST WÄHLEN
+           ================================================== -->
 
-    <section
-      id="kollegenBereich"
-      class="panel versteckt"
-    >
+      <section class="panel">
 
-      <h2>
-        3. Kollegen wählen
-      </h2>
+        <h2>
+          2. Dienst wählen
+        </h2>
 
-      <p class="beschreibung">
-        Mit wem möchtest du deinen Dienst tauschen?
-      </p>
+        <p class="beschreibung">
+          Wähle den Dienst, den du tauschen möchtest.
+        </p>
 
 
-      <div class="kollegen-grid">
+        <div class="dienst-auswahl">
 
-
-        <div class="kollegen-box frueh">
-
-          <h3>
-            ☀️ Frühdienste
-          </h3>
-
-
-          <label class="kollege">
-
-            <input
-              type="radio"
-              name="kollege"
-            >
-
-            <span>
-              Christina
-            </span>
-
-            <strong>
-              Water Plaza – Früh
-            </strong>
-
-          </label>
-
-
-          <label class="kollege">
-
-            <input
-              type="radio"
-              name="kollege"
-            >
-
-            <span>
-              Paul
-            </span>
-
-            <strong>
-              Garden Plaza – Früh
-            </strong>
-
-          </label>
+          <div class="empty-state">
+            Deine verfügbaren Dienste werden hier angezeigt.
+          </div>
 
         </div>
 
 
+        <div class="panel-unten">
 
-        <div class="kollegen-box spaet">
+          <div class="hinweis">
 
-          <h3>
-            🌙 Spätdienste
-          </h3>
+            💡 Wähle deinen eigenen Dienst aus.
+            Anschließend kannst du den Kollegen auswählen,
+            mit dem du tauschen möchtest.
 
-
-          <label class="kollege">
-
-            <input
-              type="radio"
-              name="kollege"
-            >
-
-            <span>
-              Paul
-            </span>
-
-            <strong>
-              Garden Plaza – Spät
-            </strong>
-
-          </label>
+          </div>
 
 
-          <label class="kollege">
-
-            <input
-              type="radio"
-              name="kollege"
-            >
-
-            <span>
-              Angelina
-            </span>
-
-            <strong>
-              Water Plaza – Spät
-            </strong>
-
-          </label>
+          <button
+            class="weiter-button"
+            type="button"
+            onclick="zeigeKollegen()"
+          >
+            Weiter zu Schritt 3
+            <span>→</span>
+          </button>
 
         </div>
 
+      </section>
 
-      </div>
+
+
+      <!-- ==================================================
+           SCHRITT 3
+           KOLLEGEN WÄHLEN
+           ================================================== -->
+
+      <section
+        id="kollegenBereich"
+        class="panel versteckt"
+      >
+
+        <h2>
+          3. Kollegen wählen
+        </h2>
+
+        <p class="beschreibung">
+          Mit wem möchtest du deinen Dienst tauschen?
+        </p>
+
+
+        <div class="kollegen-grid">
+
+          <div class="empty-state">
+            Mögliche Tauschpartner werden geladen.
+          </div>
+
+        </div>
+
+      </section>
+
 
     </section>
+    <!-- /tauschAnsicht -->
 
-  </section><!-- /tauschAnsicht -->
 
   </main>
+  <!-- /content -->
+
 
 </div>
+<!-- /hauptApp -->
 
+  <!-- ======================================================
+     APP.JS
+     Neue Versionsnummer gegen alten Browser-Cache
+     ====================================================== -->
 
-
-<script src="app.js"></script>
+<script src="app.js?v=20260819-2"></script>
 
 
 <script>
 
+/* =========================================================
+   ÄNDERUNG / TAUSCH UNTERMENÜ
+   ========================================================= */
+
 function toggleTauschMenue() {
 
-  document
-    .getElementById(
+  const menue =
+    document.getElementById(
       'tauschUntermenue'
-    )
-    .classList.toggle(
-      'offen'
     );
+
+  if (!menue) {
+    return;
+  }
+
+  menue.classList.toggle(
+    'offen'
+  );
 }
 
+
+/* =========================================================
+   ☰ SEITENMENÜ
+   ========================================================= */
 
 function toggleMobileMenue() {
 
-  document
-    .getElementById(
+  const sidebar =
+    document.getElementById(
       'sidebar'
-    )
-    .classList.toggle(
+    );
+
+  const button =
+    document.querySelector(
+      '.mobile-menu'
+    );
+
+  if (!sidebar) {
+    return;
+  }
+
+
+  sidebar.classList.toggle(
+    'mobile-offen'
+  );
+
+
+  const istOffen =
+    sidebar.classList.contains(
       'mobile-offen'
     );
+
+
+  if (button) {
+
+    button.textContent =
+      istOffen
+        ? '×'
+        : '☰';
+
+    button.setAttribute(
+      'aria-label',
+      istOffen
+        ? 'Menü schließen'
+        : 'Menü öffnen'
+    );
+
+  }
+
 }
 
+
+/* =========================================================
+   MENÜ SCHLIESSEN
+   ========================================================= */
+
+function schliesseMobileMenue() {
+
+  const sidebar =
+    document.getElementById(
+      'sidebar'
+    );
+
+  const button =
+    document.querySelector(
+      '.mobile-menu'
+    );
+
+
+  if (sidebar) {
+
+    sidebar.classList.remove(
+      'mobile-offen'
+    );
+
+  }
+
+
+  if (button) {
+
+    button.textContent =
+      '☰';
+
+    button.setAttribute(
+      'aria-label',
+      'Menü öffnen'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   DIENST AUSWÄHLEN
+   ========================================================= */
 
 function waehleDienst(button) {
 
@@ -960,18 +1192,27 @@ function waehleDienst(button) {
           'ausgewaehlt'
         );
 
+
       const radio =
         element.querySelector(
           '.radio'
         );
 
+
       if (radio) {
+
         radio.classList.remove(
           'aktiv'
         );
+
       }
 
     });
+
+
+  if (!button) {
+    return;
+  }
 
 
   button
@@ -986,143 +1227,478 @@ function waehleDienst(button) {
       '.radio'
     );
 
+
   if (radio) {
+
     radio.classList.add(
       'aktiv'
     );
+
   }
+
 }
 
 
+/* =========================================================
+   KOLLEGEN ANZEIGEN
+   ========================================================= */
+
 function zeigeKollegen() {
 
-  document
-    .getElementById(
+  const bereich =
+    document.getElementById(
       'kollegenBereich'
-    )
-    .classList.remove(
+    );
+
+
+  if (!bereich) {
+    return;
+  }
+
+
+  bereich
+    .classList
+    .remove(
       'versteckt'
     );
 
 
-  document
-    .getElementById(
-      'kollegenBereich'
-    )
-    .scrollIntoView({
-      behavior: 'smooth'
-    });
+  bereich.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+
 }
 
+
+/* =========================================================
+   BASIS-SEITENNAVIGATION
+   app.js erweitert diese Funktion später um
+   Abwesenheiten, Anfragen, PIN und Admin.
+   ========================================================= */
 
 function zeigeSeite(seite) {
 
   const dienstplanAnsicht =
-    document.getElementById('dienstplanAnsicht');
+    document.getElementById(
+      'dienstplanAnsicht'
+    );
 
   const tauschAnsicht =
-    document.getElementById('tauschAnsicht');
+    document.getElementById(
+      'tauschAnsicht'
+    );
 
 
   document
-    .querySelectorAll('.nav-item')
+    .querySelectorAll(
+      '.nav-item'
+    )
     .forEach(function(button) {
-      button.classList.remove('aktiv');
+
+      button.classList.remove(
+        'aktiv'
+      );
+
     });
 
 
   document
-    .querySelectorAll('.nav-untermenue button')
+    .querySelectorAll(
+      '.nav-untermenue button'
+    )
     .forEach(function(button) {
-      button.classList.remove('aktiv');
+
+      button.classList.remove(
+        'aktiv'
+      );
+
     });
 
 
   const tauschGruppe =
-    document.querySelector('.nav-gruppe');
+    document.querySelector(
+      '.nav-gruppe'
+    );
+
 
   if (tauschGruppe) {
-    tauschGruppe.classList.remove('aktiv');
+
+    tauschGruppe.classList.remove(
+      'aktiv'
+    );
+
   }
 
 
-  if (seite === 'dienstplan') {
+  /* -------------------------------------------------------
+     MEIN DIENSTPLAN
+     ------------------------------------------------------- */
+
+  if (
+    seite === 'dienstplan'
+  ) {
 
     if (dienstplanAnsicht) {
-      dienstplanAnsicht.style.display = 'block';
+
+      dienstplanAnsicht.style.display =
+        'block';
+
     }
 
+
     if (tauschAnsicht) {
-      tauschAnsicht.style.display = 'none';
+
+      tauschAnsicht.style.display =
+        'none';
+
     }
+
 
     const dienstplanButton =
-      document.querySelector(`[onclick="zeigeSeite('dienstplan')"]`);
+      document.querySelector(
+        `[onclick="zeigeSeite('dienstplan')"]`
+      );
+
 
     if (dienstplanButton) {
-      dienstplanButton.classList.add('aktiv');
+
+      dienstplanButton
+        .classList
+        .add(
+          'aktiv'
+        );
+
     }
 
-    if (typeof ladeMeinDienstplanNeu === 'function') {
+
+    if (
+      typeof ladeMeinDienstplanNeu ===
+      'function'
+    ) {
+
       ladeMeinDienstplanNeu();
+
     }
 
-  } else if (seite === 'dienstTauschen') {
+  }
+
+
+  /* -------------------------------------------------------
+     DIENST TAUSCHEN
+     ------------------------------------------------------- */
+
+  else if (
+    seite === 'dienstTauschen'
+  ) {
 
     if (dienstplanAnsicht) {
-      dienstplanAnsicht.style.display = 'none';
+
+      dienstplanAnsicht.style.display =
+        'none';
+
     }
+
 
     if (tauschAnsicht) {
-      tauschAnsicht.style.display = 'block';
+
+      tauschAnsicht.style.display =
+        'block';
+
     }
+
 
     const tauschHauptButton =
-      document.querySelector('.nav-hauptpunkt');
+      document.querySelector(
+        '.nav-hauptpunkt'
+      );
+
 
     if (tauschHauptButton) {
-      tauschHauptButton.classList.add('aktiv');
+
+      tauschHauptButton
+        .classList
+        .add(
+          'aktiv'
+        );
+
     }
+
 
     if (tauschGruppe) {
-      tauschGruppe.classList.add('aktiv');
+
+      tauschGruppe
+        .classList
+        .add(
+          'aktiv'
+        );
+
     }
+
 
     const tauschButton =
-      document.querySelector(`[onclick="zeigeSeite('dienstTauschen')"]`);
+      document.querySelector(
+        `[onclick="zeigeSeite('dienstTauschen')"]`
+      );
+
 
     if (tauschButton) {
-      tauschButton.classList.add('aktiv');
+
+      tauschButton
+        .classList
+        .add(
+          'aktiv'
+        );
+
     }
+
   }
 
 
-  if (window.innerWidth <= 900) {
+  /*
+    Ganz wichtig:
+    Nach Auswahl eines Menüpunktes
+    Sidebar immer wieder schließen.
+  */
 
-    const sidebar =
-      document.getElementById('sidebar');
+  schliesseMobileMenue();
 
-    if (sidebar) {
-      sidebar.classList.remove('mobile-offen');
-    }
-  }
 }
 
 
-document.addEventListener('keydown', function(event) {
-  if (
-    event.key === 'Enter' &&
-    document.getElementById('loginAnsicht') &&
-    document.getElementById('loginAnsicht').style.display !== 'none'
-  ) {
-    if (typeof loginAusfuehren === 'function') {
-      loginAusfuehren();
+/* =========================================================
+   AUCH DYNAMISCHE MENÜPUNKTE AUTOMATISCH SCHLIESSEN
+   ========================================================= */
+
+document.addEventListener(
+  'click',
+  function(event) {
+
+    const ziel =
+      event.target.closest(
+        '.sidebar button'
+      );
+
+
+    if (!ziel) {
+      return;
     }
+
+
+    /*
+      Änderung / Tausch Hauptbutton soll nur
+      das Untermenü bedienen.
+    */
+
+    if (
+      ziel.classList.contains(
+        'nav-hauptpunkt'
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    setTimeout(
+      function() {
+
+        schliesseMobileMenue();
+
+      },
+      50
+    );
+
   }
-});
+);
+
+
+/* =========================================================
+   AUSSERHALB DES MENÜS TIPPEN = MENÜ SCHLIESSEN
+   ========================================================= */
+
+document.addEventListener(
+  'click',
+  function(event) {
+
+    const sidebar =
+      document.getElementById(
+        'sidebar'
+      );
+
+    const menuButton =
+      document.querySelector(
+        '.mobile-menu'
+      );
+
+
+    if (
+      !sidebar ||
+      !sidebar.classList.contains(
+        'mobile-offen'
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      sidebar.contains(
+        event.target
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      menuButton &&
+      menuButton.contains(
+        event.target
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    schliesseMobileMenue();
+
+  }
+);
+
+
+/* =========================================================
+   ESC-TASTE = MENÜ SCHLIESSEN
+   ========================================================= */
+
+document.addEventListener(
+  'keydown',
+  function(event) {
+
+    if (
+      event.key === 'Escape'
+    ) {
+
+      schliesseMobileMenue();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   ENTER BEIM LOGIN
+   ========================================================= */
+
+document.addEventListener(
+  'keydown',
+  function(event) {
+
+    const loginAnsicht =
+      document.getElementById(
+        'loginAnsicht'
+      );
+
+
+    if (
+      event.key === 'Enter' &&
+      loginAnsicht &&
+      loginAnsicht.style.display !==
+        'none'
+    ) {
+
+      if (
+        typeof loginAusfuehren ===
+        'function'
+      ) {
+
+        loginAusfuehren();
+
+      }
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   HANDY-LAYOUT ZUSÄTZLICH ABSICHERN
+   ========================================================= */
+
+function sichereHandyLayout() {
+
+  const hauptApp =
+    document.getElementById(
+      'hauptApp'
+    );
+
+
+  const content =
+    document.querySelector(
+      '#hauptApp .content'
+    );
+
+
+  if (hauptApp) {
+
+    hauptApp.style.flexDirection =
+      'column';
+
+    hauptApp.style.width =
+      '100%';
+
+  }
+
+
+  if (content) {
+
+    content.style.width =
+      '100%';
+
+    content.style.marginLeft =
+      '0';
+
+  }
+
+}
+
+
+window.addEventListener(
+  'resize',
+  sichereHandyLayout
+);
+
+
+window.addEventListener(
+  'orientationchange',
+  sichereHandyLayout
+);
+
+
+document.addEventListener(
+  'DOMContentLoaded',
+  function() {
+
+    sichereHandyLayout();
+
+  }
+);
 
 </script>
 
+
+<!-- ======================================================
+     SERVICE WORKER
+     ====================================================== -->
 
 <script>
 
@@ -1137,15 +1713,33 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js'
-        );
+          './service-worker.js?v=20260819-2',
+          {
+            updateViaCache: 'none'
+          }
+        )
+        .then(function(registration) {
+
+          registration.update();
+
+        })
+        .catch(function() {
+
+          /*
+            Die Web-App funktioniert auch,
+            falls der Service Worker nicht
+            verfügbar ist.
+          */
+
+        });
 
     }
   );
+
 }
 
 </script>
 
-</body>
 
+</body>
 </html>
