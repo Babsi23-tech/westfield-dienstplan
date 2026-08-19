@@ -1,90 +1,1554 @@
-/* =========================================
-   APP-FARBEN – HIER KANNST DU SIE ÄNDERN
-   ========================================= */
+/* =========================================================
+   APP-FARBEN
+   ========================================================= */
 
 :root {
-  --hauptfarbe: #ed1639;
-  --hauptfarbe-dunkel: #c8102e;
+  --rot: #e30613;
+  --rot-dunkel: #be0010;
 
-  --hintergrund: #f3f5f8;
-  --karte: #ffffff;
+  --gruen: #14943b;
+  --blau: #1754d1;
 
-  --text: #182230;
-  --text-hell: #667085;
+  --hintergrund: #f7f8fa;
+  --weiss: #ffffff;
 
-  --rahmen: #d8dee8;
+  --text: #171717;
+  --text-hell: #666666;
+
+  --linie: #e1e4e8;
+
+  --sidebar-breite: 290px;
+
+  --shadow:
+    0 4px 18px rgba(0, 0, 0, 0.07);
 }
 
 
-/* =========================================
-   GRUNDDESIGN
-   ========================================= */
+
+/* =========================================================
+   BASIS
+   ========================================================= */
 
 * {
   box-sizing: border-box;
 }
 
+
+html,
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: var(--hintergrund);
-  color: var(--text);
+  min-height: 100%;
 }
 
-.app {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+
+body {
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  background:
+    var(--hintergrund);
+
+  color:
+    var(--text);
+}
+
+
+button,
+input {
+  font-family: inherit;
+}
+
+
+
+/* =========================================================
+   APP SHELL
+   ========================================================= */
+
+.app-shell {
+  display: flex;
   min-height: 100vh;
-  background: var(--karte);
-  padding: 20px;
 }
 
-.app-header {
-  padding: 25px 20px;
-  border-radius: 22px;
-  background: var(--karte);
-  border: 1px solid var(--rahmen);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar {
+  width: var(--sidebar-breite);
+  min-width: var(--sidebar-breite);
+
+  min-height: 100vh;
+
+  background:
+    #ffffff;
+
+  border-right:
+    1px solid var(--linie);
+
+  padding:
+    22px 18px;
+
+  position:
+    fixed;
+
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  overflow-y:
+    auto;
+
+  z-index:
+    1000;
 }
 
-.app-title {
-  margin: 0;
-  color: var(--hauptfarbe);
-  font-size: 28px;
+
+.brand {
+  text-align:
+    center;
+
+  padding:
+    2px 0 28px;
 }
 
-.app-subtitle {
-  margin-top: 8px;
-  color: var(--text-hell);
-  font-size: 15px;
+
+.brand-westfield {
+  color:
+    var(--rot);
+
+  font-size:
+    34px;
+
+  font-weight:
+    800;
+
+  font-style:
+    italic;
 }
 
-.test-karte {
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 18px;
-  background: var(--karte);
-  border: 1px solid var(--rahmen);
+
+.brand-scs {
+  margin-top:
+    4px;
+
+  font-size:
+    24px;
 }
 
-.test-karte h2 {
-  margin-top: 0;
+
+.profil {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    13px;
+
+  padding:
+    12px 2px 20px;
 }
 
-button {
-  width: 100%;
-  border: 0;
-  border-radius: 14px;
-  padding: 15px;
-  background: var(--hauptfarbe);
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
+
+.profil-icon {
+  width:
+    48px;
+
+  height:
+    48px;
+
+  border-radius:
+    50%;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  background:
+    #fff0f1;
+
+  font-size:
+    27px;
 }
 
-button:active {
-  background: var(--hauptfarbe-dunkel);
-  transform: scale(0.98);
+
+.profil-name {
+  font-weight:
+    700;
+
+  font-size:
+    17px;
+}
+
+
+.profil-rolle {
+  color:
+    var(--text-hell);
+
+  margin-top:
+    3px;
+}
+
+
+.sidebar-trenner {
+  border-top:
+    1px solid var(--linie);
+
+  margin-bottom:
+    14px;
+}
+
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.nav {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+}
+
+
+.nav-item {
+  width:
+    100%;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    12px;
+
+  min-height:
+    52px;
+
+  padding:
+    12px 8px;
+
+  border:
+    0;
+
+  background:
+    transparent;
+
+  color:
+    #242424;
+
+  font-size:
+    15px;
+
+  text-align:
+    left;
+
+  border-radius:
+    10px;
+
+  cursor:
+    pointer;
+}
+
+
+.nav-item:hover {
+  background:
+    #f5f6f8;
+}
+
+
+.nav-item.aktiv,
+.nav-hauptpunkt.aktiv {
+  color:
+    var(--rot);
+
+  font-weight:
+    700;
+}
+
+
+.nav-icon {
+  width:
+    25px;
+
+  font-size:
+    20px;
+}
+
+
+.nav-pfeil {
+  margin-left:
+    auto;
+}
+
+
+.nav-gruppe {
+  margin:
+    2px 0;
+}
+
+
+.nav-untermenue {
+  margin-left:
+    19px;
+
+  padding-left:
+    22px;
+
+  border-left:
+    1px solid #dddddd;
+}
+
+
+.nav-untermenue button {
+  width:
+    100%;
+
+  min-height:
+    46px;
+
+  border:
+    0;
+
+  background:
+    transparent;
+
+  text-align:
+    left;
+
+  padding:
+    10px;
+
+  font-size:
+    15px;
+
+  cursor:
+    pointer;
+
+  border-radius:
+    8px;
+}
+
+
+.nav-untermenue button.aktiv {
+  color:
+    var(--rot);
+
+  background:
+    #fff3f4;
+
+  font-weight:
+    700;
+}
+
+
+.badge {
+  margin-left:
+    auto;
+
+  min-width:
+    23px;
+
+  height:
+    23px;
+
+  border-radius:
+    999px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  background:
+    var(--rot);
+
+  color:
+    white;
+
+  font-size:
+    12px;
+
+  font-weight:
+    bold;
+}
+
+
+.logout {
+  margin-top:
+    5px;
+}
+
+
+.sidebar-update {
+  margin-top:
+    28px;
+
+  border:
+    1px solid var(--linie);
+
+  border-radius:
+    13px;
+
+  padding:
+    14px;
+
+  display:
+    flex;
+
+  gap:
+    10px;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.5;
+}
+
+
+.sidebar-update-icon {
+  font-size:
+    20px;
+}
+
+
+
+/* =========================================================
+   MOBILE HEADER
+   ========================================================= */
+
+.mobile-header {
+  display:
+    none;
+}
+
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.content {
+  width:
+    calc(100% - var(--sidebar-breite));
+
+  margin-left:
+    var(--sidebar-breite);
+
+  padding:
+    20px 40px 50px;
+
+  max-width:
+    1500px;
+}
+
+
+.content-header {
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  align-items:
+    flex-start;
+
+  text-align:
+    center;
+
+  margin-bottom:
+    24px;
+}
+
+
+.content-header > div {
+  flex:
+    1;
+}
+
+
+.content-header h1 {
+  margin:
+    0;
+
+  font-size:
+    31px;
+}
+
+
+.content-header p {
+  margin:
+    7px 0 0;
+
+  color:
+    #444444;
+}
+
+
+.close-button {
+  width:
+    45px;
+
+  height:
+    45px;
+
+  border:
+    0;
+
+  background:
+    transparent;
+
+  color:
+    var(--rot);
+
+  font-size:
+    40px;
+
+  cursor:
+    pointer;
+}
+
+
+
+/* =========================================================
+   SCHRITTE
+   ========================================================= */
+
+.schritte {
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  justify-content:
+    center;
+
+  margin:
+    20px auto 30px;
+
+  max-width:
+    950px;
+}
+
+
+.schritt {
+  width:
+    130px;
+
+  text-align:
+    center;
+}
+
+
+.schritt-kreis {
+  width:
+    42px;
+
+  height:
+    42px;
+
+  border-radius:
+    50%;
+
+  margin:
+    0 auto 8px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border:
+    1px solid #d6d6d6;
+
+  background:
+    white;
+
+  font-weight:
+    bold;
+}
+
+
+.schritt.aktiv .schritt-kreis {
+  background:
+    var(--rot);
+
+  color:
+    white;
+
+  border-color:
+    var(--rot);
+}
+
+
+.schritt span {
+  font-size:
+    13px;
+}
+
+
+.schritt-linie {
+  height:
+    1px;
+
+  background:
+    #dddddd;
+
+  flex:
+    1;
+
+  margin-top:
+    20px;
+}
+
+
+.schritt-linie.aktiv {
+  background:
+    var(--rot);
+}
+
+
+
+/* =========================================================
+   PANELS
+   ========================================================= */
+
+.panel {
+  background:
+    white;
+
+  border:
+    1px solid var(--linie);
+
+  border-radius:
+    14px;
+
+  padding:
+    26px;
+
+  margin-bottom:
+    18px;
+
+  box-shadow:
+    var(--shadow);
+}
+
+
+.panel h2 {
+  margin:
+    0;
+
+  color:
+    var(--rot);
+
+  font-size:
+    20px;
+}
+
+
+.panel h3 {
+  margin:
+    0 0 14px;
+
+  color:
+    var(--rot);
+
+  font-size:
+    17px;
+}
+
+
+.beschreibung {
+  margin:
+    8px 0 18px;
+
+  color:
+    #444444;
+}
+
+
+.panel-grid {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    45px;
+}
+
+
+
+/* =========================================================
+   DATUM
+   ========================================================= */
+
+.datum-navigation {
+  display:
+    grid;
+
+  grid-template-columns:
+    60px 1fr 60px;
+
+  gap:
+    10px;
+
+  margin-bottom:
+    14px;
+}
+
+
+.pfeil-button,
+.datum-button,
+.secondary-button {
+  min-height:
+    56px;
+
+  border:
+    1px solid #d5d9df;
+
+  border-radius:
+    9px;
+
+  background:
+    white;
+
+  cursor:
+    pointer;
+}
+
+
+.pfeil-button {
+  font-size:
+    26px;
+}
+
+
+.datum-button {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    flex-start;
+
+  gap:
+    10px;
+
+  padding:
+    0 18px;
+
+  font-size:
+    16px;
+}
+
+
+.info-box {
+  display:
+    flex;
+
+  gap:
+    13px;
+
+  background:
+    #eef5ff;
+
+  color:
+    #173a76;
+
+  border:
+    1px solid #d5e4ff;
+
+  border-radius:
+    9px;
+
+  padding:
+    15px;
+
+  line-height:
+    1.45;
+
+  margin-bottom:
+    14px;
+}
+
+
+.secondary-button {
+  padding:
+    0 18px;
+
+  font-size:
+    15px;
+}
+
+
+
+/* =========================================================
+   EIGENE DIENSTE
+   ========================================================= */
+
+.eigene-dienste {
+  background:
+    #fffafa;
+
+  border-radius:
+    12px;
+
+  padding:
+    18px;
+}
+
+
+.dienst-mini {
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  align-items:
+    center;
+
+  min-height:
+    58px;
+
+  background:
+    white;
+
+  border:
+    1px solid #e6e6e6;
+
+  border-radius:
+    9px;
+
+  padding:
+    0 15px;
+
+  margin-bottom:
+    10px;
+
+  box-shadow:
+    0 2px 7px rgba(0, 0, 0, 0.04);
+}
+
+
+.dienst-links {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    10px;
+}
+
+
+.punkt {
+  width:
+    14px;
+
+  height:
+    14px;
+
+  border-radius:
+    50%;
+}
+
+
+.punkt.gruen {
+  background:
+    var(--gruen);
+}
+
+
+.punkt.blau {
+  background:
+    var(--blau);
+}
+
+
+.gruen-text {
+  color:
+    var(--gruen);
+}
+
+
+.blau-text {
+  color:
+    var(--blau);
+}
+
+
+
+/* =========================================================
+   DIENST AUSWAHL
+   ========================================================= */
+
+.dienst-auswahl {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    18px;
+
+  margin-top:
+    10px;
+}
+
+
+.dienst-option {
+  min-height:
+    166px;
+
+  border:
+    1px solid #d7dbe0;
+
+  border-radius:
+    10px;
+
+  background:
+    white;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    20px;
+
+  padding:
+    20px;
+
+  text-align:
+    left;
+
+  cursor:
+    pointer;
+}
+
+
+.dienst-option.ausgewaehlt {
+  border:
+    1.5px solid var(--gruen);
+
+  background:
+    #fbfffc;
+}
+
+
+.radio {
+  width:
+    27px;
+
+  height:
+    27px;
+
+  border:
+    2px solid #a9adb3;
+
+  border-radius:
+    50%;
+
+  flex:
+    0 0 auto;
+}
+
+
+.radio.aktiv {
+  border:
+    8px solid var(--gruen);
+}
+
+
+.dienst-symbol {
+  width:
+    92px;
+
+  height:
+    92px;
+
+  border:
+    1px solid #d8dde4;
+
+  border-radius:
+    50%;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  font-size:
+    52px;
+
+  flex:
+    0 0 auto;
+}
+
+
+.sonne {
+  color:
+    #ffb300;
+}
+
+
+.mond {
+  color:
+    var(--blau);
+}
+
+
+.dienst-option-text {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    9px;
+}
+
+
+.dienst-option-text strong {
+  font-size:
+    18px;
+}
+
+
+.dienst-option-text span {
+  color:
+    #444444;
+}
+
+
+.status-chip {
+  width:
+    fit-content;
+
+  padding:
+    6px 10px;
+
+  border-radius:
+    6px;
+
+  font-size:
+    12px;
+}
+
+
+.gruen-chip {
+  background:
+    #e7f7eb;
+
+  color:
+    #168437;
+}
+
+
+.blau-chip {
+  background:
+    #e9f0ff;
+
+  color:
+    #174fbe;
+}
+
+
+
+/* =========================================================
+   UNTEN
+   ========================================================= */
+
+.panel-unten {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 330px;
+
+  gap:
+    30px;
+
+  align-items:
+    center;
+
+  margin-top:
+    24px;
+}
+
+
+.hinweis-box {
+  display:
+    flex;
+
+  gap:
+    14px;
+
+  background:
+    #fff8e8;
+
+  border:
+    1px solid #ffe4a6;
+
+  border-radius:
+    9px;
+
+  padding:
+    16px;
+}
+
+
+.hinweis-icon {
+  font-size:
+    25px;
+}
+
+
+.hinweis-box strong {
+  color:
+    #a76300;
+}
+
+
+.hinweis-box p {
+  margin:
+    5px 0 0;
+
+  line-height:
+    1.4;
+
+  font-size:
+    13px;
+}
+
+
+.weiter-button {
+  min-height:
+    66px;
+
+  border:
+    0;
+
+  border-radius:
+    8px;
+
+  background:
+    var(--rot);
+
+  color:
+    white;
+
+  font-size:
+    17px;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    18px;
+}
+
+
+.weiter-button:hover {
+  background:
+    var(--rot-dunkel);
+}
+
+
+
+/* =========================================================
+   KOLLEGEN
+   ========================================================= */
+
+.kollegen-grid {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    18px;
+}
+
+
+.kollegen-box {
+  border-radius:
+    10px;
+
+  overflow:
+    hidden;
+
+  padding:
+    15px;
+}
+
+
+.kollegen-box.frueh {
+  background:
+    #f4fff7;
+
+  border:
+    1px solid #ccebd5;
+}
+
+
+.kollegen-box.spaet {
+  background:
+    #f5f8ff;
+
+  border:
+    1px solid #ccdaf9;
+}
+
+
+.kollegen-box.frueh h3 {
+  color:
+    var(--gruen);
+}
+
+
+.kollegen-box.spaet h3 {
+  color:
+    var(--blau);
+}
+
+
+.kollege {
+  display:
+    grid;
+
+  grid-template-columns:
+    30px 1fr auto;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  min-height:
+    54px;
+
+  background:
+    white;
+
+  border:
+    1px solid #e6e6e6;
+
+  border-radius:
+    8px;
+
+  padding:
+    10px 12px;
+
+  margin-top:
+    8px;
+
+  cursor:
+    pointer;
+}
+
+
+.kollege strong {
+  font-size:
+    13px;
+
+  font-weight:
+    500;
+
+  color:
+    #555555;
+}
+
+
+.versteckt {
+  display:
+    none;
+}
+
+
+
+/* =========================================================
+   HANDY
+   ========================================================= */
+
+@media screen and (max-width: 900px) {
+
+  .sidebar {
+    transform:
+      translateX(-105%);
+
+    transition:
+      transform .25s ease;
+
+    box-shadow:
+      12px 0 35px rgba(0, 0, 0, 0.18);
+  }
+
+
+  .sidebar.mobile-offen {
+    transform:
+      translateX(0);
+  }
+
+
+  .mobile-header {
+    position:
+      sticky;
+
+    top:
+      0;
+
+    z-index:
+      900;
+
+    display:
+      flex;
+
+    align-items:
+      center;
+
+    gap:
+      14px;
+
+    height:
+      66px;
+
+    background:
+      white;
+
+    border-bottom:
+      1px solid var(--linie);
+
+    padding:
+      0 14px;
+  }
+
+
+  .mobile-header small {
+    display:
+      block;
+
+    color:
+      var(--text-hell);
+  }
+
+
+  .mobile-menu {
+    width:
+      45px;
+
+    height:
+      45px;
+
+    border:
+      0;
+
+    border-radius:
+      10px;
+
+    background:
+      var(--rot);
+
+    color:
+      white;
+
+    font-size:
+      23px;
+  }
+
+
+  .content {
+    width:
+      100%;
+
+    margin-left:
+      0;
+
+    padding:
+      18px 12px 35px;
+  }
+
+
+  .content-header h1 {
+    font-size:
+      25px;
+  }
+
+
+  .content-header p {
+    font-size:
+      14px;
+  }
+
+
+  .close-button {
+    display:
+      none;
+  }
+
+
+  .schritte {
+    overflow-x:
+      auto;
+
+    justify-content:
+      flex-start;
+
+    padding-bottom:
+      4px;
+  }
+
+
+  .schritt {
+    min-width:
+      92px;
+  }
+
+
+  .schritt-linie {
+    min-width:
+      40px;
+  }
+
+
+  .panel {
+    padding:
+      18px 14px;
+
+    border-radius:
+      12px;
+  }
+
+
+  .panel-grid,
+  .dienst-auswahl,
+  .kollegen-grid,
+  .panel-unten {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .panel-grid {
+    gap:
+      20px;
+  }
+
+
+  .dienst-option {
+    min-height:
+      130px;
+
+    padding:
+      15px;
+
+    gap:
+      13px;
+  }
+
+
+  .dienst-symbol {
+    width:
+      65px;
+
+    height:
+      65px;
+
+    font-size:
+      38px;
+  }
+
+
+  .panel-unten {
+    gap:
+      15px;
+  }
+
+
+  .datum-navigation {
+    grid-template-columns:
+      48px 1fr 48px;
+  }
+
+
+  .datum-button {
+    padding:
+      0 10px;
+
+    font-size:
+      14px;
+  }
+
+
+  .kollege {
+    grid-template-columns:
+      26px 1fr;
+
+    gap:
+      5px;
+  }
+
+
+  .kollege strong {
+    grid-column:
+      2;
+
+    margin-top:
+      2px;
+  }
+
 }
