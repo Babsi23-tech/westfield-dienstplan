@@ -30,7 +30,75 @@
 
 <body>
 
-<div class="app-shell">
+<!-- ======================================================
+     LOGIN
+     ====================================================== -->
+
+<section id="loginAnsicht" class="login-seite">
+
+  <div class="login-karte">
+
+    <div class="login-brand">
+      <div class="brand-westfield">Westfield</div>
+      <div class="brand-scs">SCS</div>
+    </div>
+
+    <div class="login-kopf">
+      <h1>Willkommen 👋</h1>
+      <p>Melde dich mit deinem Mitarbeiter-PIN an.</p>
+    </div>
+
+    <label class="login-label" for="loginName">
+      Mitarbeiter
+    </label>
+
+    <select id="loginName" class="login-eingabe">
+      <option value="">👤 Mitarbeiter auswählen</option>
+    </select>
+
+    <label class="login-label" for="loginPin">
+      PIN
+    </label>
+
+    <input
+      id="loginPin"
+      class="login-eingabe login-pin"
+      type="password"
+      inputmode="numeric"
+      maxlength="4"
+      autocomplete="current-password"
+      placeholder="4-stellige PIN"
+    >
+
+    <button
+      id="loginButton"
+      class="login-button"
+      type="button"
+      onclick="loginAusfuehren()"
+    >
+      🔐 Anmelden
+    </button>
+
+    <button
+      class="login-link"
+      type="button"
+      onclick="pinVergessenNeu()"
+    >
+      PIN vergessen?
+    </button>
+
+    <div
+      id="loginMeldung"
+      class="login-meldung"
+      aria-live="polite"
+    ></div>
+
+  </div>
+
+</section>
+
+
+<div id="hauptApp" class="app-shell" style="display:none;">
 
 
   <!-- ======================================================
@@ -62,8 +130,8 @@
       </div>
 
       <div>
-        <div class="profil-name">
-          Babsi
+        <div class="profil-name" id="profilNameAnzeige">
+          Mitarbeiter
         </div>
 
         <div class="profil-rolle">
@@ -176,8 +244,8 @@
           Meine Anfragen
         </span>
 
-        <span class="badge">
-          2
+        <span id="anfragenBadge" class="badge" style="display:none;">
+          0
         </span>
 
       </button>
@@ -199,8 +267,28 @@
       </button>
 
 
+
+      <button
+        id="adminNav"
+        class="nav-item"
+        style="display:none;"
+        onclick="zeigeSeite('admin')"
+      >
+
+        <span class="nav-icon">
+          🛡
+        </span>
+
+        <span>
+          Admin-Bereich
+        </span>
+
+      </button>
+
+
       <button
         class="nav-item logout"
+        onclick="logoutAusfuehren()"
       >
 
         <span class="nav-icon">
@@ -228,8 +316,8 @@
           Aktualisiert am
         </div>
 
-        <strong>
-          05.01.2027 – 10:30
+        <strong id="sidebarAktualisiert">
+          —
         </strong>
 
       </div>
@@ -864,6 +952,20 @@ function zeigeSeite(seite) {
       );
   }
 }
+
+
+
+document.addEventListener('keydown', function(event) {
+  if (
+    event.key === 'Enter' &&
+    document.getElementById('loginAnsicht') &&
+    document.getElementById('loginAnsicht').style.display !== 'none'
+  ) {
+    if (typeof loginAusfuehren === 'function') {
+      loginAusfuehren();
+    }
+  }
+});
 
 </script>
 
