@@ -1,21 +1,12 @@
-// ==========================================================
-// SCS TEAM – APP.JS
-// Stand: 20.08.2026 – bereinigt
-// ==========================================================
-
 const API_URL =
   'https://script.google.com/macros/s/AKfycbxL-vdBIT5xLORL2k8xdNJXC4bRWt97X-QcvWQ5_bB1xXz083yntxCwimdaiqkoPMKBbg/exec';
-
 const SESSION_KEY = 'scs_team_session';
-
 let aktuellerBenutzer = '';
 let aktuellerAdmin = false;
-
 let letzterDienstplan = [];
 let letzteAbwesenheiten = [];
 let aktuelleKwNeu = 1;
 let dienstplanInitialisiert = false;
-
 let tauschDatum = '';
 let tauschTag = '';
 let tauschKw = '';
@@ -23,27 +14,18 @@ let tauschDienstCode = '';
 let tauschDienstText = '';
 let tauschZeit = '';
 
-
-// ==========================================================
-// API
-// ==========================================================
-
 async function apiPost(action, daten = {}) {
-
   const response = await fetch(
     API_URL,
     {
       method: 'POST',
-
       headers: {
         'Content-Type': 'text/plain;charset=utf-8'
       },
-
       body: JSON.stringify({
         action: action,
         ...daten
       }),
-
       redirect: 'follow',
       cache: 'no-store'
     }
@@ -53,7 +35,6 @@ async function apiPost(action, daten = {}) {
     await response.text();
 
   if (!response.ok) {
-
     throw new Error(
       'HTTP ' +
       response.status +
@@ -66,13 +47,10 @@ async function apiPost(action, daten = {}) {
   }
 
   try {
-
     return JSON.parse(
       text
     );
-
   } catch (error) {
-
     throw new Error(
       'Server hat kein gültiges JSON zurückgegeben: ' +
       text.substring(
@@ -83,37 +61,24 @@ async function apiPost(action, daten = {}) {
   }
 }
 
-
-// ==========================================================
-// APP START
-// ==========================================================
-
 document.addEventListener(
   'DOMContentLoaded',
   async function() {
-
     installiereDynamischeAnsichtenNeu();
-
     installiereNavigationErweiterungNeu();
-
     await starteApp();
-
     ladeAppInfoNeu();
   }
 );
 
-
 async function starteApp() {
-
   const token =
     localStorage.getItem(
       SESSION_KEY
     );
 
   if (token) {
-
     try {
-
       const result =
         await apiPost(
           'session',
@@ -126,7 +91,6 @@ async function starteApp() {
         result &&
         result.ok
       ) {
-
         aktuellerBenutzer =
           result.name || '';
 
@@ -142,13 +106,10 @@ async function starteApp() {
           typeof window.zeigeSeite ===
           'function'
         ) {
-
           window.zeigeSeite(
             'dienstplan'
           );
-
         } else {
-
           await ladeMeinDienstplanNeu();
         }
 
@@ -156,7 +117,6 @@ async function starteApp() {
       }
 
     } catch (error) {
-
       console.error(
         'Session-Prüfung fehlgeschlagen:',
         error
@@ -173,13 +133,7 @@ async function starteApp() {
   await ladeMitarbeiter();
 }
 
-
-// ==========================================================
-// LOGIN
-// ==========================================================
-
 function zeigeLogin() {
-
   const login =
     document.getElementById(
       'loginAnsicht'
@@ -191,21 +145,17 @@ function zeigeLogin() {
     );
 
   if (login) {
-
     login.style.display =
       'flex';
   }
 
   if (app) {
-
     app.style.display =
       'none';
   }
 }
 
-
 async function ladeMitarbeiter() {
-
   const select =
     document.getElementById(
       'loginName'
@@ -222,7 +172,6 @@ async function ladeMitarbeiter() {
     '<option value="">Mitarbeiter werden geladen …</option>';
 
   try {
-
     const result =
       await apiPost(
         'mitarbeiterListe'
@@ -232,7 +181,6 @@ async function ladeMitarbeiter() {
       !result ||
       !result.ok
     ) {
-
       throw new Error(
         result?.message ||
         'Mitarbeiter konnten nicht geladen werden.'
@@ -251,7 +199,6 @@ async function ladeMitarbeiter() {
 
     mitarbeiter.forEach(
       function(name) {
-
         const option =
           document.createElement(
             'option'
@@ -275,7 +222,6 @@ async function ladeMitarbeiter() {
     if (
       mitarbeiter.length === 0
     ) {
-
       zeigeLoginMeldung(
         'Es wurden keine aktiven Mitarbeiter gefunden.',
         'fehler'
@@ -283,7 +229,6 @@ async function ladeMitarbeiter() {
     }
 
   } catch (error) {
-
     console.error(
       error
     );
@@ -299,9 +244,7 @@ async function ladeMitarbeiter() {
   }
 }
 
-
 async function loginAusfuehren() {
-
   const nameElement =
     document.getElementById(
       'loginName'
@@ -330,12 +273,10 @@ async function loginAusfuehren() {
   loescheLoginMeldung();
 
   if (!name) {
-
     zeigeLoginMeldung(
       'Bitte wähle deinen Namen aus.',
       'fehler'
     );
-
     return;
   }
 
@@ -344,7 +285,6 @@ async function loginAusfuehren() {
       pin
     )
   ) {
-
     zeigeLoginMeldung(
       'Bitte gib deinen 4-stelligen PIN ein.',
       'fehler'
@@ -356,7 +296,6 @@ async function loginAusfuehren() {
   }
 
   if (button) {
-
     button.disabled =
       true;
 
@@ -365,7 +304,6 @@ async function loginAusfuehren() {
   }
 
   try {
-
     const result =
       await apiPost(
         'login',
@@ -379,7 +317,6 @@ async function loginAusfuehren() {
       !result ||
       !result.ok
     ) {
-
       zeigeLoginMeldung(
         result?.message ||
         'Anmeldung nicht möglich.',
@@ -404,7 +341,6 @@ async function loginAusfuehren() {
       false;
 
     if (pinElement) {
-
       pinElement.value =
         '';
     }
@@ -418,18 +354,14 @@ async function loginAusfuehren() {
       typeof window.zeigeSeite ===
       'function'
     ) {
-
       window.zeigeSeite(
         'dienstplan'
       );
-
     } else {
-
       await ladeMeinDienstplanNeu();
     }
 
   } catch (error) {
-
     console.error(
       error
     );
@@ -441,9 +373,7 @@ async function loginAusfuehren() {
     );
 
   } finally {
-
     if (button) {
-
       button.disabled =
         false;
 
@@ -453,16 +383,10 @@ async function loginAusfuehren() {
   }
 }
 
-
-// ==========================================================
-// HAUPT-APP
-// ==========================================================
-
 function zeigeHauptApp(
   name,
   admin
 ) {
-
   const login =
     document.getElementById(
       'loginAnsicht'
@@ -489,25 +413,21 @@ function zeigeHauptApp(
     );
 
   if (login) {
-
     login.style.display =
       'none';
   }
 
   if (app) {
-
     app.style.display =
       'flex';
   }
 
   if (profilName) {
-
     profilName.textContent =
       name || 'Mitarbeiter';
   }
 
   if (adminNav) {
-
     adminNav.style.display =
       admin
         ? 'flex'
@@ -515,7 +435,6 @@ function zeigeHauptApp(
   }
 
   if (adminTitel) {
-
     adminTitel.style.display =
       admin
         ? 'block'
@@ -523,22 +442,14 @@ function zeigeHauptApp(
   }
 }
 
-
-// ==========================================================
-// DIENSTPLAN LADEN
-// ==========================================================
-
 async function ladeMeinDienstplanNeu() {
-
   const token =
     localStorage.getItem(
       SESSION_KEY
     );
 
   if (!token) {
-
     await logoutAusfuehren();
-
     return;
   }
 
@@ -558,7 +469,6 @@ async function ladeMeinDienstplanNeu() {
     );
 
   if (laden) {
-
     laden.style.display =
       'block';
 
@@ -567,7 +477,6 @@ async function ladeMeinDienstplanNeu() {
   }
 
   try {
-
     const result =
       await apiPost(
         'meinDienstplan',
@@ -580,14 +489,11 @@ async function ladeMeinDienstplanNeu() {
       !result ||
       !result.ok
     ) {
-
       if (
         result &&
         result.sessionExpired
       ) {
-
         await sessionAbgelaufenNeu();
-
         return;
       }
 
@@ -626,7 +532,6 @@ async function ladeMeinDienstplanNeu() {
     if (
       !dienstplanInitialisiert
     ) {
-
       aktuelleKwNeu =
         ermittleStartKwNeu(
           letzterDienstplan
@@ -637,7 +542,6 @@ async function ladeMeinDienstplanNeu() {
     }
 
     if (sollstundenElement) {
-
       const soll =
         Number(
           result.sollstunden || 0
@@ -664,19 +568,16 @@ async function ladeMeinDienstplanNeu() {
     );
 
     if (laden) {
-
       laden.style.display =
         'none';
     }
 
   } catch (error) {
-
     console.error(
       error
     );
 
     if (laden) {
-
       laden.style.display =
         'block';
 
@@ -686,22 +587,15 @@ async function ladeMeinDienstplanNeu() {
     }
 
     if (liste) {
-
       liste.innerHTML =
         '<div class="empty-state">Dienstplan konnte nicht geladen werden.</div>';
     }
   }
 }
 
-
-// ==========================================================
-// START-KW
-// ==========================================================
-
 function ermittleStartKwNeu(
   plan
 ) {
-
   const kws =
     ermittleVerfuegbareKwsNeu(
       plan
@@ -710,7 +604,6 @@ function ermittleStartKwNeu(
   if (
     !kws.length
   ) {
-
     return 1;
   }
 
@@ -737,7 +630,6 @@ function ermittleStartKwNeu(
   const heuteEintrag =
     (plan || []).find(
       function(z) {
-
         return String(
           z.datum || ''
         ) === heutigesDatum;
@@ -750,7 +642,6 @@ function ermittleStartKwNeu(
       heuteEintrag.kw
     )
   ) {
-
     return Number(
       heuteEintrag.kw
     );
@@ -759,19 +650,14 @@ function ermittleStartKwNeu(
   return kws[0];
 }
 
-
 function ermittleVerfuegbareKwsNeu(
   plan
 ) {
-
   return Array.from(
-
     new Set(
-
       (plan || [])
         .map(
           function(z) {
-
             return Number(
               z.kw || 0
             );
@@ -779,7 +665,6 @@ function ermittleVerfuegbareKwsNeu(
         )
         .filter(
           function(kw) {
-
             return (
               Number.isFinite(
                 kw
@@ -789,24 +674,16 @@ function ermittleVerfuegbareKwsNeu(
           }
         )
     )
-
   ).sort(
     function(a, b) {
-
       return a - b;
     }
   );
 }
 
-
-// ==========================================================
-// WOCHE WECHSELN
-// ==========================================================
-
 function wechselWoche(
   richtung
 ) {
-
   const kws =
     ermittleVerfuegbareKwsNeu(
       letzterDienstplan
@@ -815,7 +692,6 @@ function wechselWoche(
   if (
     !kws.length
   ) {
-
     aktuelleKwNeu =
       Math.max(
         1,
@@ -826,7 +702,6 @@ function wechselWoche(
       );
 
   } else {
-
     let index =
       kws.indexOf(
         Number(
@@ -837,7 +712,6 @@ function wechselWoche(
     if (
       index < 0
     ) {
-
       index =
         0;
     }
@@ -852,7 +726,6 @@ function wechselWoche(
     if (
       index < 0
     ) {
-
       index =
         kws.length - 1;
     }
@@ -861,7 +734,6 @@ function wechselWoche(
       index >=
       kws.length
     ) {
-
       index =
         0;
     }
@@ -877,12 +749,7 @@ function wechselWoche(
   );
 }
 
-// ==========================================================
-// KW-ANZEIGE
-// ==========================================================
-
 function aktualisiereKwAnzeigeNeu() {
-
   const anzeige =
     document.getElementById(
       'kwAnzeige'
@@ -899,22 +766,9 @@ function aktualisiereKwAnzeigeNeu() {
     );
 }
 
-
-// ==========================================================
-// DIENSTPLAN RENDERN
-//
-// Garden Plaza = GRÜN
-// Water Plaza  = BLAU
-//
-// Früh / Spät verändert NICHT die Farbe.
-//
-// Tageskarte bleibt immer neutral.
-// ==========================================================
-
 function rendereDienstplan(
   plan
 ) {
-
   const liste =
     document.getElementById(
       'dienstplanListe'
@@ -924,11 +778,9 @@ function rendereDienstplan(
     return;
   }
 
-
   const woche =
     (plan || []).filter(
       function(z) {
-
         return (
           Number(
             z.kw || 0
@@ -940,11 +792,9 @@ function rendereDienstplan(
       }
     );
 
-
   if (
     woche.length === 0
   ) {
-
     liste.innerHTML = `
       <div
         class="empty-state"
@@ -961,11 +811,9 @@ function rendereDienstplan(
     return;
   }
 
-
   const relevanteTage =
     woche.filter(
       function(z) {
-
         return (
           z.gpFrueh ||
           z.gpSpaet ||
@@ -977,11 +825,9 @@ function rendereDienstplan(
       }
     );
 
-
   if (
     relevanteTage.length === 0
   ) {
-
     liste.innerHTML = `
       <div
         class="empty-state"
@@ -998,28 +844,18 @@ function rendereDienstplan(
     return;
   }
 
-
   let html =
     '';
 
-
   relevanteTage.forEach(
     function(z) {
-
       const dienste =
         [];
-
-
-      // ------------------------------------------------------
-      // GARDEN PLAZA – FRÜH
-      // ------------------------------------------------------
 
       if (
         z.gpFrueh
       ) {
-
         dienste.push({
-
           klasse:
             'garden',
 
@@ -1045,26 +881,15 @@ function rendereDienstplan(
         });
       }
 
-
-      // ------------------------------------------------------
-      // GARDEN PLAZA – SPÄT
-      //
-      // WP-Pausenablöse gehört zu diesem Dienst.
-      // Dadurch bleibt die Karte GRÜN.
-      // ------------------------------------------------------
-
       if (
         z.gpSpaet
       ) {
-
         let zusatz =
           '';
-
 
         if (
           z.wpAbloese
         ) {
-
           zusatz =
             'WP-Pausenablöse: ' +
             (
@@ -1073,9 +898,7 @@ function rendereDienstplan(
             );
         }
 
-
         dienste.push({
-
           klasse:
             'garden',
 
@@ -1101,19 +924,11 @@ function rendereDienstplan(
         });
       }
 
-
-      // ------------------------------------------------------
-      // WATER PLAZA – GANZTAG
-      // Früh + Spät bei derselben Person
-      // ------------------------------------------------------
-
       if (
         z.wpFrueh &&
         z.wpSpaet
       ) {
-
         dienste.push({
-
           klasse:
             'water',
 
@@ -1138,21 +953,12 @@ function rendereDienstplan(
           zusatz:
             ''
         });
-      }
 
-
-      else {
-
-        // ----------------------------------------------------
-        // WATER PLAZA – FRÜH
-        // ----------------------------------------------------
-
+      } else {
         if (
           z.wpFrueh
         ) {
-
           dienste.push({
-
             klasse:
               'water',
 
@@ -1178,17 +984,10 @@ function rendereDienstplan(
           });
         }
 
-
-        // ----------------------------------------------------
-        // WATER PLAZA – SPÄT
-        // ----------------------------------------------------
-
         if (
           z.wpSpaet
         ) {
-
           dienste.push({
-
             klasse:
               'water',
 
@@ -1215,18 +1014,10 @@ function rendereDienstplan(
         }
       }
 
-
-      // ------------------------------------------------------
-      // GARDEN PLAZA – PAUSENABLÖSE
-      // nicht separat tauschbar
-      // ------------------------------------------------------
-
       if (
         z.gpAbloese
       ) {
-
         dienste.push({
-
           klasse:
             'abloese',
 
@@ -1251,21 +1042,11 @@ function rendereDienstplan(
         });
       }
 
-
-      // ------------------------------------------------------
-      // WATER PLAZA – PAUSENABLÖSE
-      //
-      // Wenn GP Spät vorhanden ist, NICHT separat anzeigen.
-      // Sie steht bereits als Zusatz beim GP-Spätdienst.
-      // ------------------------------------------------------
-
       if (
         z.wpAbloese &&
         !z.gpSpaet
       ) {
-
         dienste.push({
-
           klasse:
             'abloese',
 
@@ -1290,36 +1071,26 @@ function rendereDienstplan(
         });
       }
 
-
-      // ------------------------------------------------------
-      // TAGESKARTE
-      //
-      // IMMER WEISS / NEUTRAL
-      // ------------------------------------------------------
-
       html += `
         <div
           class="scs-tag-karte"
           style="
-            background:#ffffff !important;
-            border:1px solid #dfe3e8 !important;
-            border-left:1px solid #dfe3e8 !important;
+            background:#ffffff;
+            border:1px solid #dfe3e8;
+            border-left:1px solid #dfe3e8;
             border-radius:13px;
             padding:17px;
             margin-bottom:13px;
             box-shadow:
               0 4px 14px
               rgba(0,0,0,0.035);
-            box-sizing:border-box;
           "
         >
-
           <div
             style="
               margin-bottom:10px;
             "
           >
-
             <strong
               style="
                 display:block;
@@ -1331,14 +1102,11 @@ function rendereDienstplan(
               ${escapeHtmlNeu(z.tag || '')},
               ${escapeHtmlNeu(z.datum || '')}
             </strong>
-
           </div>
       `;
 
-
       dienste.forEach(
         function(dienst) {
-
           let randfarbe =
             '#999999';
 
@@ -1348,16 +1116,10 @@ function rendereDienstplan(
           let zusatzFarbe =
             '#777777';
 
-
-          // --------------------------------------------------
-          // GARDEN PLAZA = GRÜN
-          // --------------------------------------------------
-
           if (
             dienst.klasse ===
             'garden'
           ) {
-
             randfarbe =
               '#14943b';
 
@@ -1365,19 +1127,13 @@ function rendereDienstplan(
               '#f5fff8';
 
             zusatzFarbe =
-              '#6b5800';
+              '#8a5b00';
           }
-
-
-          // --------------------------------------------------
-          // WATER PLAZA = BLAU
-          // --------------------------------------------------
 
           else if (
             dienst.klasse ===
             'water'
           ) {
-
             randfarbe =
               '#1754d1';
 
@@ -1385,16 +1141,10 @@ function rendereDienstplan(
               '#f5f8ff';
           }
 
-
-          // --------------------------------------------------
-          // PAUSENABLÖSE = NEUTRAL / ORANGE
-          // --------------------------------------------------
-
           else if (
             dienst.klasse ===
             'abloese'
           ) {
-
             randfarbe =
               '#d99032';
 
@@ -1402,71 +1152,49 @@ function rendereDienstplan(
               '#fffaf3';
           }
 
-
-          let onclick =
-            '';
-
-
-          if (
+          const onclick =
             dienst.tauschbar
-          ) {
-
-            onclick =
-              'starteDirektenTausch(' +
-              JSON.stringify(
-                String(
-                  z.datum || ''
-                )
-              ) +
-              ',' +
-              JSON.stringify(
-                String(
-                  z.tag || ''
-                )
-              ) +
-              ',' +
-              JSON.stringify(
-                String(
-                  z.kw || ''
-                )
-              ) +
-              ',' +
-              JSON.stringify(
-                String(
-                  dienst.code || ''
-                )
-              ) +
-              ',' +
-              JSON.stringify(
-                String(
-                  dienst.name || ''
-                )
-              ) +
-              ',' +
-              JSON.stringify(
-                String(
-                  dienst.zeit || ''
-                )
-              ) +
-              ')';
-          }
-
+              ? `starteDirektenTausch(${JSON.stringify(
+                  String(
+                    z.datum || ''
+                  )
+                )},${JSON.stringify(
+                  String(
+                    z.tag || ''
+                  )
+                )},${JSON.stringify(
+                  String(
+                    z.kw || ''
+                  )
+                )},${JSON.stringify(
+                  String(
+                    dienst.code || ''
+                  )
+                )},${JSON.stringify(
+                  String(
+                    dienst.name || ''
+                  )
+                )},${JSON.stringify(
+                  String(
+                    dienst.zeit || ''
+                  )
+                )})`
+              : '';
 
           html += `
             <div
               class="scs-dienst-karte"
               data-plaza="${escapeHtmlNeu(dienst.klasse)}"
               style="
-                background:${hintergrund} !important;
-                border:1px solid #e1e4e8 !important;
-                border-left:6px solid ${randfarbe} !important;
+                background:${hintergrund};
+                border:1px solid #e1e4e8;
+                border-left:6px solid ${randfarbe};
                 border-radius:10px;
                 padding:13px 14px;
                 margin-top:9px;
                 box-sizing:border-box;
               "
             >
-
               <div
                 style="
                   display:flex;
@@ -1476,14 +1204,12 @@ function rendereDienstplan(
                   flex-wrap:wrap;
                 "
               >
-
                 <div
                   style="
                     min-width:0;
                     flex:1;
                   "
                 >
-
                   <div
                     class="dienstname"
                     style="
@@ -1495,7 +1221,6 @@ function rendereDienstplan(
                     ${escapeHtmlNeu(dienst.symbol)}
                     ${escapeHtmlNeu(dienst.name)}
                   </div>
-
 
                   ${
                     dienst.zeit
@@ -1512,7 +1237,6 @@ function rendereDienstplan(
                       `
                       : ''
                   }
-
 
                   ${
                     dienst.zusatz
@@ -1533,7 +1257,6 @@ function rendereDienstplan(
                   }
 
                 </div>
-
 
                 ${
                   dienst.tauschbar
@@ -1559,17 +1282,14 @@ function rendereDienstplan(
                 }
 
               </div>
-
             </div>
           `;
         }
       );
 
-
       if (
         z.notiz
       ) {
-
         html += `
           <div
             style="
@@ -1583,21 +1303,14 @@ function rendereDienstplan(
         `;
       }
 
-
       html +=
         '</div>';
     }
   );
 
-
   liste.innerHTML =
     html;
 }
-
-
-// ==========================================================
-// DIREKTEN DIENSTTAUSCH STARTEN
-// ==========================================================
 
 function starteDirektenTausch(
   datum,
@@ -1607,7 +1320,6 @@ function starteDirektenTausch(
   text,
   zeit
 ) {
-
   tauschDatum =
     String(
       datum || ''
@@ -1638,34 +1350,24 @@ function starteDirektenTausch(
       zeit || ''
     );
 
-
   if (
     typeof window.zeigeSeite ===
     'function'
   ) {
-
     window.zeigeSeite(
       'dienstTauschen'
     );
   }
 
-
   setTimeout(
     function() {
-
       fuelleTauschAnsichtNeu();
     },
     60
   );
 }
 
-
-// ==========================================================
-// TAUSCHANSICHT BEFÜLLEN
-// ==========================================================
-
 function fuelleTauschAnsichtNeu() {
-
   const ansicht =
     document.getElementById(
       'tauschAnsicht'
@@ -1675,15 +1377,12 @@ function fuelleTauschAnsichtNeu() {
     return;
   }
 
-
   const datumButton =
     ansicht.querySelector(
       '.datum-button'
     );
 
-
   if (datumButton) {
-
     datumButton.innerHTML = `
       <span>📅</span>
 
@@ -1697,21 +1396,17 @@ function fuelleTauschAnsichtNeu() {
     `;
   }
 
-
   const eigeneDienste =
     ansicht.querySelector(
       '.eigene-dienste'
     );
-
 
   const istGarden =
     tauschDienstCode.startsWith(
       'GP'
     );
 
-
   if (eigeneDienste) {
-
     eigeneDienste.innerHTML = `
       <h3>
         Dein ausgewählter Dienst
@@ -1773,40 +1468,32 @@ function fuelleTauschAnsichtNeu() {
     `;
   }
 
-
   const dienstAuswahl =
     ansicht.querySelector(
       '.dienst-auswahl'
     );
 
-
   if (dienstAuswahl) {
-
     let symbol =
       '🔵';
-
 
     if (
       tauschDienstCode.includes(
         'FRUEH'
       )
     ) {
-
       symbol =
         '☀️';
     }
-
 
     else if (
       tauschDienstCode.includes(
         'SPAET'
       )
     ) {
-
       symbol =
         '🌙';
     }
-
 
     dienstAuswahl.innerHTML = `
       <button
@@ -1853,28 +1540,22 @@ function fuelleTauschAnsichtNeu() {
     `;
   }
 
-
   const weiterButton =
     ansicht.querySelector(
       '.weiter-button'
     );
 
-
   if (weiterButton) {
-
     weiterButton.onclick =
       ladeEchteTauschpartner;
   }
-
 
   const kollegenBereich =
     document.getElementById(
       'kollegenBereich'
     );
 
-
   if (kollegenBereich) {
-
     kollegenBereich.classList.add(
       'versteckt'
     );
@@ -1899,13 +1580,7 @@ function fuelleTauschAnsichtNeu() {
   }
 }
 
-
-// ==========================================================
-// ECHTE TAUSCHPARTNER LADEN
-// ==========================================================
-
 async function ladeEchteTauschpartner() {
-
   const bereich =
     document.getElementById(
       'kollegenBereich'
@@ -1915,11 +1590,9 @@ async function ladeEchteTauschpartner() {
     return;
   }
 
-
   bereich.classList.remove(
     'versteckt'
   );
-
 
   bereich.innerHTML = `
     <h2>
@@ -1933,20 +1606,16 @@ async function ladeEchteTauschpartner() {
     </p>
   `;
 
-
   bereich.scrollIntoView({
     behavior: 'smooth',
     block: 'start'
   });
 
-
   try {
-
     const token =
       localStorage.getItem(
         SESSION_KEY
       );
-
 
     const result =
       await apiPost(
@@ -1957,29 +1626,23 @@ async function ladeEchteTauschpartner() {
         }
       );
 
-
     if (
       !result ||
       !result.ok
     ) {
-
       if (
         result &&
         result.sessionExpired
       ) {
-
         await sessionAbgelaufenNeu();
-
         return;
       }
-
 
       throw new Error(
         result?.message ||
         'Tauschpartner konnten nicht geladen werden.'
       );
     }
-
 
     let kandidaten =
       Array.isArray(
@@ -1988,17 +1651,14 @@ async function ladeEchteTauschpartner() {
         ? result.kandidaten.slice()
         : [];
 
-
     kandidaten =
       kombiniereWpGanztagKandidaten(
         kandidaten
       );
 
-
     if (
       kandidaten.length === 0
     ) {
-
       bereich.innerHTML = `
         <h2>
           3. Kollegen wählen
@@ -2013,11 +1673,9 @@ async function ladeEchteTauschpartner() {
       return;
     }
 
-
     const frueh =
       kandidaten.filter(
         function(k) {
-
           return String(
             k.schicht || ''
           )
@@ -2026,11 +1684,9 @@ async function ladeEchteTauschpartner() {
         }
       );
 
-
     const spaet =
       kandidaten.filter(
         function(k) {
-
           return String(
             k.schicht || ''
           )
@@ -2039,11 +1695,9 @@ async function ladeEchteTauschpartner() {
         }
       );
 
-
     const ganz =
       kandidaten.filter(
         function(k) {
-
           return String(
             k.schicht || ''
           )
@@ -2051,7 +1705,6 @@ async function ladeEchteTauschpartner() {
             'ganztag';
         }
       );
-
 
     let html = `
       <h2>
@@ -2065,11 +1718,9 @@ async function ladeEchteTauschpartner() {
       <div class="kollegen-grid">
     `;
 
-
     if (
       frueh.length
     ) {
-
       html +=
         baueKollegenBox(
           '☀️ Frühdienste',
@@ -2078,11 +1729,9 @@ async function ladeEchteTauschpartner() {
         );
     }
 
-
     if (
       spaet.length
     ) {
-
       html +=
         baueKollegenBox(
           '🌙 Spätdienste',
@@ -2091,11 +1740,9 @@ async function ladeEchteTauschpartner() {
         );
     }
 
-
     if (
       ganz.length
     ) {
-
       html +=
         baueKollegenBox(
           '🔵 Ganztagsdienste',
@@ -2104,10 +1751,8 @@ async function ladeEchteTauschpartner() {
         );
     }
 
-
     html +=
       '</div>';
-
 
     html += `
       <div
@@ -2128,7 +1773,6 @@ async function ladeEchteTauschpartner() {
           Danach kannst du die Tauschanfrage absenden.
         </p>
 
-
         <div
           id="tauschAuswahlZusammenfassung"
           style="
@@ -2142,7 +1786,6 @@ async function ladeEchteTauschpartner() {
           Noch kein Tauschpartner ausgewählt.
         </div>
 
-
         <label
           for="tauschNachricht"
           style="
@@ -2153,7 +1796,6 @@ async function ladeEchteTauschpartner() {
         >
           Nachricht (optional)
         </label>
-
 
         <textarea
           id="tauschNachricht"
@@ -2170,7 +1812,6 @@ async function ladeEchteTauschpartner() {
             resize:vertical;
           "
         ></textarea>
-
 
         <button
           id="tauschSendenButton"
@@ -2192,7 +1833,6 @@ async function ladeEchteTauschpartner() {
           📤 Tauschanfrage senden
         </button>
 
-
         <div
           id="tauschSendenMeldung"
           style="
@@ -2203,17 +1843,13 @@ async function ladeEchteTauschpartner() {
       </div>
     `;
 
-
     bereich.innerHTML =
       html;
 
-
   } catch (error) {
-
     console.error(
       error
     );
-
 
     bereich.innerHTML = `
       <h2>
@@ -2230,44 +1866,32 @@ async function ladeEchteTauschpartner() {
   }
 }
 
-
-// ==========================================================
-// WP FRÜH + SPÄT = GANZTAG
-// ==========================================================
-
 function kombiniereWpGanztagKandidaten(
   kandidaten
 ) {
-
   const benutzt =
     new Set();
 
   const ergebnis =
     [];
 
-
   kandidaten.forEach(
     function(k, index) {
-
       if (
         benutzt.has(
           index
         )
       ) {
-
         return;
       }
-
 
       if (
         k.code ===
         'WP_FRUEH'
       ) {
-
         const partnerIndex =
           kandidaten.findIndex(
             function(x, i) {
-
               return (
                 i !== index &&
                 !benutzt.has(i) &&
@@ -2283,11 +1907,9 @@ function kombiniereWpGanztagKandidaten(
             }
           );
 
-
         if (
           partnerIndex >= 0
         ) {
-
           benutzt.add(
             index
           );
@@ -2297,7 +1919,6 @@ function kombiniereWpGanztagKandidaten(
           );
 
           ergebnis.push({
-
             code:
               'WP_GANZTAG',
 
@@ -2315,7 +1936,6 @@ function kombiniereWpGanztagKandidaten(
         }
       }
 
-
       benutzt.add(
         index
       );
@@ -2326,21 +1946,14 @@ function kombiniereWpGanztagKandidaten(
     }
   );
 
-
   return ergebnis;
 }
-
-
-// ==========================================================
-// KOLLEGEN-BOX
-// ==========================================================
 
 function baueKollegenBox(
   titel,
   klasse,
   kandidaten
 ) {
-
   let html = `
     <div class="kollegen-box ${escapeHtmlNeu(klasse)}">
 
@@ -2349,21 +1962,17 @@ function baueKollegenBox(
       </h3>
   `;
 
-
   kandidaten.forEach(
     function(k) {
-
       const code =
         String(
           k.code || ''
         );
 
-
       const istGarden =
         code.startsWith(
           'GP'
         );
-
 
       html += `
         <label class="kollege">
@@ -2406,56 +2015,40 @@ function baueKollegenBox(
     }
   );
 
-
   html +=
     '</div>';
-
 
   return html;
 }
 
-
-// ==========================================================
-// TAUSCH – SCHRITT 4 AKTUALISIEREN
-// ==========================================================
-
 function aktualisiereTauschSchritt4() {
-
   const ausgewaehlt =
     document.querySelector(
       'input[name="kollege"]:checked'
     );
-
 
   const button =
     document.getElementById(
       'tauschSendenButton'
     );
 
-
   const zusammenfassung =
     document.getElementById(
       'tauschAuswahlZusammenfassung'
     );
-
 
   const meldung =
     document.getElementById(
       'tauschSendenMeldung'
     );
 
-
   if (meldung) {
-
     meldung.textContent =
       '';
   }
 
-
   if (!ausgewaehlt) {
-
     if (button) {
-
       button.disabled =
         true;
 
@@ -2463,32 +2056,25 @@ function aktualisiereTauschSchritt4() {
         '.55';
     }
 
-
     if (zusammenfassung) {
-
       zusammenfassung.textContent =
         'Noch kein Tauschpartner ausgewählt.';
     }
 
-
     return;
   }
-
 
   const partnerName =
     String(
       ausgewaehlt.dataset.name || ''
     ).trim();
 
-
   const partnerDienst =
     String(
       ausgewaehlt.dataset.dienst || ''
     ).trim();
 
-
   if (zusammenfassung) {
-
     zusammenfassung.innerHTML = `
       <strong>
         ${escapeHtmlNeu(tauschDienstText)}
@@ -2511,9 +2097,7 @@ function aktualisiereTauschSchritt4() {
     `;
   }
 
-
   if (button) {
-
     button.disabled =
       false;
 
@@ -2522,41 +2106,29 @@ function aktualisiereTauschSchritt4() {
   }
 }
 
-
-// ==========================================================
-// TAUSCHANFRAGE SENDEN
-// ==========================================================
-
 async function sendeTauschAnfrageNeu() {
-
   const ausgewaehlt =
     document.querySelector(
       'input[name="kollege"]:checked'
     );
-
 
   const button =
     document.getElementById(
       'tauschSendenButton'
     );
 
-
   const meldung =
     document.getElementById(
       'tauschSendenMeldung'
     );
-
 
   const nachrichtElement =
     document.getElementById(
       'tauschNachricht'
     );
 
-
   if (!ausgewaehlt) {
-
     if (meldung) {
-
       meldung.style.color =
         '#b00020';
 
@@ -2567,41 +2139,32 @@ async function sendeTauschAnfrageNeu() {
     return;
   }
 
-
   const token =
     localStorage.getItem(
       SESSION_KEY
     );
 
-
   if (!token) {
-
     await sessionAbgelaufenNeu();
-
     return;
   }
-
 
   const partnerName =
     String(
       ausgewaehlt.dataset.name || ''
     ).trim();
 
-
   const partnerDienstCode =
     String(
       ausgewaehlt.value || ''
     ).trim();
-
 
   const nachricht =
     String(
       nachrichtElement?.value || ''
     ).trim();
 
-
   if (button) {
-
     button.disabled =
       true;
 
@@ -2612,9 +2175,7 @@ async function sendeTauschAnfrageNeu() {
       'Anfrage wird gesendet …';
   }
 
-
   if (meldung) {
-
     meldung.style.color =
       '#555555';
 
@@ -2622,9 +2183,7 @@ async function sendeTauschAnfrageNeu() {
       '';
   }
 
-
   try {
-
     const result =
       await apiPost(
         'tauschAnfrageSenden',
@@ -2638,22 +2197,17 @@ async function sendeTauschAnfrageNeu() {
         }
       );
 
-
     if (
       !result ||
       !result.ok
     ) {
-
       if (
         result &&
         result.sessionExpired
       ) {
-
         await sessionAbgelaufenNeu();
-
         return;
       }
-
 
       throw new Error(
         result?.message ||
@@ -2661,9 +2215,7 @@ async function sendeTauschAnfrageNeu() {
       );
     }
 
-
     if (meldung) {
-
       meldung.style.color =
         '#14943b';
 
@@ -2675,29 +2227,23 @@ async function sendeTauschAnfrageNeu() {
       `;
     }
 
-
     document
       .querySelectorAll(
         'input[name="kollege"]'
       )
       .forEach(
         function(input) {
-
           input.disabled =
             true;
         }
       );
 
-
     if (nachrichtElement) {
-
       nachrichtElement.disabled =
         true;
     }
 
-
     if (button) {
-
       button.disabled =
         true;
 
@@ -2708,22 +2254,17 @@ async function sendeTauschAnfrageNeu() {
         '✅ Anfrage gesendet';
     }
 
-
     await ladeMeineAnfragenNeu(
       false
     );
 
-
   } catch (error) {
-
     console.error(
       'Tauschanfrage senden:',
       error
     );
 
-
     if (meldung) {
-
       meldung.style.color =
         '#b00020';
 
@@ -2732,9 +2273,7 @@ async function sendeTauschAnfrageNeu() {
         error.message;
     }
 
-
     if (button) {
-
       button.disabled =
         false;
 
@@ -2747,15 +2286,9 @@ async function sendeTauschAnfrageNeu() {
   }
 }
 
-
-// ==========================================================
-// DIENST-SYMBOL ENTFERNEN
-// ==========================================================
-
 function entferneDienstSymbol(
   text
 ) {
-
   return String(
     text || ''
   )
@@ -2766,12 +2299,8 @@ function entferneDienstSymbol(
     .trim();
 }
 
-// ==========================================================
-// MEINE ANFRAGEN – DYNAMISCHE ANSICHT
-// ==========================================================
 
 function installiereAnfragenAnsichtNeu() {
-
   if (
     document.getElementById(
       'anfragenAnsicht'
@@ -2810,12 +2339,10 @@ function installiereAnfragenAnsichtNeu() {
       </div>
     </div>
 
-
     <div
       class="panel"
       style="margin-bottom:18px;"
     >
-
       <div
         style="
           display:flex;
@@ -2825,7 +2352,6 @@ function installiereAnfragenAnsichtNeu() {
           flex-wrap:wrap;
         "
       >
-
         <div>
           <h2 style="margin:0;">
             🔄 Tauschanfragen an mich
@@ -2841,7 +2367,6 @@ function installiereAnfragenAnsichtNeu() {
           </p>
         </div>
 
-
         <button
           type="button"
           onclick="ladeMeineAnfragenNeu(true)"
@@ -2855,9 +2380,7 @@ function installiereAnfragenAnsichtNeu() {
         >
           ↻ Aktualisieren
         </button>
-
       </div>
-
 
       <div
         id="erhalteneTauschAnfragenListe"
@@ -2867,15 +2390,12 @@ function installiereAnfragenAnsichtNeu() {
           Anfragen werden geladen …
         </div>
       </div>
-
     </div>
-
 
     <div
       class="panel"
       style="margin-bottom:18px;"
     >
-
       <h2 style="margin-top:0;">
         📤 Von mir gesendete Tauschanfragen
       </h2>
@@ -2885,14 +2405,11 @@ function installiereAnfragenAnsichtNeu() {
           Anfragen werden geladen …
         </div>
       </div>
-
     </div>
 
-
     <div class="panel">
-
       <h2 style="margin-top:0;">
-        📋 Sonstige Dienstanfragen
+        💬 Meine sonstigen Wünsche
       </h2>
 
       <div id="meineDienstAnfragenListe">
@@ -2900,7 +2417,6 @@ function installiereAnfragenAnsichtNeu() {
           Anfragen werden geladen …
         </div>
       </div>
-
     </div>
   `;
 
@@ -2910,14 +2426,9 @@ function installiereAnfragenAnsichtNeu() {
 }
 
 
-// ==========================================================
-// MEINE ANFRAGEN LADEN
-// ==========================================================
-
 async function ladeMeineAnfragenNeu(
   zeigeLaden = true
 ) {
-
   const token =
     localStorage.getItem(
       SESSION_KEY
@@ -2944,9 +2455,7 @@ async function ladeMeineAnfragenNeu(
       'meineDienstAnfragenListe'
     );
 
-
   if (zeigeLaden) {
-
     if (erhaltenListe) {
       erhaltenListe.innerHTML =
         '<div class="empty-state">Anfragen werden geladen …</div>';
@@ -2963,9 +2472,7 @@ async function ladeMeineAnfragenNeu(
     }
   }
 
-
   try {
-
     const ergebnisse =
       await Promise.all([
         apiPost(
@@ -2983,59 +2490,47 @@ async function ladeMeineAnfragenNeu(
         )
       ]);
 
-
     const tauschResult =
       ergebnisse[0];
 
     const dienstResult =
       ergebnisse[1];
 
-
     if (
       tauschResult &&
       tauschResult.sessionExpired
     ) {
-
       await sessionAbgelaufenNeu();
-
       return;
     }
-
 
     if (
       dienstResult &&
       dienstResult.sessionExpired
     ) {
-
       await sessionAbgelaufenNeu();
-
       return;
     }
-
 
     if (
       !tauschResult ||
       !tauschResult.ok
     ) {
-
       throw new Error(
         tauschResult?.message ||
         'Tauschanfragen konnten nicht geladen werden.'
       );
     }
 
-
     if (
       !dienstResult ||
       !dienstResult.ok
     ) {
-
       throw new Error(
         dienstResult?.message ||
-        'Dienstanfragen konnten nicht geladen werden.'
+        'Anfragen konnten nicht geladen werden.'
       );
     }
-
 
     const erhalten =
       Array.isArray(
@@ -3044,7 +2539,6 @@ async function ladeMeineAnfragenNeu(
         ? tauschResult.erhalten
         : [];
 
-
     const gesendet =
       Array.isArray(
         tauschResult.gesendet
@@ -3052,14 +2546,12 @@ async function ladeMeineAnfragenNeu(
         ? tauschResult.gesendet
         : [];
 
-
     const dienstAnfragen =
       Array.isArray(
         dienstResult.anfragen
       )
         ? dienstResult.anfragen
         : [];
-
 
     rendereErhalteneTauschAnfragenNeu(
       erhalten
@@ -3077,14 +2569,11 @@ async function ladeMeineAnfragenNeu(
       erhalten
     );
 
-
   } catch (error) {
-
     console.error(
       'Meine Anfragen:',
       error
     );
-
 
     const fehlerHtml = `
       <div
@@ -3094,7 +2583,6 @@ async function ladeMeineAnfragenNeu(
         ❌ ${escapeHtmlNeu(error.message)}
       </div>
     `;
-
 
     if (erhaltenListe) {
       erhaltenListe.innerHTML =
@@ -3114,14 +2602,9 @@ async function ladeMeineAnfragenNeu(
 }
 
 
-// ==========================================================
-// ERHALTENE TAUSCHANFRAGEN
-// ==========================================================
-
 function rendereErhalteneTauschAnfragenNeu(
   anfragen
 ) {
-
   const liste =
     document.getElementById(
       'erhalteneTauschAnfragenListe'
@@ -3131,12 +2614,10 @@ function rendereErhalteneTauschAnfragenNeu(
     return;
   }
 
-
   if (
     !anfragen ||
     anfragen.length === 0
   ) {
-
     liste.innerHTML = `
       <div class="empty-state">
         Aktuell gibt es keine Tauschanfragen an dich.
@@ -3146,21 +2627,17 @@ function rendereErhalteneTauschAnfragenNeu(
     return;
   }
 
-
   let html =
     '';
 
-
   anfragen.forEach(
     function(a) {
-
       const mitarbeiterStatus =
         String(
           a.mitarbeiterStatus || ''
         )
           .trim()
           .toUpperCase();
-
 
       const gesamtstatus =
         String(
@@ -3169,19 +2646,16 @@ function rendereErhalteneTauschAnfragenNeu(
           .trim()
           .toUpperCase();
 
-
       const istOffen =
         mitarbeiterStatus ===
           'OFFEN' &&
         gesamtstatus ===
           'WARTET_AUF_KOLLEGEN';
 
-
       const statusText =
         statusTextTauschNeu(
           a
         );
-
 
       html += `
         <div
@@ -3193,7 +2667,6 @@ function rendereErhalteneTauschAnfragenNeu(
             background:#fff;
           "
         >
-
           <strong
             style="
               display:block;
@@ -3203,7 +2676,6 @@ function rendereErhalteneTauschAnfragenNeu(
             ${escapeHtmlNeu(a.anfragender || '')}
             möchte mit dir tauschen
           </strong>
-
 
           <div
             style="
@@ -3215,7 +2687,6 @@ function rendereErhalteneTauschAnfragenNeu(
             · KW ${escapeHtmlNeu(a.kw || '')}
           </div>
 
-
           <div
             style="
               margin-top:12px;
@@ -3224,7 +2695,6 @@ function rendereErhalteneTauschAnfragenNeu(
               border-radius:8px;
             "
           >
-
             <div
               style="
                 color:#666;
@@ -3242,7 +2712,6 @@ function rendereErhalteneTauschAnfragenNeu(
               )}
             </strong>
 
-
             <div
               style="
                 margin:8px 0;
@@ -3251,7 +2720,6 @@ function rendereErhalteneTauschAnfragenNeu(
             >
               ↕
             </div>
-
 
             <div
               style="
@@ -3269,9 +2737,7 @@ function rendereErhalteneTauschAnfragenNeu(
                 )
               )}
             </strong>
-
           </div>
-
 
           ${
             a.nachricht
@@ -3288,7 +2754,6 @@ function rendereErhalteneTauschAnfragenNeu(
               : ''
           }
 
-
           <div
             style="
               margin-top:11px;
@@ -3298,7 +2763,6 @@ function rendereErhalteneTauschAnfragenNeu(
               ${escapeHtmlNeu(statusText)}
             </strong>
           </div>
-
 
           ${
             istOffen
@@ -3311,7 +2775,6 @@ function rendereErhalteneTauschAnfragenNeu(
                     margin-top:14px;
                   "
                 >
-
                   <button
                     type="button"
                     onclick="bearbeiteErhalteneTauschAnfrageNeu(${Number(a.zeile)}, true)"
@@ -3328,7 +2791,6 @@ function rendereErhalteneTauschAnfragenNeu(
                     ✅ Tausch annehmen
                   </button>
 
-
                   <button
                     type="button"
                     onclick="bearbeiteErhalteneTauschAnfrageNeu(${Number(a.zeile)}, false)"
@@ -3344,31 +2806,23 @@ function rendereErhalteneTauschAnfragenNeu(
                   >
                     ❌ Ablehnen
                   </button>
-
                 </div>
               `
               : ''
           }
-
         </div>
       `;
     }
   );
-
 
   liste.innerHTML =
     html;
 }
 
 
-// ==========================================================
-// GESENDETE TAUSCHANFRAGEN
-// ==========================================================
-
 function rendereGesendeteTauschAnfragenNeu(
   anfragen
 ) {
-
   const liste =
     document.getElementById(
       'gesendeteTauschAnfragenListe'
@@ -3378,12 +2832,10 @@ function rendereGesendeteTauschAnfragenNeu(
     return;
   }
 
-
   if (
     !anfragen ||
     anfragen.length === 0
   ) {
-
     liste.innerHTML = `
       <div class="empty-state">
         Du hast noch keine Tauschanfragen gesendet.
@@ -3393,19 +2845,15 @@ function rendereGesendeteTauschAnfragenNeu(
     return;
   }
 
-
   let html =
     '';
 
-
   anfragen.forEach(
     function(a) {
-
       const statusText =
         statusTextTauschNeu(
           a
         );
-
 
       html += `
         <div
@@ -3417,7 +2865,6 @@ function rendereGesendeteTauschAnfragenNeu(
             background:#fff;
           "
         >
-
           <strong
             style="
               display:block;
@@ -3428,7 +2875,6 @@ function rendereGesendeteTauschAnfragenNeu(
             ${escapeHtmlNeu(a.partner || '')}
           </strong>
 
-
           <div
             style="
               margin-top:5px;
@@ -3438,7 +2884,6 @@ function rendereGesendeteTauschAnfragenNeu(
             📅 ${escapeHtmlNeu(a.datum || '')}
             · KW ${escapeHtmlNeu(a.kw || '')}
           </div>
-
 
           <div
             style="
@@ -3458,7 +2903,6 @@ function rendereGesendeteTauschAnfragenNeu(
             )}
           </div>
 
-
           ${
             a.nachricht
               ? `
@@ -3474,7 +2918,6 @@ function rendereGesendeteTauschAnfragenNeu(
               : ''
           }
 
-
           <div
             style="
               margin-top:10px;
@@ -3483,33 +2926,25 @@ function rendereGesendeteTauschAnfragenNeu(
           >
             ${escapeHtmlNeu(statusText)}
           </div>
-
         </div>
       `;
     }
   );
-
 
   liste.innerHTML =
     html;
 }
 
 
-// ==========================================================
-// TAUSCH-STATUS
-// ==========================================================
-
 function statusTextTauschNeu(
   anfrage
 ) {
-
   const gesamtstatus =
     String(
       anfrage?.gesamtstatus || ''
     )
       .trim()
       .toUpperCase();
-
 
   const mitarbeiterStatus =
     String(
@@ -3518,14 +2953,12 @@ function statusTextTauschNeu(
       .trim()
       .toUpperCase();
 
-
   const adminStatus =
     String(
       anfrage?.adminStatus || ''
     )
       .trim()
       .toUpperCase();
-
 
   if (
     gesamtstatus ===
@@ -3534,14 +2967,12 @@ function statusTextTauschNeu(
     return '✅ Genehmigt';
   }
 
-
   if (
     gesamtstatus ===
     'ABGELEHNT'
   ) {
     return '❌ Abgelehnt';
   }
-
 
   if (
     gesamtstatus ===
@@ -3550,14 +2981,12 @@ function statusTextTauschNeu(
     return '🟡 Wartet auf Babsi';
   }
 
-
   if (
     gesamtstatus ===
     'WARTET_AUF_KOLLEGEN'
   ) {
     return '🟡 Wartet auf Kollegen';
   }
-
 
   if (
     mitarbeiterStatus ===
@@ -3568,7 +2997,6 @@ function statusTextTauschNeu(
     return '🟡 Wartet auf Babsi';
   }
 
-
   if (
     mitarbeiterStatus ===
     'ABGELEHNT'
@@ -3576,38 +3004,28 @@ function statusTextTauschNeu(
     return '❌ Abgelehnt';
   }
 
-
   return '🟡 Offen';
 }
 
-
-// ==========================================================
-// TAUSCHANFRAGE ANNEHMEN / ABLEHNEN
-// ==========================================================
 
 async function bearbeiteErhalteneTauschAnfrageNeu(
   zeile,
   genehmigen
 ) {
-
   const token =
     localStorage.getItem(
       SESSION_KEY
     );
 
   if (!token) {
-
     await sessionAbgelaufenNeu();
-
     return;
   }
-
 
   const frage =
     genehmigen
       ? 'Möchtest du diesem Diensttausch zustimmen?'
       : 'Möchtest du diese Tauschanfrage wirklich ablehnen?';
-
 
   if (
     !window.confirm(
@@ -3617,9 +3035,7 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
     return;
   }
 
-
   try {
-
     const result =
       await apiPost(
         'tauschAnfrageBearbeiten',
@@ -3633,22 +3049,17 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
         }
       );
 
-
     if (
       !result ||
       !result.ok
     ) {
-
       if (
         result &&
         result.sessionExpired
       ) {
-
         await sessionAbgelaufenNeu();
-
         return;
       }
-
 
       throw new Error(
         result?.message ||
@@ -3656,24 +3067,19 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
       );
     }
 
-
     window.alert(
       result.message ||
       'Tauschanfrage wurde bearbeitet.'
     );
 
-
     await ladeMeineAnfragenNeu(
       true
     );
 
-
   } catch (error) {
-
     console.error(
       error
     );
-
 
     window.alert(
       'Fehler: ' +
@@ -3683,14 +3089,9 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
 }
 
 
-// ==========================================================
-// SONSTIGE DIENSTANFRAGEN
-// ==========================================================
-
 function rendereMeineDienstAnfragenNeu(
   anfragen
 ) {
-
   const liste =
     document.getElementById(
       'meineDienstAnfragenListe'
@@ -3700,29 +3101,24 @@ function rendereMeineDienstAnfragenNeu(
     return;
   }
 
-
   if (
     !anfragen ||
     anfragen.length === 0
   ) {
-
     liste.innerHTML = `
       <div class="empty-state">
-        Du hast aktuell keine sonstigen Dienstanfragen.
+        Du hast aktuell keine sonstigen Wünsche.
       </div>
     `;
 
     return;
   }
 
-
   let html =
     '';
 
-
   anfragen.forEach(
     function(a) {
-
       const status =
         String(
           a.status || 'OFFEN'
@@ -3730,30 +3126,24 @@ function rendereMeineDienstAnfragenNeu(
           .trim()
           .toUpperCase();
 
-
       let statusText =
         '🟡 Offen';
-
 
       if (
         status ===
         'GENEHMIGT'
       ) {
-
         statusText =
           '✅ Genehmigt';
       }
-
 
       else if (
         status ===
         'ABGELEHNT'
       ) {
-
         statusText =
           '❌ Abgelehnt';
       }
-
 
       html += `
         <div
@@ -3765,7 +3155,6 @@ function rendereMeineDienstAnfragenNeu(
             background:#fff;
           "
         >
-
           <strong
             style="
               display:block;
@@ -3774,21 +3163,30 @@ function rendereMeineDienstAnfragenNeu(
           >
             ${escapeHtmlNeu(
               a.art ||
-              'Dienstanfrage'
+              'Sonstiger Wunsch'
             )}
           </strong>
 
-
-          <div
-            style="
-              margin-top:5px;
-              color:#666;
-            "
-          >
-            📅 ${escapeHtmlNeu(a.datum || '')}
-            · KW ${escapeHtmlNeu(a.kw || '')}
-          </div>
-
+          ${
+            a.datum
+              ? `
+                <div
+                  style="
+                    margin-top:5px;
+                    color:#666;
+                  "
+                >
+                  📅 ${escapeHtmlNeu(a.datum)}
+                  ${
+                    a.kw
+                      ? ' · KW ' +
+                        escapeHtmlNeu(a.kw)
+                      : ''
+                  }
+                </div>
+              `
+              : ''
+          }
 
           ${
             a.dienst
@@ -3809,7 +3207,6 @@ function rendereMeineDienstAnfragenNeu(
               : ''
           }
 
-
           ${
             a.nachricht
               ? `
@@ -3817,6 +3214,7 @@ function rendereMeineDienstAnfragenNeu(
                   style="
                     margin-top:8px;
                     color:#555;
+                    white-space:pre-wrap;
                   "
                 >
                   💬 ${escapeHtmlNeu(a.nachricht)}
@@ -3824,7 +3222,6 @@ function rendereMeineDienstAnfragenNeu(
               `
               : ''
           }
-
 
           <div
             style="
@@ -3834,26 +3231,19 @@ function rendereMeineDienstAnfragenNeu(
           >
             ${statusText}
           </div>
-
         </div>
       `;
     }
   );
-
 
   liste.innerHTML =
     html;
 }
 
 
-// ==========================================================
-// BADGE
-// ==========================================================
-
 function aktualisiereAnfragenBadgeNeu(
   erhalten
 ) {
-
   const badge =
     document.getElementById(
       'anfragenBadge'
@@ -3863,11 +3253,9 @@ function aktualisiereAnfragenBadgeNeu(
     return;
   }
 
-
   const anzahl =
     (erhalten || []).filter(
       function(a) {
-
         return (
           String(
             a.mitarbeiterStatus || ''
@@ -3885,12 +3273,10 @@ function aktualisiereAnfragenBadgeNeu(
       }
     ).length;
 
-
   badge.textContent =
     String(
       anzahl
     );
-
 
   badge.style.display =
     anzahl > 0
@@ -3899,12 +3285,7 @@ function aktualisiereAnfragenBadgeNeu(
 }
 
 
-// ==========================================================
-// MEINE ABWESENHEITEN
-// ==========================================================
-
 function installiereAbwesenheitenAnsichtNeu() {
-
   if (
     document.getElementById(
       'abwesenheitenAnsicht'
@@ -3912,7 +3293,6 @@ function installiereAbwesenheitenAnsichtNeu() {
   ) {
     return;
   }
-
 
   const main =
     document.querySelector(
@@ -3922,7 +3302,6 @@ function installiereAbwesenheitenAnsichtNeu() {
   if (!main) {
     return;
   }
-
 
   const section =
     document.createElement(
@@ -3935,10 +3314,8 @@ function installiereAbwesenheitenAnsichtNeu() {
   section.style.display =
     'none';
 
-
   section.innerHTML = `
     <div class="content-header">
-
       <div>
         <h1>Meine Abwesenheiten</h1>
 
@@ -3946,12 +3323,9 @@ function installiereAbwesenheitenAnsichtNeu() {
           Hier siehst du deine eingetragenen Abwesenheiten.
         </p>
       </div>
-
     </div>
 
-
     <div class="panel">
-
       <div
         style="
           display:flex;
@@ -3962,11 +3336,9 @@ function installiereAbwesenheitenAnsichtNeu() {
           margin-bottom:15px;
         "
       >
-
         <h2 style="margin:0;">
           🏖️ Abwesenheiten
         </h2>
-
 
         <button
           type="button"
@@ -3981,19 +3353,15 @@ function installiereAbwesenheitenAnsichtNeu() {
         >
           ↻ Aktualisieren
         </button>
-
       </div>
-
 
       <div id="abwesenheitenListeNeu">
         <div class="empty-state">
           Abwesenheiten werden geladen …
         </div>
       </div>
-
     </div>
   `;
-
 
   main.appendChild(
     section
@@ -4001,41 +3369,28 @@ function installiereAbwesenheitenAnsichtNeu() {
 }
 
 
-// ==========================================================
-// ABWESENHEITEN LADEN
-// ==========================================================
-
 async function ladeMeineAbwesenheitenNeu() {
-
   const token =
     localStorage.getItem(
       SESSION_KEY
     );
 
-
   if (!token) {
-
     await sessionAbgelaufenNeu();
-
     return;
   }
-
 
   const liste =
     document.getElementById(
       'abwesenheitenListeNeu'
     );
 
-
   if (liste) {
-
     liste.innerHTML =
       '<div class="empty-state">Abwesenheiten werden geladen …</div>';
   }
 
-
   try {
-
     const result =
       await apiPost(
         'meinDienstplan',
@@ -4044,29 +3399,23 @@ async function ladeMeineAbwesenheitenNeu() {
         }
       );
 
-
     if (
       !result ||
       !result.ok
     ) {
-
       if (
         result &&
         result.sessionExpired
       ) {
-
         await sessionAbgelaufenNeu();
-
         return;
       }
-
 
       throw new Error(
         result?.message ||
         'Abwesenheiten konnten nicht geladen werden.'
       );
     }
-
 
     letzteAbwesenheiten =
       Array.isArray(
@@ -4075,21 +3424,16 @@ async function ladeMeineAbwesenheitenNeu() {
         ? result.abwesenheiten
         : [];
 
-
     rendereAbwesenheiten(
       letzteAbwesenheiten
     );
 
-
   } catch (error) {
-
     console.error(
       error
     );
 
-
     if (liste) {
-
       liste.innerHTML = `
         <div
           class="empty-state"
@@ -4103,14 +3447,9 @@ async function ladeMeineAbwesenheitenNeu() {
 }
 
 
-// ==========================================================
-// ABWESENHEITEN RENDERN
-// ==========================================================
-
 function rendereAbwesenheiten(
   abwesenheiten
 ) {
-
   const listen =
     [
       document.getElementById(
@@ -4125,22 +3464,18 @@ function rendereAbwesenheiten(
       }
     );
 
-
   if (
     listen.length === 0
   ) {
     return;
   }
 
-
   if (
     !abwesenheiten ||
     abwesenheiten.length === 0
   ) {
-
     listen.forEach(
       function(liste) {
-
         liste.innerHTML = `
           <div class="empty-state">
             Keine Abwesenheiten vorhanden.
@@ -4152,20 +3487,16 @@ function rendereAbwesenheiten(
     return;
   }
 
-
   let html =
     '';
 
-
   abwesenheiten.forEach(
     function(a) {
-
       const status =
         String(
           a.status ||
           'Abwesenheit'
         ).trim();
-
 
       html += `
         <div
@@ -4177,7 +3508,6 @@ function rendereAbwesenheiten(
             background:#fff;
           "
         >
-
           <strong
             style="
               display:block;
@@ -4187,7 +3517,6 @@ function rendereAbwesenheiten(
             📌 ${escapeHtmlNeu(status)}
           </strong>
 
-
           <div
             style="
               margin-top:6px;
@@ -4195,7 +3524,6 @@ function rendereAbwesenheiten(
             "
           >
             ${escapeHtmlNeu(a.von || '')}
-
             ${
               a.bis
                 ? ' – ' +
@@ -4205,16 +3533,13 @@ function rendereAbwesenheiten(
                 : ''
             }
           </div>
-
         </div>
       `;
     }
   );
 
-
   listen.forEach(
     function(liste) {
-
       liste.innerHTML =
         html;
     }
@@ -4222,12 +3547,7 @@ function rendereAbwesenheiten(
 }
 
 
-// ==========================================================
-// PIN & SICHERHEIT
-// ==========================================================
-
 function installierePinAnsichtNeu() {
-
   if (
     document.getElementById(
       'pinAnsicht'
@@ -4235,7 +3555,6 @@ function installierePinAnsichtNeu() {
   ) {
     return;
   }
-
 
   const main =
     document.querySelector(
@@ -4246,12 +3565,10 @@ function installierePinAnsichtNeu() {
     return;
   }
 
-
   const section =
     document.createElement(
       'section'
     );
-
 
   section.id =
     'pinAnsicht';
@@ -4259,10 +3576,8 @@ function installierePinAnsichtNeu() {
   section.style.display =
     'none';
 
-
   section.innerHTML = `
     <div class="content-header">
-
       <div>
         <h1>
           PIN & Sicherheit
@@ -4272,9 +3587,7 @@ function installierePinAnsichtNeu() {
           Hier kannst du deinen persönlichen PIN ändern.
         </p>
       </div>
-
     </div>
-
 
     <div
       class="panel"
@@ -4284,11 +3597,9 @@ function installierePinAnsichtNeu() {
         margin-right:auto;
       "
     >
-
       <h2 style="margin-top:0;">
         🔐 PIN ändern
       </h2>
-
 
       <label
         for="alterPinNeu"
@@ -4300,7 +3611,6 @@ function installierePinAnsichtNeu() {
       >
         Aktueller PIN
       </label>
-
 
       <input
         id="alterPinNeu"
@@ -4318,7 +3628,6 @@ function installierePinAnsichtNeu() {
         "
       >
 
-
       <label
         for="neuerPin1Neu"
         style="
@@ -4329,7 +3638,6 @@ function installierePinAnsichtNeu() {
       >
         Neuer PIN
       </label>
-
 
       <input
         id="neuerPin1Neu"
@@ -4347,7 +3655,6 @@ function installierePinAnsichtNeu() {
         "
       >
 
-
       <label
         for="neuerPin2Neu"
         style="
@@ -4358,7 +3665,6 @@ function installierePinAnsichtNeu() {
       >
         Neuen PIN wiederholen
       </label>
-
 
       <input
         id="neuerPin2Neu"
@@ -4375,7 +3681,6 @@ function installierePinAnsichtNeu() {
           margin-bottom:18px;
         "
       >
-
 
       <button
         id="pinAendernButtonNeu"
@@ -4394,7 +3699,6 @@ function installierePinAnsichtNeu() {
         🔐 PIN ändern
       </button>
 
-
       <div
         id="pinMeldungNeu"
         style="
@@ -4402,10 +3706,8 @@ function installierePinAnsichtNeu() {
           min-height:22px;
         "
       ></div>
-
     </div>
   `;
-
 
   main.appendChild(
     section
@@ -4413,12 +3715,7 @@ function installierePinAnsichtNeu() {
 }
 
 
-// ==========================================================
-// PIN ÄNDERN
-// ==========================================================
-
 async function aenderePinNeu() {
-
   const alterPin =
     String(
       document
@@ -4427,7 +3724,6 @@ async function aenderePinNeu() {
         )
         ?.value || ''
     ).trim();
-
 
   const neuerPin1 =
     String(
@@ -4438,7 +3734,6 @@ async function aenderePinNeu() {
         ?.value || ''
     ).trim();
 
-
   const neuerPin2 =
     String(
       document
@@ -4448,13 +3743,11 @@ async function aenderePinNeu() {
         ?.value || ''
     ).trim();
 
-
   if (
     !/^\d{4}$/.test(
       alterPin
     )
   ) {
-
     zeigePinMeldungNeu(
       'Bitte gib deinen aktuellen 4-stelligen PIN ein.',
       false
@@ -4463,13 +3756,11 @@ async function aenderePinNeu() {
     return;
   }
 
-
   if (
     !/^\d{4}$/.test(
       neuerPin1
     )
   ) {
-
     zeigePinMeldungNeu(
       'Der neue PIN muss genau aus 4 Ziffern bestehen.',
       false
@@ -4478,12 +3769,10 @@ async function aenderePinNeu() {
     return;
   }
 
-
   if (
     neuerPin1 !==
     neuerPin2
   ) {
-
     zeigePinMeldungNeu(
       'Die beiden neuen PINs stimmen nicht überein.',
       false
@@ -4492,29 +3781,22 @@ async function aenderePinNeu() {
     return;
   }
 
-
   const token =
     localStorage.getItem(
       SESSION_KEY
     );
 
-
   if (!token) {
-
     await sessionAbgelaufenNeu();
-
     return;
   }
-
 
   const button =
     document.getElementById(
       'pinAendernButtonNeu'
     );
 
-
   if (button) {
-
     button.disabled =
       true;
 
@@ -4522,9 +3804,7 @@ async function aenderePinNeu() {
       'PIN wird geändert …';
   }
 
-
   try {
-
     const result =
       await apiPost(
         'pinAendern',
@@ -4536,22 +3816,17 @@ async function aenderePinNeu() {
         }
       );
 
-
     if (
       !result ||
       !result.ok
     ) {
-
       if (
         result &&
         result.sessionExpired
       ) {
-
         await sessionAbgelaufenNeu();
-
         return;
       }
-
 
       throw new Error(
         result?.message ||
@@ -4559,27 +3834,23 @@ async function aenderePinNeu() {
       );
     }
 
-
     [
       'alterPinNeu',
       'neuerPin1Neu',
       'neuerPin2Neu'
     ].forEach(
       function(id) {
-
         const feld =
           document.getElementById(
             id
           );
 
         if (feld) {
-
           feld.value =
             '';
         }
       }
     );
-
 
     zeigePinMeldungNeu(
       '✅ ' +
@@ -4590,20 +3861,15 @@ async function aenderePinNeu() {
       true
     );
 
-
   } catch (error) {
-
     zeigePinMeldungNeu(
       '❌ ' +
       error.message,
       false
     );
 
-
   } finally {
-
     if (button) {
-
       button.disabled =
         false;
 
@@ -4614,15 +3880,10 @@ async function aenderePinNeu() {
 }
 
 
-// ==========================================================
-// PIN-MELDUNG
-// ==========================================================
-
 function zeigePinMeldungNeu(
   text,
   erfolgreich
 ) {
-
   const element =
     document.getElementById(
       'pinMeldungNeu'
@@ -4632,10 +3893,8 @@ function zeigePinMeldungNeu(
     return;
   }
 
-
   element.textContent =
     text || '';
-
 
   element.style.color =
     erfolgreich
@@ -4648,7 +3907,6 @@ function zeigePinMeldungNeu(
 // ==========================================================
 
 function installiereAdminAnsichtNeu() {
-
   if (
     document.getElementById(
       'adminAnsicht'
@@ -4657,35 +3915,28 @@ function installiereAdminAnsichtNeu() {
     return;
   }
 
-
   const main =
     document.querySelector(
       '#hauptApp .content'
     );
 
-
   if (!main) {
     return;
   }
-
 
   const section =
     document.createElement(
       'section'
     );
 
-
   section.id =
     'adminAnsicht';
-
 
   section.style.display =
     'none';
 
-
   section.innerHTML = `
     <div class="content-header">
-
       <div>
         <h1>
           Admin-Bereich
@@ -4695,9 +3946,7 @@ function installiereAdminAnsichtNeu() {
           Hier kannst du offene Anfragen bearbeiten.
         </p>
       </div>
-
     </div>
-
 
     <div
       style="
@@ -4706,7 +3955,6 @@ function installiereAdminAnsichtNeu() {
         margin-bottom:14px;
       "
     >
-
       <button
         type="button"
         onclick="ladeAdminAnfragenNeu()"
@@ -4720,9 +3968,7 @@ function installiereAdminAnsichtNeu() {
       >
         ↻ Aktualisieren
       </button>
-
     </div>
-
 
     <div
       class="panel"
@@ -4730,54 +3976,39 @@ function installiereAdminAnsichtNeu() {
         margin-bottom:18px;
       "
     >
-
       <h2 style="margin-top:0;">
         🔄 Diensttausch
       </h2>
-
 
       <p style="color:#666;">
         Hier erscheinen Tauschanfragen,
         denen der Tauschpartner bereits zugestimmt hat.
       </p>
 
-
       <div id="adminTauschAnfragenListe">
-
         <div class="empty-state">
           Anfragen werden geladen …
         </div>
-
       </div>
-
     </div>
-
 
     <div class="panel">
-
       <h2 style="margin-top:0;">
-        📋 Sonstige Dienstanfragen
+        💬 Sonstige Wünsche
       </h2>
 
-
       <p style="color:#666;">
-        Das Genehmigen oder Ablehnen ändert hier
-        nur den Status der Anfrage.
-        Der Dienstplan wird dadurch nicht automatisch geändert.
+        Das Genehmigen oder Ablehnen verändert
+        den Dienstplan nicht automatisch.
       </p>
 
-
       <div id="adminDienstAnfragenListe">
-
         <div class="empty-state">
           Anfragen werden geladen …
         </div>
-
       </div>
-
     </div>
   `;
-
 
   main.appendChild(
     section
@@ -4790,26 +4021,21 @@ function installiereAdminAnsichtNeu() {
 // ==========================================================
 
 async function ladeAdminAnfragenNeu() {
-
   installiereAdminAnsichtNeu();
-
 
   const tauschListe =
     document.getElementById(
       'adminTauschAnfragenListe'
     );
 
-
   const dienstListe =
     document.getElementById(
       'adminDienstAnfragenListe'
     );
 
-
   if (
     !aktuellerAdmin
   ) {
-
     const html = `
       <div
         class="empty-state"
@@ -4819,55 +4045,40 @@ async function ladeAdminAnfragenNeu() {
       </div>
     `;
 
-
     if (tauschListe) {
-
       tauschListe.innerHTML =
         html;
     }
 
-
     if (dienstListe) {
-
       dienstListe.innerHTML =
         html;
     }
 
-
     return;
   }
-
 
   const token =
     localStorage.getItem(
       SESSION_KEY
     );
 
-
   if (!token) {
-
     await sessionAbgelaufenNeu();
-
     return;
   }
 
-
   if (tauschListe) {
-
     tauschListe.innerHTML =
       '<div class="empty-state">Tauschanfragen werden geladen …</div>';
   }
 
-
   if (dienstListe) {
-
     dienstListe.innerHTML =
-      '<div class="empty-state">Dienstanfragen werden geladen …</div>';
+      '<div class="empty-state">Wünsche werden geladen …</div>';
   }
 
-
   try {
-
     const ergebnisse =
       await Promise.all([
         apiPost(
@@ -4885,60 +4096,47 @@ async function ladeAdminAnfragenNeu() {
         )
       ]);
 
-
     const tauschResult =
       ergebnisse[0];
 
-
     const dienstResult =
       ergebnisse[1];
-
 
     if (
       tauschResult &&
       tauschResult.sessionExpired
     ) {
-
       await sessionAbgelaufenNeu();
-
       return;
     }
-
 
     if (
       dienstResult &&
       dienstResult.sessionExpired
     ) {
-
       await sessionAbgelaufenNeu();
-
       return;
     }
-
 
     if (
       !tauschResult ||
       !tauschResult.ok
     ) {
-
       throw new Error(
         tauschResult?.message ||
         'Admin-Tauschanfragen konnten nicht geladen werden.'
       );
     }
 
-
     if (
       !dienstResult ||
       !dienstResult.ok
     ) {
-
       throw new Error(
         dienstResult?.message ||
-        'Admin-Dienstanfragen konnten nicht geladen werden.'
+        'Sonstige Wünsche konnten nicht geladen werden.'
       );
     }
-
 
     const tauschAnfragen =
       Array.isArray(
@@ -4947,7 +4145,6 @@ async function ladeAdminAnfragenNeu() {
         ? tauschResult.anfragen
         : [];
 
-
     const dienstAnfragen =
       Array.isArray(
         dienstResult.anfragen
@@ -4955,24 +4152,19 @@ async function ladeAdminAnfragenNeu() {
         ? dienstResult.anfragen
         : [];
 
-
     rendereAdminTauschAnfragenNeu(
       tauschAnfragen
     );
-
 
     rendereAdminDienstAnfragenNeu(
       dienstAnfragen
     );
 
-
   } catch (error) {
-
     console.error(
       'Admin-Anfragen:',
       error
     );
-
 
     const html = `
       <div
@@ -4983,16 +4175,12 @@ async function ladeAdminAnfragenNeu() {
       </div>
     `;
 
-
     if (tauschListe) {
-
       tauschListe.innerHTML =
         html;
     }
 
-
     if (dienstListe) {
-
       dienstListe.innerHTML =
         html;
     }
@@ -5007,23 +4195,19 @@ async function ladeAdminAnfragenNeu() {
 function rendereAdminTauschAnfragenNeu(
   anfragen
 ) {
-
   const liste =
     document.getElementById(
       'adminTauschAnfragenListe'
     );
 
-
   if (!liste) {
     return;
   }
-
 
   if (
     !anfragen ||
     anfragen.length === 0
   ) {
-
     liste.innerHTML = `
       <div class="empty-state">
         Keine offenen Tauschanfragen.
@@ -5033,14 +4217,11 @@ function rendereAdminTauschAnfragenNeu(
     return;
   }
 
-
   let html =
     '';
 
-
   anfragen.forEach(
     function(a) {
-
       html += `
         <div
           style="
@@ -5051,7 +4232,6 @@ function rendereAdminTauschAnfragenNeu(
             background:#ffffff;
           "
         >
-
           <strong
             style="
               display:block;
@@ -5063,7 +4243,6 @@ function rendereAdminTauschAnfragenNeu(
             ${escapeHtmlNeu(a.partner || '')}
           </strong>
 
-
           <div
             style="
               margin-top:5px;
@@ -5074,7 +4253,6 @@ function rendereAdminTauschAnfragenNeu(
             · KW ${escapeHtmlNeu(a.kw || '')}
           </div>
 
-
           <div
             style="
               margin-top:12px;
@@ -5083,7 +4261,6 @@ function rendereAdminTauschAnfragenNeu(
               border-radius:8px;
             "
           >
-
             <strong>
               ${escapeHtmlNeu(
                 entferneDienstSymbol(
@@ -5103,295 +4280,7 @@ function rendereAdminTauschAnfragenNeu(
                 )
               )}
             </strong>
-
           </div>
-
-
-          ${
-            a.nachricht
-              ? `
-                <div
-                  style="
-                    margin-top:9px;
-                    color:#555;
-                  "
-                >
-                  💬 ${escapeHtmlNeu(a.nachricht)}
-                </div>
-              `
-              : ''
-          }
-
-
-          <div
-            style="
-              display:flex;
-              gap:10px;
-              flex-wrap:wrap;
-              margin-top:14px;
-            "
-          >
-
-            <button
-              type="button"
-              onclick="bearbeiteAdminTauschAnfrageNeu(${Number(a.zeile)}, true)"
-              style="
-                border:0;
-                background:#14943b;
-                color:#ffffff;
-                border-radius:8px;
-                padding:9px 14px;
-                font-weight:700;
-                cursor:pointer;
-              "
-            >
-              ✅ Genehmigen
-            </button>
-
-
-            <button
-              type="button"
-              onclick="bearbeiteAdminTauschAnfrageNeu(${Number(a.zeile)}, false)"
-              style="
-                border:1px solid #c9cdd2;
-                background:#ffffff;
-                color:#b00020;
-                border-radius:8px;
-                padding:9px 14px;
-                font-weight:700;
-                cursor:pointer;
-              "
-            >
-              ❌ Ablehnen
-            </button>
-
-          </div>
-
-        </div>
-      `;
-    }
-  );
-
-
-  liste.innerHTML =
-    html;
-}
-
-
-// ==========================================================
-// ADMIN – TAUSCH BEARBEITEN
-// ==========================================================
-
-async function bearbeiteAdminTauschAnfrageNeu(
-  zeile,
-  genehmigen
-) {
-
-  const frage =
-    genehmigen
-      ? 'Diensttausch genehmigen und im Dienstplan durchführen?'
-      : 'Diensttausch wirklich ablehnen?';
-
-
-  if (
-    !window.confirm(
-      frage
-    )
-  ) {
-    return;
-  }
-
-
-  const token =
-    localStorage.getItem(
-      SESSION_KEY
-    );
-
-
-  if (!token) {
-
-    await sessionAbgelaufenNeu();
-
-    return;
-  }
-
-
-  try {
-
-    const result =
-      await apiPost(
-        'adminTauschAnfrageBearbeiten',
-        {
-          token: token,
-          zeile: Number(
-            zeile
-          ),
-          genehmigen:
-            genehmigen === true
-        }
-      );
-
-
-    if (
-      !result ||
-      !result.ok
-    ) {
-
-      if (
-        result &&
-        result.sessionExpired
-      ) {
-
-        await sessionAbgelaufenNeu();
-
-        return;
-      }
-
-
-      throw new Error(
-        result?.message ||
-        'Tauschanfrage konnte nicht bearbeitet werden.'
-      );
-    }
-
-
-    window.alert(
-      result.message ||
-      'Anfrage wurde bearbeitet.'
-    );
-
-
-    await ladeAdminAnfragenNeu();
-
-
-    if (
-      genehmigen === true
-    ) {
-
-      dienstplanInitialisiert =
-        false;
-
-
-      await ladeMeinDienstplanNeu();
-    }
-
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-
-    window.alert(
-      'Fehler: ' +
-      error.message
-    );
-  }
-}
-
-
-// ==========================================================
-// ADMIN – SONSTIGE DIENSTANFRAGEN
-// ==========================================================
-
-function rendereAdminDienstAnfragenNeu(
-  anfragen
-) {
-
-  const liste =
-    document.getElementById(
-      'adminDienstAnfragenListe'
-    );
-
-
-  if (!liste) {
-    return;
-  }
-
-
-  if (
-    !anfragen ||
-    anfragen.length === 0
-  ) {
-
-    liste.innerHTML = `
-      <div class="empty-state">
-        Keine offenen sonstigen Dienstanfragen.
-      </div>
-    `;
-
-    return;
-  }
-
-
-  let html =
-    '';
-
-
-  anfragen.forEach(
-    function(a) {
-
-      html += `
-        <div
-          style="
-            border:1px solid #dde1e5;
-            border-radius:11px;
-            padding:15px;
-            margin-bottom:12px;
-            background:#ffffff;
-          "
-        >
-
-          <strong
-            style="
-              display:block;
-              font-size:16px;
-            "
-          >
-            ${escapeHtmlNeu(a.mitarbeiter || '')}
-          </strong>
-
-
-          <div
-            style="
-              margin-top:5px;
-              color:#666;
-            "
-          >
-            📅 ${escapeHtmlNeu(a.datum || '')}
-            · KW ${escapeHtmlNeu(a.kw || '')}
-          </div>
-
-
-          <div
-            style="
-              margin-top:8px;
-              font-weight:700;
-            "
-          >
-            ${escapeHtmlNeu(a.art || 'Dienstanfrage')}
-          </div>
-
-
-          ${
-            a.dienst
-              ? `
-                <div
-                  style="
-                    margin-top:8px;
-                  "
-                >
-                  ${escapeHtmlNeu(
-                    entferneDienstSymbol(
-                      a.dienst
-                    )
-                  )}
-                </div>
-              `
-              : ''
-          }
-
 
           ${
             a.nachricht
@@ -5409,6 +4298,283 @@ function rendereAdminDienstAnfragenNeu(
               : ''
           }
 
+          <div
+            style="
+              display:flex;
+              gap:10px;
+              flex-wrap:wrap;
+              margin-top:14px;
+            "
+          >
+            <button
+              type="button"
+              onclick="bearbeiteAdminTauschAnfrageNeu(${Number(a.zeile)}, true)"
+              style="
+                border:0;
+                background:#14943b;
+                color:#ffffff;
+                border-radius:8px;
+                padding:9px 14px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ✅ Genehmigen
+            </button>
+
+            <button
+              type="button"
+              onclick="bearbeiteAdminTauschAnfrageNeu(${Number(a.zeile)}, false)"
+              style="
+                border:1px solid #c9cdd2;
+                background:#ffffff;
+                color:#b00020;
+                border-radius:8px;
+                padding:9px 14px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ❌ Ablehnen
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  );
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// ADMIN – TAUSCH BEARBEITEN
+// ==========================================================
+
+async function bearbeiteAdminTauschAnfrageNeu(
+  zeile,
+  genehmigen
+) {
+  const frage =
+    genehmigen
+      ? 'Diensttausch genehmigen und im Dienstplan durchführen?'
+      : 'Diensttausch wirklich ablehnen?';
+
+  if (
+    !window.confirm(
+      frage
+    )
+  ) {
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+    return;
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'adminTauschAnfrageBearbeiten',
+        {
+          token: token,
+          zeile: Number(
+            zeile
+          ),
+          genehmigen:
+            genehmigen === true
+        }
+      );
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      if (
+        result &&
+        result.sessionExpired
+      ) {
+        await sessionAbgelaufenNeu();
+        return;
+      }
+
+      throw new Error(
+        result?.message ||
+        'Tauschanfrage konnte nicht bearbeitet werden.'
+      );
+    }
+
+    window.alert(
+      result.message ||
+      'Anfrage wurde bearbeitet.'
+    );
+
+    await ladeAdminAnfragenNeu();
+
+    if (
+      genehmigen === true
+    ) {
+      dienstplanInitialisiert =
+        false;
+
+      await ladeMeinDienstplanNeu();
+    }
+
+  } catch (error) {
+    console.error(
+      error
+    );
+
+    window.alert(
+      'Fehler: ' +
+      error.message
+    );
+  }
+}
+
+
+// ==========================================================
+// ADMIN – SONSTIGE WÜNSCHE
+// ==========================================================
+
+function rendereAdminDienstAnfragenNeu(
+  anfragen
+) {
+  const liste =
+    document.getElementById(
+      'adminDienstAnfragenListe'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (
+    !anfragen ||
+    anfragen.length === 0
+  ) {
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine offenen sonstigen Wünsche.
+      </div>
+    `;
+
+    return;
+  }
+
+  let html =
+    '';
+
+  anfragen.forEach(
+    function(a) {
+      html += `
+        <div
+          style="
+            border:1px solid #dde1e5;
+            border-radius:11px;
+            padding:15px;
+            margin-bottom:12px;
+            background:#ffffff;
+          "
+        >
+          <strong
+            style="
+              display:block;
+              font-size:16px;
+            "
+          >
+            ${escapeHtmlNeu(a.mitarbeiter || '')}
+          </strong>
+
+          ${
+            a.datum
+              ? `
+                <div
+                  style="
+                    margin-top:5px;
+                    color:#666;
+                  "
+                >
+                  📅 ${escapeHtmlNeu(a.datum)}
+                  ${
+                    a.kw
+                      ? ' · KW ' +
+                        escapeHtmlNeu(a.kw)
+                      : ''
+                  }
+                </div>
+              `
+              : `
+                <div
+                  style="
+                    margin-top:5px;
+                    color:#777;
+                  "
+                >
+                  Kein bestimmter Tag ausgewählt
+                </div>
+              `
+          }
+
+          <div
+            style="
+              margin-top:9px;
+              font-weight:700;
+            "
+          >
+            ${escapeHtmlNeu(
+              a.art ||
+              'Sonstiger Wunsch'
+            )}
+          </div>
+
+          ${
+            a.dienst
+              ? `
+                <div
+                  style="
+                    margin-top:8px;
+                    color:#444;
+                  "
+                >
+                  Dienst:
+                  <strong>
+                    ${escapeHtmlNeu(
+                      entferneDienstSymbol(
+                        a.dienst
+                      )
+                    )}
+                  </strong>
+                </div>
+              `
+              : ''
+          }
+
+          ${
+            a.nachricht
+              ? `
+                <div
+                  style="
+                    margin-top:11px;
+                    padding:11px;
+                    border-radius:8px;
+                    background:#f7f8f9;
+                    color:#444;
+                    white-space:pre-wrap;
+                  "
+                >
+                  💬 ${escapeHtmlNeu(a.nachricht)}
+                </div>
+              `
+              : ''
+          }
 
           <div
             style="
@@ -5424,7 +4590,6 @@ function rendereAdminDienstAnfragenNeu(
             nicht automatisch geändert.
           </div>
 
-
           <div
             style="
               display:flex;
@@ -5433,7 +4598,6 @@ function rendereAdminDienstAnfragenNeu(
               margin-top:14px;
             "
           >
-
             <button
               type="button"
               onclick="bearbeiteAdminDienstAnfrageNeu(${Number(a.zeile)}, true)"
@@ -5450,7 +4614,6 @@ function rendereAdminDienstAnfragenNeu(
               ✅ Genehmigen
             </button>
 
-
             <button
               type="button"
               onclick="bearbeiteAdminDienstAnfrageNeu(${Number(a.zeile)}, false)"
@@ -5466,14 +4629,11 @@ function rendereAdminDienstAnfragenNeu(
             >
               ❌ Ablehnen
             </button>
-
           </div>
-
         </div>
       `;
     }
   );
-
 
   liste.innerHTML =
     html;
@@ -5481,19 +4641,17 @@ function rendereAdminDienstAnfragenNeu(
 
 
 // ==========================================================
-// ADMIN – DIENSTANFRAGE BEARBEITEN
+// ADMIN – SONSTIGEN WUNSCH BEARBEITEN
 // ==========================================================
 
 async function bearbeiteAdminDienstAnfrageNeu(
   zeile,
   genehmigen
 ) {
-
   const frage =
     genehmigen
-      ? 'Diese Anfrage genehmigen?'
-      : 'Diese Anfrage ablehnen?';
-
+      ? 'Diesen Wunsch genehmigen?'
+      : 'Diesen Wunsch ablehnen?';
 
   if (
     !window.confirm(
@@ -5503,23 +4661,17 @@ async function bearbeiteAdminDienstAnfrageNeu(
     return;
   }
 
-
   const token =
     localStorage.getItem(
       SESSION_KEY
     );
 
-
   if (!token) {
-
     await sessionAbgelaufenNeu();
-
     return;
   }
 
-
   try {
-
     const result =
       await apiPost(
         'adminDienstAnfrageBearbeiten',
@@ -5533,45 +4685,35 @@ async function bearbeiteAdminDienstAnfrageNeu(
         }
       );
 
-
     if (
       !result ||
       !result.ok
     ) {
-
       if (
         result &&
         result.sessionExpired
       ) {
-
         await sessionAbgelaufenNeu();
-
         return;
       }
 
-
       throw new Error(
         result?.message ||
-        'Anfrage konnte nicht bearbeitet werden.'
+        'Wunsch konnte nicht bearbeitet werden.'
       );
     }
 
-
     window.alert(
       result.message ||
-      'Anfrage wurde bearbeitet.'
+      'Wunsch wurde bearbeitet.'
     );
-
 
     await ladeAdminAnfragenNeu();
 
-
   } catch (error) {
-
     console.error(
       error
     );
-
 
     window.alert(
       'Fehler: ' +
@@ -5582,11 +4724,602 @@ async function bearbeiteAdminDienstAnfrageNeu(
 
 
 // ==========================================================
+// SONSTIGER WUNSCH – ANSICHT
+// ==========================================================
+
+function installiereSonstigerWunschAnsichtNeu() {
+  if (
+    document.getElementById(
+      'sonstigerWunschAnsicht'
+    )
+  ) {
+    return;
+  }
+
+  const main =
+    document.querySelector(
+      '#hauptApp .content'
+    );
+
+  if (!main) {
+    return;
+  }
+
+  const section =
+    document.createElement(
+      'section'
+    );
+
+  section.id =
+    'sonstigerWunschAnsicht';
+
+  section.style.display =
+    'none';
+
+  section.innerHTML = `
+    <div class="content-header">
+      <div>
+        <h1>
+          Sonstiger Wunsch
+        </h1>
+
+        <p>
+          Teile Babsi einen Wunsch zum Dienstplan mit.
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="panel"
+      style="
+        max-width:760px;
+        margin-left:auto;
+        margin-right:auto;
+      "
+    >
+      <h2 style="margin-top:0;">
+        💬 Wunsch senden
+      </h2>
+
+      <p
+        style="
+          color:#666;
+          line-height:1.5;
+          margin-bottom:20px;
+        "
+      >
+        Du kannst deinen Wunsch allgemein senden
+        oder ihn einem deiner Dienste zuordnen.
+      </p>
+
+      <label
+        for="sonstigerWunschDienst"
+        style="
+          display:block;
+          font-weight:700;
+          margin-bottom:7px;
+        "
+      >
+        Bezug zu einem Dienst
+        <span
+          style="
+            font-weight:400;
+            color:#777;
+          "
+        >
+          (optional)
+        </span>
+      </label>
+
+      <select
+        id="sonstigerWunschDienst"
+        style="
+          width:100%;
+          box-sizing:border-box;
+          border:1px solid #d7dce1;
+          border-radius:9px;
+          padding:11px 12px;
+          margin-bottom:20px;
+          background:#ffffff;
+          font:inherit;
+        "
+      >
+        <option value="">
+          Kein bestimmter Dienst
+        </option>
+      </select>
+
+      <label
+        for="sonstigerWunschText"
+        style="
+          display:block;
+          font-weight:700;
+          margin-bottom:7px;
+        "
+      >
+        Dein Wunsch
+      </label>
+
+      <textarea
+        id="sonstigerWunschText"
+        maxlength="500"
+        rows="6"
+        placeholder="Zum Beispiel: Ich würde am Freitag gerne früher gehen, wenn es möglich ist."
+        style="
+          width:100%;
+          box-sizing:border-box;
+          border:1px solid #d7dce1;
+          border-radius:9px;
+          padding:12px;
+          font:inherit;
+          resize:vertical;
+          min-height:130px;
+        "
+      ></textarea>
+
+      <div
+        style="
+          margin-top:7px;
+          color:#777;
+          font-size:13px;
+        "
+      >
+        Maximal 500 Zeichen.
+      </div>
+
+      <div
+        style="
+          margin-top:16px;
+          padding:11px 12px;
+          border-radius:8px;
+          background:#f6f7f8;
+          color:#555;
+          font-size:13px;
+          line-height:1.45;
+        "
+      >
+        ℹ️ Babsi kann den Wunsch genehmigen oder ablehnen.
+        Eine Genehmigung verändert den Dienstplan
+        nicht automatisch.
+      </div>
+
+      <button
+        id="sonstigerWunschSendenButton"
+        type="button"
+        onclick="sendeSonstigenWunschNeu()"
+        style="
+          margin-top:18px;
+          border:0;
+          background:#e30613;
+          color:#ffffff;
+          border-radius:9px;
+          padding:11px 17px;
+          font-weight:700;
+          cursor:pointer;
+        "
+      >
+        📤 Wunsch senden
+      </button>
+
+      <div
+        id="sonstigerWunschMeldung"
+        style="
+          margin-top:14px;
+          min-height:22px;
+        "
+      ></div>
+    </div>
+  `;
+
+  main.appendChild(
+    section
+  );
+}
+
+
+// ==========================================================
+// EIGENE DIENSTE FÜR SONSTIGEN WUNSCH
+// ==========================================================
+
+function ladeSonstigerWunschDiensteNeu() {
+  const select =
+    document.getElementById(
+      'sonstigerWunschDienst'
+    );
+
+  if (!select) {
+    return;
+  }
+
+  select.innerHTML = `
+    <option value="">
+      Kein bestimmter Dienst
+    </option>
+  `;
+
+  const optionen =
+    baueEigeneDienstOptionenNeu(
+      letzterDienstplan
+    );
+
+  optionen.forEach(
+    function(option) {
+      const element =
+        document.createElement(
+          'option'
+        );
+
+      element.value =
+        JSON.stringify({
+          datum:
+            option.datum,
+          kw:
+            option.kw,
+          dienst:
+            option.dienst
+        });
+
+      element.textContent =
+        option.label;
+
+      select.appendChild(
+        element
+      );
+    }
+  );
+}
+
+
+// ==========================================================
+// EIGENE TAUSCHBARE DIENSTE ZUSAMMENFASSEN
+// ==========================================================
+
+function baueEigeneDienstOptionenNeu(
+  plan
+) {
+  const ergebnis =
+    [];
+
+  (plan || []).forEach(
+    function(z) {
+      const datum =
+        String(
+          z.datum || ''
+        );
+
+      const tag =
+        String(
+          z.tag || ''
+        );
+
+      const kw =
+        String(
+          z.kw || ''
+        );
+
+      if (
+        z.gpFrueh
+      ) {
+        ergebnis.push({
+          datum:
+            datum,
+          kw:
+            kw,
+          dienst:
+            'Garden Plaza – Früh',
+          label:
+            datum +
+            ' · ' +
+            tag +
+            ' · Garden Plaza – Früh'
+        });
+      }
+
+      if (
+        z.gpSpaet
+      ) {
+        ergebnis.push({
+          datum:
+            datum,
+          kw:
+            kw,
+          dienst:
+            'Garden Plaza – Spät',
+          label:
+            datum +
+            ' · ' +
+            tag +
+            ' · Garden Plaza – Spät'
+        });
+      }
+
+      if (
+        z.wpFrueh &&
+        z.wpSpaet
+      ) {
+        ergebnis.push({
+          datum:
+            datum,
+          kw:
+            kw,
+          dienst:
+            'Water Plaza – Ganztag',
+          label:
+            datum +
+            ' · ' +
+            tag +
+            ' · Water Plaza – Ganztag'
+        });
+
+        return;
+      }
+
+      if (
+        z.wpFrueh
+      ) {
+        ergebnis.push({
+          datum:
+            datum,
+          kw:
+            kw,
+          dienst:
+            'Water Plaza – Früh',
+          label:
+            datum +
+            ' · ' +
+            tag +
+            ' · Water Plaza – Früh'
+        });
+      }
+
+      if (
+        z.wpSpaet
+      ) {
+        ergebnis.push({
+          datum:
+            datum,
+          kw:
+            kw,
+          dienst:
+            'Water Plaza – Spät',
+          label:
+            datum +
+            ' · ' +
+            tag +
+            ' · Water Plaza – Spät'
+        });
+      }
+    }
+  );
+
+  return ergebnis;
+}
+
+
+// ==========================================================
+// SONSTIGEN WUNSCH SENDEN
+// ==========================================================
+
+async function sendeSonstigenWunschNeu() {
+  const textElement =
+    document.getElementById(
+      'sonstigerWunschText'
+    );
+
+  const dienstElement =
+    document.getElementById(
+      'sonstigerWunschDienst'
+    );
+
+  const button =
+    document.getElementById(
+      'sonstigerWunschSendenButton'
+    );
+
+  const meldung =
+    document.getElementById(
+      'sonstigerWunschMeldung'
+    );
+
+  const nachricht =
+    String(
+      textElement?.value || ''
+    ).trim();
+
+  if (!nachricht) {
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        'Bitte schreibe deinen Wunsch in das Textfeld.';
+    }
+
+    textElement?.focus();
+
+    return;
+  }
+
+  if (
+    nachricht.length >
+    500
+  ) {
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        'Der Wunsch darf maximal 500 Zeichen lang sein.';
+    }
+
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+    return;
+  }
+
+  let datum =
+    '';
+
+  let kw =
+    '';
+
+  let dienst =
+    '';
+
+  const auswahl =
+    String(
+      dienstElement?.value || ''
+    ).trim();
+
+  if (auswahl) {
+    try {
+      const daten =
+        JSON.parse(
+          auswahl
+        );
+
+      datum =
+        String(
+          daten.datum || ''
+        );
+
+      kw =
+        String(
+          daten.kw || ''
+        );
+
+      dienst =
+        String(
+          daten.dienst || ''
+        );
+
+    } catch (error) {
+      console.error(
+        'Dienst-Auswahl:',
+        error
+      );
+    }
+  }
+
+  if (button) {
+    button.disabled =
+      true;
+
+    button.textContent =
+      'Wunsch wird gesendet …';
+  }
+
+  if (meldung) {
+    meldung.style.color =
+      '#555';
+
+    meldung.textContent =
+      '';
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'dienstAnfrageSenden',
+        {
+          token:
+            token,
+          datum:
+            datum,
+          kw:
+            kw,
+          dienst:
+            dienst,
+          art:
+            'Sonstiger Wunsch',
+          nachricht:
+            nachricht
+        }
+      );
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      if (
+        result &&
+        result.sessionExpired
+      ) {
+        await sessionAbgelaufenNeu();
+        return;
+      }
+
+      throw new Error(
+        result?.message ||
+        'Der Wunsch konnte nicht gesendet werden.'
+      );
+    }
+
+    if (textElement) {
+      textElement.value =
+        '';
+    }
+
+    if (dienstElement) {
+      dienstElement.value =
+        '';
+    }
+
+    if (meldung) {
+      meldung.style.color =
+        '#14943b';
+
+      meldung.textContent =
+        '✅ ' +
+        (
+          result.message ||
+          'Dein Wunsch wurde gesendet.'
+        );
+    }
+
+    await ladeMeineAnfragenNeu(
+      false
+    );
+
+  } catch (error) {
+    console.error(
+      'Sonstiger Wunsch:',
+      error
+    );
+
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        '❌ ' +
+        error.message;
+    }
+
+  } finally {
+    if (button) {
+      button.disabled =
+        false;
+
+      button.textContent =
+        '📤 Wunsch senden';
+    }
+  }
+}
+
+// ==========================================================
 // DYNAMISCHE ANSICHTEN INSTALLIEREN
 // ==========================================================
 
 function installiereDynamischeAnsichtenNeu() {
-
   installiereAbwesenheitenAnsichtNeu();
 
   installiereAnfragenAnsichtNeu();
@@ -5595,147 +5328,7 @@ function installiereDynamischeAnsichtenNeu() {
 
   installiereAdminAnsichtNeu();
 
-  installierePlatzhalterAnsichtenNeu();
-}
-
-
-// ==========================================================
-// DIENST ÄNDERN / SONSTIGER WUNSCH
-//
-// Diese zwei Bereiche bleiben vorerst als Platzhalter.
-// ==========================================================
-
-function installierePlatzhalterAnsichtenNeu() {
-
-  const main =
-    document.querySelector(
-      '#hauptApp .content'
-    );
-
-
-  if (!main) {
-    return;
-  }
-
-
-  if (
-    !document.getElementById(
-      'dienstAendernAnsicht'
-    )
-  ) {
-
-    const section =
-      document.createElement(
-        'section'
-      );
-
-
-    section.id =
-      'dienstAendernAnsicht';
-
-
-    section.style.display =
-      'none';
-
-
-    section.innerHTML = `
-      <div class="content-header">
-
-        <div>
-
-          <h1>
-            Dienst ändern
-          </h1>
-
-          <p>
-            Hier kannst du eine Änderung
-            deines Dienstes anfragen.
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <strong>
-          🛠️ Dienst ändern
-        </strong>
-
-        <p style="color:#666;">
-          Dieser Bereich wird im nächsten Schritt
-          fertig eingerichtet.
-        </p>
-
-      </div>
-    `;
-
-
-    main.appendChild(
-      section
-    );
-  }
-
-
-  if (
-    !document.getElementById(
-      'sonstigerWunschAnsicht'
-    )
-  ) {
-
-    const section =
-      document.createElement(
-        'section'
-      );
-
-
-    section.id =
-      'sonstigerWunschAnsicht';
-
-
-    section.style.display =
-      'none';
-
-
-    section.innerHTML = `
-      <div class="content-header">
-
-        <div>
-
-          <h1>
-            Sonstiger Wunsch
-          </h1>
-
-          <p>
-            Hier kannst du einen sonstigen
-            Dienstplan-Wunsch senden.
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <strong>
-          💬 Sonstiger Wunsch
-        </strong>
-
-        <p style="color:#666;">
-          Dieser Bereich wird im nächsten Schritt
-          fertig eingerichtet.
-        </p>
-
-      </div>
-    `;
-
-
-    main.appendChild(
-      section
-    );
-  }
+  installiereSonstigerWunschAnsichtNeu();
 }
 
 
@@ -5744,7 +5337,6 @@ function installierePlatzhalterAnsichtenNeu() {
 // ==========================================================
 
 function versteckeAlleHauptAnsichtenNeu() {
-
   const ids =
     [
       'dienstplanAnsicht',
@@ -5753,22 +5345,17 @@ function versteckeAlleHauptAnsichtenNeu() {
       'anfragenAnsicht',
       'pinAnsicht',
       'adminAnsicht',
-      'dienstAendernAnsicht',
       'sonstigerWunschAnsicht'
     ];
 
-
   ids.forEach(
     function(id) {
-
       const element =
         document.getElementById(
           id
         );
 
-
       if (element) {
-
         element.style.display =
           'none';
       }
@@ -5784,20 +5371,17 @@ function versteckeAlleHauptAnsichtenNeu() {
 function setzeNavigationAktivNeu(
   seite
 ) {
-
   document
     .querySelectorAll(
       '.nav-item'
     )
     .forEach(
       function(button) {
-
         button.classList.remove(
           'aktiv'
         );
       }
     );
-
 
   document
     .querySelectorAll(
@@ -5805,71 +5389,55 @@ function setzeNavigationAktivNeu(
     )
     .forEach(
       function(button) {
-
         button.classList.remove(
           'aktiv'
         );
       }
     );
 
-
   const tauschGruppe =
     document.querySelector(
       '.nav-gruppe'
     );
 
-
   if (tauschGruppe) {
-
     tauschGruppe.classList.remove(
       'aktiv'
     );
   }
 
-
   const selector =
     `[onclick="zeigeSeite('${seite}')"]`;
-
 
   const button =
     document.querySelector(
       selector
     );
 
-
   if (button) {
-
     button.classList.add(
       'aktiv'
     );
   }
 
-
   if (
-    seite ===
-      'dienstAendern' ||
     seite ===
       'dienstTauschen' ||
     seite ===
       'sonstigerWunsch'
   ) {
-
     if (tauschGruppe) {
-
       tauschGruppe.classList.add(
         'aktiv'
       );
     }
-
 
     const untermenue =
       document.getElementById(
         'tauschUntermenue'
       );
 
-
     if (untermenue) {
-
       untermenue.classList.add(
         'offen'
       );
@@ -5885,20 +5453,16 @@ function setzeNavigationAktivNeu(
 function setzeSeitentitelNeu(
   seite
 ) {
-
   const titel =
     document.getElementById(
       'mobileSeitentitel'
     );
 
-
   if (!titel) {
     return;
   }
 
-
   const texte = {
-
     dienstplan:
       'Mein Dienstplan',
 
@@ -5914,16 +5478,12 @@ function setzeSeitentitelNeu(
     admin:
       'Admin-Bereich',
 
-    dienstAendern:
-      'Dienst ändern',
-
     dienstTauschen:
       'Dienst tauschen',
 
     sonstigerWunsch:
       'Sonstiger Wunsch'
   };
-
 
   titel.textContent =
     texte[seite] ||
@@ -5936,31 +5496,30 @@ function setzeSeitentitelNeu(
 // ==========================================================
 
 function schliesseNavigationNeu() {
-
   const sidebar =
     document.getElementById(
       'sidebar'
     );
 
-
   if (sidebar) {
-
     sidebar.classList.remove(
       'mobile-offen'
     );
   }
-
 
   const menuButton =
     document.querySelector(
       '.mobile-menu'
     );
 
-
   if (menuButton) {
-
     menuButton.textContent =
       '☰';
+
+    menuButton.setAttribute(
+      'aria-label',
+      'Menü öffnen'
+    );
   }
 }
 
@@ -5970,17 +5529,14 @@ function schliesseNavigationNeu() {
 // ==========================================================
 
 function installiereNavigationErweiterungNeu() {
-
   if (
     window.__scsNavigationInstalliert
   ) {
     return;
   }
 
-
   window.__scsNavigationInstalliert =
     true;
-
 
   const basisZeigeSeite =
     typeof window.zeigeSeite ===
@@ -5988,63 +5544,50 @@ function installiereNavigationErweiterungNeu() {
       ? window.zeigeSeite
       : null;
 
-
   window.zeigeSeite =
     async function(seite) {
-
       seite =
         String(
           seite || ''
         );
 
-
       installiereDynamischeAnsichtenNeu();
-
 
       setzeSeitentitelNeu(
         seite
       );
-
 
       setzeNavigationAktivNeu(
         seite
       );
 
 
-      // ------------------------------------------------------
+      // ======================================================
       // MEIN DIENSTPLAN
-      // ------------------------------------------------------
+      // ======================================================
 
       if (
         seite ===
         'dienstplan'
       ) {
-
         versteckeAlleHauptAnsichtenNeu();
-
 
         const ansicht =
           document.getElementById(
             'dienstplanAnsicht'
           );
 
-
         if (ansicht) {
-
           ansicht.style.display =
             'block';
         }
 
-
         schliesseNavigationNeu();
-
 
         await ladeMeinDienstplanNeu();
 
-
         setTimeout(
           function() {
-
             ladeMeineAnfragenNeu(
               false
             );
@@ -6052,198 +5595,158 @@ function installiereNavigationErweiterungNeu() {
           300
         );
 
-
         setTimeout(
           function() {
-
             ladeAppInfoNeu();
           },
           400
         );
 
-
         return;
       }
 
 
-      // ------------------------------------------------------
+      // ======================================================
       // DIENST TAUSCHEN
-      // ------------------------------------------------------
+      // ======================================================
 
       if (
         seite ===
         'dienstTauschen'
       ) {
-
         versteckeAlleHauptAnsichtenNeu();
-
 
         const ansicht =
           document.getElementById(
             'tauschAnsicht'
           );
 
-
         if (ansicht) {
-
           ansicht.style.display =
             'block';
         }
 
-
-        setzeNavigationAktivNeu(
-          'dienstTauschen'
-        );
-
-
         schliesseNavigationNeu();
-
 
         window.scrollTo({
           top: 0,
           behavior: 'smooth'
         });
 
-
         return;
       }
 
 
-      // ------------------------------------------------------
+      // ======================================================
       // ABWESENHEITEN
-      // ------------------------------------------------------
+      // ======================================================
 
       if (
         seite ===
         'abwesenheiten'
       ) {
-
         versteckeAlleHauptAnsichtenNeu();
-
 
         const ansicht =
           document.getElementById(
             'abwesenheitenAnsicht'
           );
 
-
         if (ansicht) {
-
           ansicht.style.display =
             'block';
         }
 
-
         schliesseNavigationNeu();
-
 
         window.scrollTo({
           top: 0,
           behavior: 'smooth'
         });
 
-
         await ladeMeineAbwesenheitenNeu();
-
 
         return;
       }
 
 
-      // ------------------------------------------------------
+      // ======================================================
       // MEINE ANFRAGEN
-      // ------------------------------------------------------
+      // ======================================================
 
       if (
         seite ===
         'anfragen'
       ) {
-
         versteckeAlleHauptAnsichtenNeu();
-
 
         const ansicht =
           document.getElementById(
             'anfragenAnsicht'
           );
 
-
         if (ansicht) {
-
           ansicht.style.display =
             'block';
         }
 
-
         schliesseNavigationNeu();
-
 
         window.scrollTo({
           top: 0,
           behavior: 'smooth'
         });
 
-
         await ladeMeineAnfragenNeu(
           true
         );
-
 
         return;
       }
 
 
-      // ------------------------------------------------------
-      // PIN
-      // ------------------------------------------------------
+      // ======================================================
+      // PIN & SICHERHEIT
+      // ======================================================
 
       if (
         seite ===
         'pin'
       ) {
-
         versteckeAlleHauptAnsichtenNeu();
-
 
         const ansicht =
           document.getElementById(
             'pinAnsicht'
           );
 
-
         if (ansicht) {
-
           ansicht.style.display =
             'block';
         }
 
-
         schliesseNavigationNeu();
-
 
         window.scrollTo({
           top: 0,
           behavior: 'smooth'
         });
 
-
         return;
       }
 
 
-      // ------------------------------------------------------
+      // ======================================================
       // ADMIN
-      // ------------------------------------------------------
+      // ======================================================
 
       if (
         seite ===
         'admin'
       ) {
-
         if (
           !aktuellerAdmin
         ) {
-
           window.alert(
             'Keine Admin-Berechtigung.'
           );
@@ -6251,123 +5754,95 @@ function installiereNavigationErweiterungNeu() {
           return;
         }
 
-
         versteckeAlleHauptAnsichtenNeu();
-
 
         const ansicht =
           document.getElementById(
             'adminAnsicht'
           );
 
-
         if (ansicht) {
-
           ansicht.style.display =
             'block';
         }
 
-
         schliesseNavigationNeu();
-
 
         window.scrollTo({
           top: 0,
           behavior: 'smooth'
         });
-
 
         await ladeAdminAnfragenNeu();
 
-
         return;
       }
 
 
-      // ------------------------------------------------------
-      // DIENST ÄNDERN
-      // ------------------------------------------------------
-
-      if (
-        seite ===
-        'dienstAendern'
-      ) {
-
-        versteckeAlleHauptAnsichtenNeu();
-
-
-        const ansicht =
-          document.getElementById(
-            'dienstAendernAnsicht'
-          );
-
-
-        if (ansicht) {
-
-          ansicht.style.display =
-            'block';
-        }
-
-
-        schliesseNavigationNeu();
-
-
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-
-
-        return;
-      }
-
-
-      // ------------------------------------------------------
+      // ======================================================
       // SONSTIGER WUNSCH
-      // ------------------------------------------------------
+      // ======================================================
 
       if (
         seite ===
         'sonstigerWunsch'
       ) {
+        /*
+          Falls der Dienstplan nach einem direkten Seitenaufruf
+          noch nicht im Speicher ist, laden wir ihn zuerst.
+        */
+
+        if (
+          !Array.isArray(
+            letzterDienstplan
+          ) ||
+          letzterDienstplan.length === 0
+        ) {
+          await ladeMeinDienstplanNeu();
+        }
 
         versteckeAlleHauptAnsichtenNeu();
-
 
         const ansicht =
           document.getElementById(
             'sonstigerWunschAnsicht'
           );
 
-
         if (ansicht) {
-
           ansicht.style.display =
             'block';
         }
 
+        ladeSonstigerWunschDiensteNeu();
+
+        const meldung =
+          document.getElementById(
+            'sonstigerWunschMeldung'
+          );
+
+        if (meldung) {
+          meldung.textContent =
+            '';
+        }
 
         schliesseNavigationNeu();
-
 
         window.scrollTo({
           top: 0,
           behavior: 'smooth'
         });
 
-
         return;
       }
 
 
-      // ------------------------------------------------------
+      // ======================================================
       // FALLBACK
-      // ------------------------------------------------------
+      // ======================================================
 
       if (
         basisZeigeSeite
       ) {
-
         basisZeigeSeite.call(
           window,
           seite
@@ -6382,39 +5857,31 @@ function installiereNavigationErweiterungNeu() {
 // ==========================================================
 
 async function ladeAppInfoNeu() {
-
   const element =
     document.getElementById(
       'sidebarAktualisiert'
     );
 
-
   if (!element) {
     return;
   }
 
-
   try {
-
     const result =
       await apiPost(
         'appInfo'
       );
 
-
     if (
       result &&
       result.ok
     ) {
-
       element.textContent =
         result.aktualisiert ||
         '—';
     }
 
-
   } catch (error) {
-
     console.error(
       'App-Info:',
       error
@@ -6430,15 +5897,12 @@ async function ladeAppInfoNeu() {
 function zeitFruehNeu(
   tag
 ) {
-
   if (
     tag ===
     'Samstag'
   ) {
-
     return '09:00 – 18:00';
   }
-
 
   return '09:00 – 14:30';
 }
@@ -6447,15 +5911,12 @@ function zeitFruehNeu(
 function zeitSpaetNeu(
   tag
 ) {
-
   if (
     tag ===
     'Samstag'
   ) {
-
     return '11:30 – 16:00';
   }
-
 
   if (
     tag ===
@@ -6463,10 +5924,8 @@ function zeitSpaetNeu(
     tag ===
       'Freitag'
   ) {
-
     return '14:30 – 20:00';
   }
-
 
   return '14:30 – 19:00';
 }
@@ -6475,15 +5934,12 @@ function zeitSpaetNeu(
 function zeitSpaetEndeNeu(
   tag
 ) {
-
   if (
     tag ===
     'Samstag'
   ) {
-
     return '18:00';
   }
-
 
   if (
     tag ===
@@ -6491,10 +5947,8 @@ function zeitSpaetEndeNeu(
     tag ===
       'Freitag'
   ) {
-
     return '20:00';
   }
-
 
   return '19:00';
 }
@@ -6505,37 +5959,31 @@ function zeitSpaetEndeNeu(
 // ==========================================================
 
 async function sessionAbgelaufenNeu() {
-
   localStorage.removeItem(
     SESSION_KEY
   );
 
-
   aktuellerBenutzer =
     '';
-
 
   aktuellerAdmin =
     false;
 
-
   letzterDienstplan =
     [];
-
 
   letzteAbwesenheiten =
     [];
 
+  aktuelleKwNeu =
+    1;
 
   dienstplanInitialisiert =
     false;
 
-
   zeigeLogin();
 
-
   await ladeMitarbeiter();
-
 
   zeigeLoginMeldung(
     'Deine Anmeldung ist abgelaufen. Bitte melde dich erneut an.',
@@ -6549,46 +5997,35 @@ async function sessionAbgelaufenNeu() {
 // ==========================================================
 
 async function logoutAusfuehren() {
-
   const token =
     localStorage.getItem(
       SESSION_KEY
     );
 
-
   localStorage.removeItem(
     SESSION_KEY
   );
 
-
   aktuellerBenutzer =
     '';
-
 
   aktuellerAdmin =
     false;
 
-
   letzterDienstplan =
     [];
-
 
   letzteAbwesenheiten =
     [];
 
-
   aktuelleKwNeu =
     1;
-
 
   dienstplanInitialisiert =
     false;
 
-
   if (token) {
-
     try {
-
       await apiPost(
         'logout',
         {
@@ -6597,7 +6034,6 @@ async function logoutAusfuehren() {
       );
 
     } catch (error) {
-
       console.error(
         'Logout:',
         error
@@ -6605,48 +6041,37 @@ async function logoutAusfuehren() {
     }
   }
 
-
   const pin =
     document.getElementById(
       'loginPin'
     );
 
-
   if (pin) {
-
     pin.value =
       '';
   }
-
 
   const adminNav =
     document.getElementById(
       'adminNav'
     );
 
-
   if (adminNav) {
-
     adminNav.style.display =
       'none';
   }
-
 
   const adminTitel =
     document.getElementById(
       'adminTitel'
     );
 
-
   if (adminTitel) {
-
     adminTitel.style.display =
       'none';
   }
 
-
   zeigeLogin();
-
 
   await ladeMitarbeiter();
 }
@@ -6657,7 +6082,6 @@ async function logoutAusfuehren() {
 // ==========================================================
 
 async function pinVergessenNeu() {
-
   const name =
     String(
       document
@@ -6667,9 +6091,7 @@ async function pinVergessenNeu() {
         ?.value || ''
     ).trim();
 
-
   if (!name) {
-
     zeigeLoginMeldung(
       'Bitte wähle zuerst deinen Namen aus.',
       'fehler'
@@ -6677,7 +6099,6 @@ async function pinVergessenNeu() {
 
     return;
   }
-
 
   zeigeLoginMeldung(
     'Bitte wende dich für einen PIN-Reset an Babsi.',
@@ -6687,28 +6108,24 @@ async function pinVergessenNeu() {
 
 
 // ==========================================================
-// LOGIN-MELDUNGEN
+// LOGIN-MELDUNG
 // ==========================================================
 
 function zeigeLoginMeldung(
   text,
   typ
 ) {
-
   const element =
     document.getElementById(
       'loginMeldung'
     );
 
-
   if (!element) {
     return;
   }
 
-
   element.textContent =
     text || '';
-
 
   element.className =
     'login-meldung ' +
@@ -6722,21 +6139,17 @@ function zeigeLoginMeldung(
 
 
 function loescheLoginMeldung() {
-
   const element =
     document.getElementById(
       'loginMeldung'
     );
 
-
   if (!element) {
     return;
   }
 
-
   element.textContent =
     '';
-
 
   element.className =
     'login-meldung';
@@ -6750,7 +6163,6 @@ function loescheLoginMeldung() {
 function escapeHtmlNeu(
   text
 ) {
-
   return String(
     text ?? ''
   )
