@@ -1163,7 +1163,7 @@
 
           <button
             type="button"
-            onclick="zeigeSeite('dienstTauschen')"
+            onclick="oeffneDiensttauschAusMenueNeu()"
           >
             Dienst tauschen
           </button>
@@ -1776,7 +1776,7 @@
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=20260820-4"></script>
+<script src="app.js?v=20260820-5"></script>
 
 
 <script>
@@ -2051,6 +2051,116 @@ function zeigeKollegen() {
 
 }
 
+
+
+/* =========================================================
+   DIENSTTAUSCH AUS DEM MENÜ
+   ========================================================= */
+
+function oeffneDiensttauschAusMenueNeu() {
+
+  if (
+    typeof window.zeigeSeite ===
+    'function'
+  ) {
+
+    window.zeigeSeite(
+      'dienstplan'
+    );
+
+  }
+
+
+  setTimeout(function() {
+
+    const ansicht =
+      document.getElementById(
+        'dienstplanAnsicht'
+      );
+
+
+    if (!ansicht) {
+      return;
+    }
+
+
+    let hinweis =
+      document.getElementById(
+        'dienstTauschMenueHinweisNeu'
+      );
+
+
+    if (!hinweis) {
+
+      hinweis =
+        document.createElement(
+          'div'
+        );
+
+
+      hinweis.id =
+        'dienstTauschMenueHinweisNeu';
+
+
+      hinweis.style.cssText = `
+        margin:0 0 16px;
+        padding:13px 15px;
+        border:1px solid #f0c6c9;
+        border-left:5px solid #e30613;
+        border-radius:9px;
+        background:#fff8f8;
+        color:#333333;
+        line-height:1.45;
+        box-sizing:border-box;
+      `;
+
+
+      hinweis.innerHTML = `
+        <strong style="display:block; margin-bottom:4px;">
+          🔄 Dienst tauschen
+        </strong>
+
+        Wähle bei dem gewünschten Dienst unten
+        den Button <strong>„Dienst tauschen“</strong>.
+      `;
+
+
+      const contentHeader =
+        ansicht.querySelector(
+          '.content-header'
+        );
+
+
+      if (
+        contentHeader &&
+        contentHeader.nextSibling
+      ) {
+
+        contentHeader.parentNode.insertBefore(
+          hinweis,
+          contentHeader.nextSibling
+        );
+
+      } else {
+
+        ansicht.insertBefore(
+          hinweis,
+          ansicht.firstChild
+        );
+
+      }
+
+    }
+
+
+    hinweis.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+
+  }, 350);
+
+}
 
 
 /* =========================================================
@@ -2880,7 +2990,7 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js?v=20260820-4',
+          './service-worker.js?v=20260820-5',
           {
             updateViaCache:
               'none'
