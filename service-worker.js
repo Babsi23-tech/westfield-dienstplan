@@ -1,24 +1,31 @@
-const CACHE_NAME = 'scs-dienstplan-v1';
+const VERSION = 'scs-team-v1.0.0';
 
-const DATEIEN = [
-  './',
-  './index.html',
-  './style.css',
-  './manifest.json'
-];
+self.addEventListener('install', function(event) {
+  self.skipWaiting();
+});
 
-self.addEventListener('install', event => {
+self.addEventListener('activate', function(event) {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(DATEIEN))
+    caches.keys()
+      .then(function(cacheNames) {
+        return Promise.all(
+          cacheNames.map(function(cacheName) {
+            return caches.delete(cacheName);
+          })
+        );
+      })
+      .then(function() {
+        return self.clients.claim();
+      })
   );
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', function(event) {
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        return response || fetch(event.request);
-      })
+    fetch(event.request, { cache: 'no-store' })
   );
 });
