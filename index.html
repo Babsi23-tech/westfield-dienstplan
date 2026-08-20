@@ -20,7 +20,7 @@
 
   <link
     rel="stylesheet"
-    href="style.css?v=20260820-2"
+    href="style.css?v=20260820-3"
   >
 
 
@@ -272,9 +272,8 @@
     /* =====================================================
        PLAZA-FARBEN
 
-       WICHTIG:
        Farbe = Arbeitsplatz
-       NICHT Früh/Spät
+       NICHT Früh / Spät
        ===================================================== */
 
     #dienstplanListe .scs-plaza-garden {
@@ -298,10 +297,7 @@
 
     /* =====================================================
        WOCHEN-NAVIGATION
-       HANDY + PC IDENTISCH
-
-       ‹    Ausgewählte Woche    ›
-                    KW 1
+       HANDY + PC
        ===================================================== */
 
     #wochenNavigation.wochen-navigation {
@@ -528,7 +524,7 @@
 
 
       /*
-        Titel steht bereits oben im Balken.
+        Seitentitel steht oben im Balken.
       */
 
       .content-header h1 {
@@ -537,11 +533,6 @@
       }
 
 
-      /*
-        Beim Dienstplan brauchen wir den
-        Beschreibungstext am PC nicht doppelt.
-      */
-
       #dienstplanAnsicht
       .content-header {
         margin:
@@ -549,10 +540,24 @@
       }
 
 
+      /*
+        Nur die kurze Beschreibung bleibt
+        unter dem oberen Balken sichtbar.
+      */
+
       #dienstplanAnsicht
       .content-header p {
         display:
-          none !important;
+          block !important;
+
+        margin:
+          0 0 18px !important;
+
+        text-align:
+          center !important;
+
+        color:
+          #555555 !important;
       }
 
 
@@ -852,10 +857,7 @@
 
 </head>
 
-
-
 <body>
-
 
 
 <!-- ======================================================
@@ -976,7 +978,6 @@
 >
 
 
-
   <!-- ====================================================
        SEITENMENÜ
        ==================================================== -->
@@ -1002,7 +1003,6 @@
         >
           Mitarbeiter
         </div>
-
 
         <div class="profil-rolle">
           SCS Team
@@ -1137,6 +1137,7 @@
 
         <button
           class="nav-item nav-hauptpunkt"
+          type="button"
           onclick="toggleTauschMenue()"
         >
 
@@ -1161,6 +1162,7 @@
         >
 
           <button
+            type="button"
             onclick="zeigeSeite('dienstAendern')"
           >
             Dienst ändern
@@ -1168,6 +1170,7 @@
 
 
           <button
+            type="button"
             onclick="zeigeSeite('dienstTauschen')"
           >
             Dienst tauschen
@@ -1175,6 +1178,7 @@
 
 
           <button
+            type="button"
             onclick="zeigeSeite('sonstigerWunsch')"
           >
             Sonstiger Wunsch
@@ -1187,7 +1191,9 @@
 
 
       <div
+        id="adminTitel"
         style="
+          display:none;
           padding:20px 10px 5px;
           color:#777;
           font-size:12px;
@@ -1295,6 +1301,7 @@
   <main class="content">
 
 
+
     <!-- ==================================================
          MEIN DIENSTPLAN
          ================================================== -->
@@ -1305,23 +1312,25 @@
     >
 
 
+      <!--
+        WICHTIG:
+        Hier gibt es absichtlich KEIN zweites
+        <h1>Mein Dienstplan</h1> mehr.
+      -->
+
       <div class="content-header">
 
-        <div>
-
-          <h1>
-            Mein Dienstplan
-          </h1>
-
-          <p>
-            Hier siehst du deine persönlichen Dienste.
-          </p>
-
-        </div>
+        <p>
+          Hier siehst du deine persönlichen Dienste.
+        </p>
 
       </div>
 
 
+
+      <!-- ==================================================
+           WOCHENSTUNDEN
+           ================================================== -->
 
       <div class="dienstplan-info">
 
@@ -1341,6 +1350,10 @@
 
 
 
+      <!-- ==================================================
+           MEINE DIENSTE
+           ================================================== -->
+
       <div class="dienstplan-bereich">
 
         <h2>
@@ -1355,6 +1368,13 @@
         </h2>
 
 
+
+        <!-- =================================================
+             WOCHEN-NAVIGATION
+
+             ‹      Ausgewählte Woche      ›
+                         KW 1
+             ================================================= -->
 
         <div
           id="wochenNavigation"
@@ -1410,11 +1430,16 @@
 
 
 
+      <!-- ==================================================
+           ABWESENHEITEN AUF DIENSTPLANSEITE
+           ================================================== -->
+
       <div class="dienstplan-bereich">
 
         <h2>
           🏖️ Meine Abwesenheiten
         </h2>
+
 
         <div id="abwesenheitenListe">
           Keine Abwesenheiten vorhanden.
@@ -1433,6 +1458,7 @@
       id="tauschAnsicht"
       style="display:none;"
     >
+
 
       <div class="content-header">
 
@@ -1468,6 +1494,7 @@
            ================================================== -->
 
       <div class="schritte">
+
 
         <div class="schritt aktiv">
 
@@ -1528,6 +1555,7 @@
           </span>
 
         </div>
+
 
       </div>
 
@@ -1603,6 +1631,7 @@
                 ℹ️
               </span>
 
+
               <div>
                 Es werden nur Tage angezeigt, an denen du
                 einen passenden Dienst eingetragen hast.
@@ -1640,6 +1669,7 @@
 
           </div>
 
+
         </div>
 
       </section>
@@ -1652,6 +1682,7 @@
            ================================================== -->
 
       <section class="panel">
+
 
         <h2>
           2. Dienst wählen
@@ -1676,6 +1707,7 @@
 
         <div class="panel-unten">
 
+
           <div class="hinweis">
 
             💡 Wähle deinen eigenen Dienst aus.
@@ -1683,6 +1715,7 @@
             mit dem du tauschen möchtest.
 
           </div>
+
 
 
           <button
@@ -1694,7 +1727,9 @@
             <span>→</span>
           </button>
 
+
         </div>
+
 
       </section>
 
@@ -1709,6 +1744,7 @@
         id="kollegenBereich"
         class="panel versteckt"
       >
+
 
         <h2>
           3. Kollegen wählen
@@ -1729,6 +1765,7 @@
 
         </div>
 
+
       </section>
 
 
@@ -1743,11 +1780,11 @@
 </div>
 <!-- /hauptApp -->
 
-<!-- ======================================================
+  <!-- ======================================================
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=20260820-2"></script>
+<script src="app.js?v=20260820-3"></script>
 
 
 <script>
@@ -2218,185 +2255,28 @@ function zeigeSeite(seite) {
 
 
 /* =========================================================
-   KALENDERWOCHE BERECHNEN
+   DIENSTPLAN-FEINSCHLIFF
+
+   WICHTIG:
+
+   Die Farben der Dienstkarten werden hier
+   NICHT mehr verändert.
+
+   Garden Plaza = grün
+   Water Plaza  = blau
+
+   Das vorhandene app.js darf seine ursprünglichen
+   Kartenfarben behalten.
+
+   Wir ändern hier nur:
+   - doppelte KW unter dem Datum entfernen
+   - Sonne für Früh
+   - Mond für Spät
    ========================================================= */
-
-function berechneKalenderwocheNeu(
-  tag,
-  monat,
-  jahr
-) {
-
-  const datum =
-    new Date(
-      Date.UTC(
-        jahr,
-        monat - 1,
-        tag
-      )
-    );
-
-
-  const wochentag =
-    datum.getUTCDay() || 7;
-
-
-  datum.setUTCDate(
-    datum.getUTCDate() +
-    4 -
-    wochentag
-  );
-
-
-  const jahresStart =
-    new Date(
-      Date.UTC(
-        datum.getUTCFullYear(),
-        0,
-        1
-      )
-    );
-
-
-  return Math.ceil(
-    (
-      (
-        datum -
-        jahresStart
-      ) /
-      86400000 +
-      1
-    ) /
-    7
-  );
-
-}
-
 
 
 /* =========================================================
-   EIGENE KW-ANZEIGE
-   ========================================================= */
-
-let scsAngezeigteKw =
-  1;
-
-
-
-function setzeKwAnzeigeNeu(kw) {
-
-  kw =
-    Number(
-      kw
-    );
-
-
-  if (
-    !Number.isFinite(kw) ||
-    kw < 1
-  ) {
-
-    return;
-
-  }
-
-
-  scsAngezeigteKw =
-    kw;
-
-
-  const anzeige =
-    document.getElementById(
-      'kwAnzeige'
-    );
-
-
-  if (anzeige) {
-
-    anzeige.textContent =
-      'KW ' +
-      kw;
-
-  }
-
-}
-
-
-
-/* =========================================================
-   KW AUS SICHTBAREM DIENSTPLAN ERMITTELN
-   ========================================================= */
-
-function aktualisiereKwAusDienstplanNeu() {
-
-  const liste =
-    document.getElementById(
-      'dienstplanListe'
-    );
-
-
-  if (!liste) {
-
-    setzeKwAnzeigeNeu(
-      scsAngezeigteKw
-    );
-
-    return;
-
-  }
-
-
-  const text =
-    String(
-      liste.innerText || ''
-    );
-
-
-  const treffer =
-    text.match(
-      /(\d{2})\.(\d{2})\.(\d{4})/
-    );
-
-
-  if (!treffer) {
-
-    setzeKwAnzeigeNeu(
-      scsAngezeigteKw
-    );
-
-    return;
-
-  }
-
-
-  const kw =
-    berechneKalenderwocheNeu(
-
-      Number(
-        treffer[1]
-      ),
-
-      Number(
-        treffer[2]
-      ),
-
-      Number(
-        treffer[3]
-      )
-
-    );
-
-
-  setzeKwAnzeigeNeu(
-    kw
-  );
-
-}
-
-
-
-/* =========================================================
-   DOPPELTE KW UNTER DATUM ENTFERNEN
+   DOPPELTE KW ENTFERNEN
    ========================================================= */
 
 function entferneDoppelteKwNeu() {
@@ -2419,7 +2299,7 @@ function entferneDoppelteKwNeu() {
     .forEach(function(element) {
 
       /*
-        Nur echte einzelne Textelemente.
+        Nur einzelne Textelemente prüfen.
       */
 
       if (
@@ -2461,92 +2341,12 @@ function entferneDoppelteKwNeu() {
 
 
 /* =========================================================
-   EINZELNE DIENSTKARTE FINDEN
+   FRÜH / SPÄT SYMBOLE
 
-   Ganz wichtig:
-   Wir nehmen den ERSTEN Elternbereich,
-   der den Tausch-Button enthält.
-
-   Dadurch wird NICHT die komplette Tageskarte
-   eingefärbt.
+   Farbe wird NICHT verändert.
    ========================================================= */
 
-function findeEinzelneDienstkarteNeu(
-  titelElement
-) {
-
-  if (!titelElement) {
-    return null;
-  }
-
-
-  let element =
-    titelElement.parentElement;
-
-
-  for (
-    let i = 0;
-    i < 7 && element;
-    i++
-  ) {
-
-    const buttons =
-      element.querySelectorAll
-        ? Array.from(
-            element.querySelectorAll(
-              'button'
-            )
-          )
-        : [];
-
-
-    const hatTauschButton =
-      buttons.some(
-        function(button) {
-
-          return String(
-            button.textContent || ''
-          )
-            .toLowerCase()
-            .includes(
-              'dienst tauschen'
-            );
-
-        }
-      );
-
-
-    /*
-      Sobald der erste passende Bereich
-      gefunden wurde, sofort zurückgeben.
-
-      NICHT weiter nach oben gehen.
-    */
-
-    if (hatTauschButton) {
-
-      return element;
-
-    }
-
-
-    element =
-      element.parentElement;
-
-  }
-
-
-  return null;
-
-}
-
-
-
-/* =========================================================
-   ALTE FARBKLASSEN ENTFERNEN
-   ========================================================= */
-
-function entferneAlteFarbklassenNeu() {
+function optimiereDienstSymboleNeu() {
 
   const liste =
     document.getElementById(
@@ -2557,75 +2357,6 @@ function entferneAlteFarbklassenNeu() {
   if (!liste) {
     return;
   }
-
-
-  liste
-    .querySelectorAll(
-      '.scs-schicht-frueh, .scs-schicht-spaet, .scs-plaza-garden, .scs-plaza-water'
-    )
-    .forEach(function(element) {
-
-      element.classList.remove(
-        'scs-schicht-frueh'
-      );
-
-      element.classList.remove(
-        'scs-schicht-spaet'
-      );
-
-      element.classList.remove(
-        'scs-plaza-garden'
-      );
-
-      element.classList.remove(
-        'scs-plaza-water'
-      );
-
-
-      element.style.removeProperty(
-        'border-left'
-      );
-
-
-      element.style.removeProperty(
-        'background'
-      );
-
-    });
-
-}
-
-
-
-/* =========================================================
-   PLAZA-FARBLOGIK
-
-   GARDEN PLAZA = GRÜN
-   WATER PLAZA  = BLAU
-
-   FRÜH / SPÄT bestimmt NICHT die Farbe.
-   ========================================================= */
-
-function optimierePlazaFarbenNeu() {
-
-  const liste =
-    document.getElementById(
-      'dienstplanListe'
-    );
-
-
-  if (!liste) {
-    return;
-  }
-
-
-
-  /*
-    Erst alte Zusatzfarben entfernen.
-  */
-
-  entferneAlteFarbklassenNeu();
-
 
 
   liste
@@ -2633,10 +2364,6 @@ function optimierePlazaFarbenNeu() {
       '*'
     )
     .forEach(function(element) {
-
-      /*
-        Nur reine Textelemente überprüfen.
-      */
 
       if (
         element.children.length !==
@@ -2659,22 +2386,22 @@ function optimierePlazaFarbenNeu() {
           .trim();
 
 
-
       /*
-        Folgende Titel werden erkannt:
+        Erkennt zum Beispiel:
 
-        Garden Plaza – Früh
-        Garden Plaza – Spät
-        Water Plaza – Früh
-        Water Plaza – Spät
-        Water Plaza – Ganztag
+        🟢 Garden Plaza – Früh
+        🟢 Garden Plaza – Spät
+        🔵 Water Plaza – Früh
+        🔵 Water Plaza – Spät
+        ☀️ Garden Plaza – Früh
+        🌙 Garden Plaza – Spät
 
-        Vorhandene Emojis sind erlaubt.
+        Die Farbe der Karte selbst bleibt unberührt.
       */
 
       const treffer =
         original.match(
-          /^(?:🟢|🔵|☀️?|🌙|🌞|🌜)?\s*(Garden Plaza|Water Plaza)\s*[–-]\s*(Früh|Spät|Ganztag)$/i
+          /^(?:🟢|🔵|☀️?|🌙|🌞|🌜)?\s*(Garden Plaza|Water Plaza)\s*[–-]\s*(Früh|Spät)$/i
         );
 
 
@@ -2688,27 +2415,12 @@ function optimierePlazaFarbenNeu() {
 
 
       const schicht =
-        treffer[2];
+        treffer[2]
+          .toLowerCase();
 
-
-      const karte =
-        findeEinzelneDienstkarteNeu(
-          element
-        );
-
-
-      if (!karte) {
-        return;
-      }
-
-
-
-      /* -----------------------------------------------------
-         TITELSYMBOL NACH FRÜH / SPÄT
-         ----------------------------------------------------- */
 
       if (
-        schicht.toLowerCase() ===
+        schicht ===
         'früh'
       ) {
 
@@ -2721,7 +2433,7 @@ function optimierePlazaFarbenNeu() {
 
 
       else if (
-        schicht.toLowerCase() ===
+        schicht ===
         'spät'
       ) {
 
@@ -2729,84 +2441,6 @@ function optimierePlazaFarbenNeu() {
           '🌙 ' +
           plaza +
           ' – Spät';
-
-      }
-
-
-      else {
-
-        element.textContent =
-          plaza +
-          ' – Ganztag';
-
-      }
-
-
-
-      /* -----------------------------------------------------
-         GARDEN PLAZA = GRÜN
-         ----------------------------------------------------- */
-
-      if (
-        plaza.toLowerCase() ===
-        'garden plaza'
-      ) {
-
-        karte.classList.remove(
-          'scs-plaza-water'
-        );
-
-
-        karte.classList.add(
-          'scs-plaza-garden'
-        );
-
-
-        karte.style.setProperty(
-          'border-left',
-          '6px solid #14943b',
-          'important'
-        );
-
-
-        karte.style.setProperty(
-          'background',
-          '#f5fff8',
-          'important'
-        );
-
-      }
-
-
-
-      /* -----------------------------------------------------
-         WATER PLAZA = BLAU
-         ----------------------------------------------------- */
-
-      else {
-
-        karte.classList.remove(
-          'scs-plaza-garden'
-        );
-
-
-        karte.classList.add(
-          'scs-plaza-water'
-        );
-
-
-        karte.style.setProperty(
-          'border-left',
-          '6px solid #1754d1',
-          'important'
-        );
-
-
-        karte.style.setProperty(
-          'background',
-          '#f5f8ff',
-          'important'
-        );
 
       }
 
@@ -2824,16 +2458,18 @@ function optimiereDienstplanDarstellungNeu() {
 
   entferneDoppelteKwNeu();
 
-  optimierePlazaFarbenNeu();
-
-  aktualisiereKwAusDienstplanNeu();
+  optimiereDienstSymboleNeu();
 
 }
 
 
 
 /* =========================================================
-   DYNAMISCH GELADENEN DIENSTPLAN BEOBACHTEN
+   DIENSTPLAN BEOBACHTEN
+
+   app.js lädt den Inhalt dynamisch.
+   Sobald neue Karten geladen wurden,
+   werden nur KW und Symbole angepasst.
    ========================================================= */
 
 function installiereDienstplanOptimierungNeu() {
@@ -2897,114 +2533,6 @@ function installiereDienstplanOptimierungNeu() {
 
 
   optimiereDienstplanDarstellungNeu();
-
-}
-
-
-
-/* =========================================================
-   WOCHEN-PFEILE
-
-   KW wird sofort geändert und nach dem Laden
-   nochmals anhand des Datums kontrolliert.
-   ========================================================= */
-
-function installiereWochenPfeileNeu() {
-
-  const links =
-    document.getElementById(
-      'kwZurueck'
-    );
-
-
-  const rechts =
-    document.getElementById(
-      'kwWeiter'
-    );
-
-
-  if (links) {
-
-    links.addEventListener(
-      'click',
-      function() {
-
-        scsAngezeigteKw--;
-
-
-        if (
-          scsAngezeigteKw <
-          1
-        ) {
-
-          scsAngezeigteKw =
-            53;
-
-        }
-
-
-        setzeKwAnzeigeNeu(
-          scsAngezeigteKw
-        );
-
-
-        setTimeout(
-          optimiereDienstplanDarstellungNeu,
-          80
-        );
-
-
-        setTimeout(
-          optimiereDienstplanDarstellungNeu,
-          300
-        );
-
-      }
-    );
-
-  }
-
-
-  if (rechts) {
-
-    rechts.addEventListener(
-      'click',
-      function() {
-
-        scsAngezeigteKw++;
-
-
-        if (
-          scsAngezeigteKw >
-          53
-        ) {
-
-          scsAngezeigteKw =
-            1;
-
-        }
-
-
-        setzeKwAnzeigeNeu(
-          scsAngezeigteKw
-        );
-
-
-        setTimeout(
-          optimiereDienstplanDarstellungNeu,
-          80
-        );
-
-
-        setTimeout(
-          optimiereDienstplanDarstellungNeu,
-          300
-        );
-
-      }
-    );
-
-  }
 
 }
 
@@ -3227,6 +2755,85 @@ function sichereLayoutNeu() {
 
 
 /* =========================================================
+   ADMIN-ÜBERSCHRIFT
+
+   Nur anzeigen, wenn auch der Admin-Bereich
+   tatsächlich sichtbar ist.
+   ========================================================= */
+
+function installiereAdminTitelNeu() {
+
+  const adminNav =
+    document.getElementById(
+      'adminNav'
+    );
+
+
+  const adminTitel =
+    document.getElementById(
+      'adminTitel'
+    );
+
+
+  if (
+    !adminNav ||
+    !adminTitel
+  ) {
+
+    return;
+
+  }
+
+
+  function aktualisieren() {
+
+    const sichtbar =
+      window
+        .getComputedStyle(
+          adminNav
+        )
+        .display !==
+      'none';
+
+
+    adminTitel.style.display =
+      sichtbar
+        ? 'block'
+        : 'none';
+
+  }
+
+
+  aktualisieren();
+
+
+  const observer =
+    new MutationObserver(
+      aktualisieren
+    );
+
+
+  observer.observe(
+    adminNav,
+    {
+
+      attributes:
+        true,
+
+      attributeFilter:
+        [
+          'style',
+          'class'
+        ]
+
+    }
+  );
+
+}
+
+
+
+/* =========================================================
    START
    ========================================================= */
 
@@ -3242,15 +2849,10 @@ document.addEventListener(
     );
 
 
-    setzeKwAnzeigeNeu(
-      1
-    );
-
-
     installiereDienstplanOptimierungNeu();
 
 
-    installiereWochenPfeileNeu();
+    installiereAdminTitelNeu();
 
   }
 );
@@ -3289,7 +2891,7 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js?v=20260820-2',
+          './service-worker.js?v=20260820-3',
           {
             updateViaCache:
               'none'
@@ -3306,8 +2908,9 @@ if (
           function() {
 
             /*
-              Die App funktioniert auch
-              ohne Service Worker.
+              Die App funktioniert auch,
+              wenn der Service Worker
+              gerade nicht verfügbar ist.
             */
 
           }
