@@ -20,7 +20,7 @@
 
   <link
     rel="stylesheet"
-    href="style.css?v=20260820-3"
+    href="style.css?v=20260820-4"
   >
 
 
@@ -1163,14 +1163,6 @@
 
           <button
             type="button"
-            onclick="zeigeSeite('dienstAendern')"
-          >
-            Dienst ändern
-          </button>
-
-
-          <button
-            type="button"
             onclick="zeigeSeite('dienstTauschen')"
           >
             Dienst tauschen
@@ -1784,7 +1776,7 @@
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=20260820-3"></script>
+<script src="app.js?v=20260820-4"></script>
 
 
 <script>
@@ -1821,9 +1813,6 @@ function aktualisiereMobileSeitentitelNeu(seite) {
 
     admin:
       'Admin-Bereich',
-
-    dienstAendern:
-      'Dienst ändern',
 
     dienstTauschen:
       'Dienst tauschen',
@@ -2891,7 +2880,7 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js?v=20260820-3',
+          './service-worker.js?v=20260820-4',
           {
             updateViaCache:
               'none'
