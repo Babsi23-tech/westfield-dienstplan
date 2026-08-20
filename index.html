@@ -20,7 +20,7 @@
 
   <link
     rel="stylesheet"
-    href="style.css?v=20260820-4"
+    href="style.css?v=20260820-7"
   >
 
 
@@ -1776,7 +1776,7 @@
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=20260820-5"></script>
+<script src="app.js?v=20260820-7"></script>
 
 
 <script>
@@ -2990,7 +2990,7 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js?v=20260820-5',
+          './service-worker.js?v=20260820-7',
           {
             updateViaCache:
               'none'
@@ -3022,6 +3022,512 @@ if (
 
 </script>
 
+
+
+
+<script>
+/* =========================================================
+   DIENSTTAUSCH – TAGWECHSEL / DIENSTAUSWAHL
+   Ergänzung 2026-08-20
+   ========================================================= */
+
+function scsTauschDienstzeitenNeu(code, tag) {
+  if (code === 'GP_FRUEH' || code === 'WP_FRUEH') {
+    return typeof zeitFruehNeu === 'function'
+      ? zeitFruehNeu(tag)
+      : '';
+  }
+
+  if (code === 'GP_SPAET' || code === 'WP_SPAET') {
+    return typeof zeitSpaetNeu === 'function'
+      ? zeitSpaetNeu(tag)
+      : '';
+  }
+
+  if (code === 'WP_GANZTAG') {
+    const ende = typeof zeitSpaetEndeNeu === 'function'
+      ? zeitSpaetEndeNeu(tag)
+      : '';
+
+    return ende
+      ? '09:00 – ' + ende
+      : '';
+  }
+
+  return '';
+}
+
+function scsTauschDiensteFuerZeileNeu(z) {
+  const dienste = [];
+  const tag = String(z && z.tag || '');
+
+  if (z && z.gpFrueh) {
+    dienste.push({
+      code: 'GP_FRUEH',
+      name: 'Garden Plaza – Früh',
+      symbol: '☀️',
+      plaza: 'garden',
+      zeit: scsTauschDienstzeitenNeu('GP_FRUEH', tag)
+    });
+  }
+
+  if (z && z.gpSpaet) {
+    dienste.push({
+      code: 'GP_SPAET',
+      name: 'Garden Plaza – Spät',
+      symbol: '🌙',
+      plaza: 'garden',
+      zeit: scsTauschDienstzeitenNeu('GP_SPAET', tag)
+    });
+  }
+
+  if (z && z.wpFrueh && z.wpSpaet) {
+    dienste.push({
+      code: 'WP_GANZTAG',
+      name: 'Water Plaza – Ganztag',
+      symbol: '🔵',
+      plaza: 'water',
+      zeit: scsTauschDienstzeitenNeu('WP_GANZTAG', tag)
+    });
+  } else {
+    if (z && z.wpFrueh) {
+      dienste.push({
+        code: 'WP_FRUEH',
+        name: 'Water Plaza – Früh',
+        symbol: '☀️',
+        plaza: 'water',
+        zeit: scsTauschDienstzeitenNeu('WP_FRUEH', tag)
+      });
+    }
+
+    if (z && z.wpSpaet) {
+      dienste.push({
+        code: 'WP_SPAET',
+        name: 'Water Plaza – Spät',
+        symbol: '🌙',
+        plaza: 'water',
+        zeit: scsTauschDienstzeitenNeu('WP_SPAET', tag)
+      });
+    }
+  }
+
+  return dienste;
+}
+
+function scsTauschDatumSortNeu(datum) {
+  const teile = String(datum || '').split('.');
+
+  if (teile.length !== 3) {
+    return 0;
+  }
+
+  const tag = Number(teile[0]);
+  const monat = Number(teile[1]);
+  const jahr = Number(teile[2]);
+
+  return new Date(jahr, monat - 1, tag).getTime();
+}
+
+function scsBaueTauschTageNeu() {
+  const plan = Array.isArray(letzterDienstplan)
+    ? letzterDienstplan
+    : [];
+
+  const tage = [];
+
+  plan.forEach(function(z) {
+    const dienste = scsTauschDiensteFuerZeileNeu(z);
+
+    if (!dienste.length) {
+      return;
+    }
+
+    tage.push({
+      datum: String(z.datum || ''),
+      tag: String(z.tag || ''),
+      kw: String(z.kw || ''),
+      dienste: dienste
+    });
+  });
+
+  tage.sort(function(a, b) {
+    return scsTauschDatumSortNeu(a.datum) -
+      scsTauschDatumSortNeu(b.datum);
+  });
+
+  return tage;
+}
+
+function scsFindeTauschTagNeu(datum) {
+  const tage = scsBaueTauschTageNeu();
+
+  return tage.find(function(tag) {
+    return String(tag.datum) === String(datum || '');
+  }) || null;
+}
+
+function scsSetzeTauschTagUndDienstNeu(tagObjekt, dienstCode) {
+  if (!tagObjekt || !Array.isArray(tagObjekt.dienste) || !tagObjekt.dienste.length) {
+    return false;
+  }
+
+  let dienst = tagObjekt.dienste.find(function(d) {
+    return String(d.code) === String(dienstCode || '');
+  });
+
+  if (!dienst) {
+    dienst = tagObjekt.dienste[0];
+  }
+
+  tauschDatum = String(tagObjekt.datum || '');
+  tauschTag = String(tagObjekt.tag || '');
+  tauschKw = String(tagObjekt.kw || '');
+  tauschDienstCode = String(dienst.code || '');
+  tauschDienstText = String(dienst.name || '');
+  tauschZeit = String(dienst.zeit || '');
+
+  return true;
+}
+
+function scsWechselTauschTagNeu(richtung) {
+  const tage = scsBaueTauschTageNeu();
+
+  if (!tage.length) {
+    return;
+  }
+
+  let index = tage.findIndex(function(tag) {
+    return String(tag.datum) === String(tauschDatum || '');
+  });
+
+  if (index < 0) {
+    index = 0;
+  } else {
+    index += Number(richtung || 0) < 0 ? -1 : 1;
+  }
+
+  if (index < 0) {
+    index = tage.length - 1;
+  }
+
+  if (index >= tage.length) {
+    index = 0;
+  }
+
+  scsSetzeTauschTagUndDienstNeu(tage[index], '');
+  scsSchliesseTauschTagListeNeu();
+  fuelleTauschAnsichtNeu();
+}
+
+function scsWaehleTauschTagDirektNeu(datum) {
+  const tagObjekt = scsFindeTauschTagNeu(datum);
+
+  if (!tagObjekt) {
+    return;
+  }
+
+  scsSetzeTauschTagUndDienstNeu(tagObjekt, '');
+  scsSchliesseTauschTagListeNeu();
+  fuelleTauschAnsichtNeu();
+}
+
+function scsWaehleTauschDienstNeu(code) {
+  const tagObjekt = scsFindeTauschTagNeu(tauschDatum);
+
+  if (!tagObjekt) {
+    return;
+  }
+
+  scsSetzeTauschTagUndDienstNeu(tagObjekt, code);
+  fuelleTauschAnsichtNeu();
+}
+
+function scsSchliesseTauschTagListeNeu() {
+  const liste = document.getElementById('scsTauschTagListeNeu');
+
+  if (liste) {
+    liste.remove();
+  }
+}
+
+function scsZeigeTauschTagListeNeu() {
+  const ansicht = document.getElementById('tauschAnsicht');
+
+  if (!ansicht) {
+    return;
+  }
+
+  const vorhanden = document.getElementById('scsTauschTagListeNeu');
+
+  if (vorhanden) {
+    vorhanden.remove();
+    return;
+  }
+
+  const tage = scsBaueTauschTageNeu();
+  const navigation = ansicht.querySelector('.datum-navigation');
+
+  if (!navigation) {
+    return;
+  }
+
+  const box = document.createElement('div');
+  box.id = 'scsTauschTagListeNeu';
+  box.style.cssText = [
+    'margin-top:10px',
+    'border:1px solid #d9dde2',
+    'border-radius:10px',
+    'background:#ffffff',
+    'padding:8px',
+    'box-shadow:0 6px 18px rgba(0,0,0,.06)',
+    'max-height:280px',
+    'overflow:auto'
+  ].join(';');
+
+  if (!tage.length) {
+    box.innerHTML = '<div style="padding:10px;color:#666;">Keine tauschbaren Diensttage vorhanden.</div>';
+  } else {
+    tage.forEach(function(tagObjekt) {
+      const button = document.createElement('button');
+      const istAktiv = String(tagObjekt.datum) === String(tauschDatum || '');
+
+      button.type = 'button';
+      button.style.cssText = [
+        'display:block',
+        'width:100%',
+        'text-align:left',
+        'border:0',
+        'border-radius:8px',
+        'padding:10px 11px',
+        'margin:2px 0',
+        'cursor:pointer',
+        'font:inherit',
+        istAktiv ? 'background:#fff1f2' : 'background:#ffffff',
+        istAktiv ? 'font-weight:700' : 'font-weight:400'
+      ].join(';');
+
+      button.textContent =
+        '📅 ' + tagObjekt.datum +
+        ' · ' + tagObjekt.tag +
+        ' · KW ' + tagObjekt.kw;
+
+      button.onclick = function() {
+        scsWaehleTauschTagDirektNeu(tagObjekt.datum);
+      };
+
+      box.appendChild(button);
+    });
+  }
+
+  navigation.insertAdjacentElement('afterend', box);
+}
+
+fuelleTauschAnsichtNeu = function() {
+  const ansicht = document.getElementById('tauschAnsicht');
+
+  if (!ansicht) {
+    return;
+  }
+
+  const tage = scsBaueTauschTageNeu();
+
+  if (!tage.length) {
+    const datumButton = ansicht.querySelector('.datum-button');
+    const eigeneDienste = ansicht.querySelector('.eigene-dienste');
+    const dienstAuswahl = ansicht.querySelector('.dienst-auswahl');
+    const weiterButton = ansicht.querySelector('.weiter-button');
+
+    if (datumButton) {
+      datumButton.innerHTML = '<span>📅</span><strong>—</strong><span></span>';
+    }
+
+    if (eigeneDienste) {
+      eigeneDienste.innerHTML = '<h3>Deine Dienste an diesem Tag</h3><div class="empty-state">Keine tauschbaren Dienste vorhanden.</div>';
+    }
+
+    if (dienstAuswahl) {
+      dienstAuswahl.innerHTML = '<div class="empty-state">Keine tauschbaren Dienste vorhanden.</div>';
+    }
+
+    if (weiterButton) {
+      weiterButton.disabled = true;
+      weiterButton.style.opacity = '.55';
+    }
+
+    return;
+  }
+
+  let tagObjekt = scsFindeTauschTagNeu(tauschDatum);
+
+  if (!tagObjekt) {
+    tagObjekt = tage[0];
+    scsSetzeTauschTagUndDienstNeu(tagObjekt, '');
+  } else {
+    const dienstVorhanden = tagObjekt.dienste.some(function(d) {
+      return String(d.code) === String(tauschDienstCode || '');
+    });
+
+    if (!dienstVorhanden) {
+      scsSetzeTauschTagUndDienstNeu(tagObjekt, '');
+    }
+  }
+
+  const aktuellerDienst = tagObjekt.dienste.find(function(d) {
+    return String(d.code) === String(tauschDienstCode || '');
+  }) || tagObjekt.dienste[0];
+
+  scsSetzeTauschTagUndDienstNeu(tagObjekt, aktuellerDienst.code);
+
+  const pfeile = ansicht.querySelectorAll('.datum-navigation .pfeil-button');
+
+  if (pfeile[0]) {
+    pfeile[0].onclick = function() {
+      scsWechselTauschTagNeu(-1);
+    };
+
+    pfeile[0].disabled = tage.length <= 1;
+    pfeile[0].style.opacity = tage.length <= 1 ? '.45' : '1';
+    pfeile[0].style.cursor = tage.length <= 1 ? 'default' : 'pointer';
+  }
+
+  if (pfeile[1]) {
+    pfeile[1].onclick = function() {
+      scsWechselTauschTagNeu(1);
+    };
+
+    pfeile[1].disabled = tage.length <= 1;
+    pfeile[1].style.opacity = tage.length <= 1 ? '.45' : '1';
+    pfeile[1].style.cursor = tage.length <= 1 ? 'default' : 'pointer';
+  }
+
+  const datumButton = ansicht.querySelector('.datum-button');
+
+  if (datumButton) {
+    datumButton.innerHTML =
+      '<span>📅</span>' +
+      '<strong>' + escapeHtmlNeu(tauschDatum) + '</strong>' +
+      '<span>(' + escapeHtmlNeu(tauschTag) + ')</span>';
+
+    datumButton.onclick = scsZeigeTauschTagListeNeu;
+    datumButton.title = 'Anderen Diensttag auswählen';
+  }
+
+  const andererTagButton = ansicht.querySelector('.secondary-button');
+
+  if (andererTagButton) {
+    andererTagButton.onclick = scsZeigeTauschTagListeNeu;
+  }
+
+  const eigeneDienste = ansicht.querySelector('.eigene-dienste');
+
+  if (eigeneDienste) {
+    let html = '<h3>Deine Dienste an diesem Tag</h3>';
+
+    tagObjekt.dienste.forEach(function(dienst) {
+      const istGarden = String(dienst.code).startsWith('GP');
+
+      html +=
+        '<div class="dienst-mini" style="margin-top:8px;">' +
+          '<div class="dienst-links">' +
+            '<span class="punkt ' + (istGarden ? 'gruen' : 'blau') + '"></span>' +
+            '<span>' + escapeHtmlNeu(dienst.name) + '</span>' +
+          '</div>' +
+          '<strong class="' + (istGarden ? 'gruen-text' : 'blau-text') + '">' +
+            escapeHtmlNeu(aktuellerBenutzer) +
+          '</strong>' +
+        '</div>';
+    });
+
+    if (tauschDienstCode === 'GP_SPAET') {
+      const planZeile = (Array.isArray(letzterDienstplan) ? letzterDienstplan : []).find(function(z) {
+        return String(z.datum || '') === String(tauschDatum || '');
+      });
+
+      if (planZeile && planZeile.wpAbloese) {
+        html +=
+          '<div style="margin-top:10px;padding:10px 12px;border-radius:8px;background:#f6f7f8;color:#666;font-size:13px;line-height:1.45;">' +
+            'ℹ️ Die zugehörige WP-Pausenablöse gehört zum GP-Spätdienst und wird beim genehmigten Tausch automatisch mitgeführt.' +
+          '</div>';
+      }
+    }
+
+    eigeneDienste.innerHTML = html;
+  }
+
+  const dienstAuswahl = ansicht.querySelector('.dienst-auswahl');
+
+  if (dienstAuswahl) {
+    let html = '';
+
+    tagObjekt.dienste.forEach(function(dienst) {
+      const aktiv = String(dienst.code) === String(tauschDienstCode || '');
+      const istGarden = String(dienst.code).startsWith('GP');
+
+      html +=
+        '<button class="dienst-option ' + (aktiv ? 'ausgewaehlt' : '') + '" type="button" onclick="scsWaehleTauschDienstNeu(\'' + dienst.code + '\')">' +
+          '<span class="radio ' + (aktiv ? 'aktiv' : '') + '"></span>' +
+          '<div class="dienst-symbol">' + escapeHtmlNeu(dienst.symbol) + '</div>' +
+          '<div class="dienst-option-text">' +
+            '<strong class="' + (istGarden ? 'gruen-text' : 'blau-text') + '">' + escapeHtmlNeu(dienst.name) + '</strong>' +
+            '<span>Dienstzeit: ' + escapeHtmlNeu(dienst.zeit) + '</span>' +
+            '<small class="status-chip ' + (istGarden ? 'gruen-chip' : 'blau-chip') + '">Du bist eingetragen</small>' +
+          '</div>' +
+        '</button>';
+    });
+
+    dienstAuswahl.innerHTML = html;
+  }
+
+  const weiterButton = ansicht.querySelector('.weiter-button');
+
+  if (weiterButton) {
+    weiterButton.disabled = false;
+    weiterButton.style.opacity = '1';
+    weiterButton.onclick = ladeEchteTauschpartner;
+  }
+
+  const kollegenBereich = document.getElementById('kollegenBereich');
+
+  if (kollegenBereich) {
+    kollegenBereich.classList.add('versteckt');
+    kollegenBereich.innerHTML =
+      '<h2>3. Kollegen wählen</h2>' +
+      '<p class="beschreibung">Mit wem möchtest du deinen Dienst tauschen?</p>' +
+      '<div class="kollegen-grid"><div class="empty-state">Klicke auf „Weiter zu Schritt 3“.</div></div>';
+  }
+};
+
+oeffneDiensttauschAusMenueNeu = async function() {
+  if (!Array.isArray(letzterDienstplan) || letzterDienstplan.length === 0) {
+    if (typeof ladeMeinDienstplanNeu === 'function') {
+      await ladeMeinDienstplanNeu();
+    }
+  }
+
+  const tage = scsBaueTauschTageNeu();
+
+  if (!tage.length) {
+    window.alert('Du hast aktuell keine tauschbaren Dienste.');
+    return;
+  }
+
+  let tagObjekt = scsFindeTauschTagNeu(tauschDatum);
+
+  if (!tagObjekt) {
+    tagObjekt = tage[0];
+  }
+
+  scsSetzeTauschTagUndDienstNeu(tagObjekt, tauschDienstCode);
+
+  if (typeof window.zeigeSeite === 'function') {
+    await window.zeigeSeite('dienstTauschen');
+  }
+
+  setTimeout(function() {
+    fuelleTauschAnsichtNeu();
+  }, 50);
+};
+</script>
 
 </body>
 </html>
