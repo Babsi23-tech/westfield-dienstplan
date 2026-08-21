@@ -5469,7 +5469,7 @@ function rendereAdminDienstAnfragenNeu(
   }
 
   if (
-    !anfragen ||
+    !Array.isArray(anfragen) ||
     anfragen.length === 0
   ) {
     liste.innerHTML = `
@@ -5486,164 +5486,440 @@ function rendereAdminDienstAnfragenNeu(
 
   anfragen.forEach(
     function(a) {
+      const mitarbeiter =
+        String(
+          a.mitarbeiter || ''
+        ).trim();
+
+      const datum =
+        String(
+          a.datum || ''
+        ).trim();
+
+      const dienst =
+        String(
+          a.dienst || ''
+        ).trim();
+
+      const nachricht =
+        String(
+          a.nachricht || ''
+        ).trim();
+
+      const zeile =
+        Number(
+          a.zeile || 0
+        );
+
+      // ------------------------------------------------------
+      // WOCHENTAG AUS DATUM ERMITTELN
+      // ------------------------------------------------------
+
+      let wochentag =
+        '';
+
+      if (
+        /^\d{1,2}\.\d{1,2}\.\d{4}$/.test(
+          datum
+        )
+      ) {
+        const teile =
+          datum.split('.');
+
+        const datumObjekt =
+          new Date(
+            Number(teile[2]),
+            Number(teile[1]) - 1,
+            Number(teile[0]),
+            12,
+            0,
+            0
+          );
+
+        if (
+          !isNaN(
+            datumObjekt.getTime()
+          )
+        ) {
+          const tage =
+            [
+              'So',
+              'Mo',
+              'Di',
+              'Mi',
+              'Do',
+              'Fr',
+              'Sa'
+            ];
+
+          wochentag =
+            tage[
+              datumObjekt.getDay()
+            ] || '';
+        }
+      }
+
+      // ------------------------------------------------------
+      // DIENST FÜR ADMIN-DARSTELLUNG AUFBEREITEN
+      // ------------------------------------------------------
+
+      let plaza =
+        '';
+
+      let schicht =
+        '';
+
+      let schichtSymbol =
+        '';
+
+      if (dienst) {
+        if (
+          /Garden Plaza/i.test(
+            dienst
+          )
+        ) {
+          plaza =
+            'Garden Plaza';
+        }
+
+        else if (
+          /Water Plaza/i.test(
+            dienst
+          )
+        ) {
+          plaza =
+            'Water Plaza';
+        }
+
+        if (
+          /\bFrüh\b/i.test(
+            dienst
+          )
+        ) {
+          schicht =
+            'Früh';
+
+          schichtSymbol =
+            '☀️';
+        }
+
+        else if (
+          /\bSpät\b/i.test(
+            dienst
+          )
+        ) {
+          schicht =
+            'Spät';
+
+          schichtSymbol =
+            '🌙';
+        }
+
+        else if (
+          /\bGanztag\b/i.test(
+            dienst
+          )
+        ) {
+          schicht =
+            'Ganztag';
+
+          schichtSymbol =
+            '🔵';
+        }
+
+        else if (
+          /Pausenablöse/i.test(
+            dienst
+          )
+        ) {
+          schicht =
+            'Pausenablöse';
+
+          schichtSymbol =
+            '☕';
+        }
+      }
+
+      // ------------------------------------------------------
+      // BEZUG ZUM DIENST
+      // ------------------------------------------------------
+
+      let dienstBezugHtml =
+        '';
+
+      if (
+        datum ||
+        dienst
+      ) {
+        const teile =
+          [];
+
+        if (datum) {
+          let datumText =
+            datum;
+
+          if (wochentag) {
+            datumText =
+              wochentag +
+              ', ' +
+              datum;
+          }
+
+          teile.push(
+            escapeHtmlNeu(
+              datumText
+            )
+          );
+        }
+
+        if (plaza) {
+          teile.push(
+            escapeHtmlNeu(
+              plaza
+            )
+          );
+        }
+
+        if (schicht) {
+          teile.push(
+            escapeHtmlNeu(
+              (
+                schichtSymbol
+                  ? schichtSymbol + ' '
+                  : ''
+              ) +
+              schicht
+            )
+          );
+        }
+
+        else if (dienst) {
+          teile.push(
+            escapeHtmlNeu(
+              entferneDienstSymbol(
+                dienst
+              )
+            )
+          );
+        }
+
+        dienstBezugHtml = `
+          <div
+            style="
+              margin-top:10px;
+              padding:11px 13px;
+              border-radius:9px;
+              background:#f7f8fa;
+              color:#444444;
+              font-size:14px;
+              line-height:1.5;
+            "
+          >
+            📅 ${teile.join(' · ')}
+          </div>
+        `;
+
+      } else {
+        dienstBezugHtml = `
+          <div
+            style="
+              margin-top:10px;
+              color:#555555;
+              font-size:14px;
+              font-weight:700;
+            "
+          >
+            💬 Allgemeiner Wunsch
+          </div>
+        `;
+      }
+
+      // ------------------------------------------------------
+      // WUNSCHKARTE
+      // ------------------------------------------------------
+
       html += `
         <div
           style="
             border:1px solid #dde1e5;
-            border-radius:11px;
-            padding:15px;
-            margin-bottom:12px;
+            border-radius:13px;
+            padding:17px;
+            margin-bottom:14px;
             background:#ffffff;
+            box-shadow:
+              0 3px 12px
+              rgba(0,0,0,0.035);
           "
         >
-          <strong
+
+          <div
             style="
-              display:block;
-              font-size:16px;
+              display:flex;
+              align-items:center;
+              gap:11px;
             "
           >
-            ${escapeHtmlNeu(a.mitarbeiter || '')}
-          </strong>
+
+            <div
+              style="
+                width:42px;
+                height:42px;
+                flex:0 0 auto;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                border-radius:50%;
+                background:#fff1f2;
+                font-size:20px;
+              "
+            >
+              👤
+            </div>
+
+            <div
+              style="
+                min-width:0;
+                flex:1;
+              "
+            >
+
+              <strong
+                style="
+                  display:block;
+                  color:#171717;
+                  font-size:17px;
+                  line-height:1.35;
+                  overflow-wrap:anywhere;
+                "
+              >
+                ${escapeHtmlNeu(
+                  mitarbeiter ||
+                  'Mitarbeiter'
+                )}
+              </strong>
+
+              <span
+                style="
+                  display:block;
+                  margin-top:2px;
+                  color:#777777;
+                  font-size:12px;
+                "
+              >
+                Sonstiger Wunsch
+              </span>
+
+            </div>
+
+          </div>
+
+
+          ${dienstBezugHtml}
+
 
           ${
-            a.datum
+            nachricht
               ? `
                 <div
                   style="
-                    margin-top:5px;
-                    color:#666;
+                    margin-top:12px;
+                    padding:13px 14px;
+                    border-left:4px solid #e30613;
+                    border-radius:8px;
+                    background:#fffafa;
+                    color:#333333;
+                    font-size:15px;
+                    line-height:1.55;
+                    white-space:pre-wrap;
+                    overflow-wrap:anywhere;
                   "
                 >
-                  📅 ${escapeHtmlNeu(a.datum)}
-
-                  ${
-                    a.kw
-                      ? ' · KW ' +
-                        escapeHtmlNeu(a.kw)
-                      : ''
-                  }
+                  💬 „${escapeHtmlNeu(
+                    nachricht
+                  )}“
                 </div>
               `
               : `
                 <div
                   style="
-                    margin-top:5px;
-                    color:#777;
+                    margin-top:12px;
+                    color:#777777;
+                    font-size:14px;
                   "
                 >
-                  Kein bestimmter Tag ausgewählt
+                  Kein Wunschtext vorhanden.
                 </div>
               `
           }
+
 
           <div
             style="
-              margin-top:9px;
-              font-weight:700;
-            "
-          >
-            ${escapeHtmlNeu(
-              a.art ||
-              'Sonstiger Wunsch'
-            )}
-          </div>
-
-          ${
-            a.dienst
-              ? `
-                <div
-                  style="
-                    margin-top:8px;
-                    color:#444;
-                  "
-                >
-                  Dienst:
-
-                  <strong>
-                    ${escapeHtmlNeu(
-                      entferneDienstSymbol(
-                        a.dienst
-                      )
-                    )}
-                  </strong>
-                </div>
-              `
-              : ''
-          }
-
-          ${
-            a.nachricht
-              ? `
-                <div
-                  style="
-                    margin-top:11px;
-                    padding:11px;
-                    border-radius:8px;
-                    background:#f7f8f9;
-                    color:#444;
-                    white-space:pre-wrap;
-                  "
-                >
-                  💬 ${escapeHtmlNeu(a.nachricht)}
-                </div>
-              `
-              : ''
-          }
-
-          <div
-            style="
-              margin-top:12px;
-              padding:10px;
+              margin-top:14px;
+              padding:10px 12px;
               border-radius:8px;
               background:#fff8e8;
               color:#6d5500;
-              font-size:13px;
+              font-size:12px;
+              line-height:1.45;
             "
           >
-            ℹ️ Der Dienstplan wird dadurch
-            nicht automatisch geändert.
+            ℹ️ Die Entscheidung verändert den Dienstplan
+            nicht automatisch.
           </div>
+
 
           <div
             style="
-              display:flex;
+              display:grid;
+              grid-template-columns:
+                repeat(2, minmax(0, 1fr));
               gap:10px;
-              flex-wrap:wrap;
-              margin-top:14px;
+              margin-top:15px;
             "
           >
+
             <button
               type="button"
-              onclick="bearbeiteAdminDienstAnfrageNeu(${Number(a.zeile)}, true)"
+              onclick="bearbeiteAdminDienstAnfrageNeu(${zeile}, false)"
               style="
+                width:100%;
+                min-height:46px;
+                border:1px solid #d5d8dc;
+                background:#ffffff;
+                color:#b00020;
+                border-radius:9px;
+                padding:10px 12px;
+                font-weight:700;
+                font-size:14px;
+                cursor:pointer;
+              "
+            >
+              ❌ Ablehnen
+            </button>
+
+
+            <button
+              type="button"
+              onclick="bearbeiteAdminDienstAnfrageNeu(${zeile}, true)"
+              style="
+                width:100%;
+                min-height:46px;
                 border:0;
                 background:#14943b;
                 color:#ffffff;
-                border-radius:8px;
-                padding:9px 14px;
+                border-radius:9px;
+                padding:10px 12px;
                 font-weight:700;
+                font-size:14px;
                 cursor:pointer;
               "
             >
               ✅ Genehmigen
             </button>
 
-            <button
-              type="button"
-              onclick="bearbeiteAdminDienstAnfrageNeu(${Number(a.zeile)}, false)"
-              style="
-                border:1px solid #c9cdd2;
-                background:#ffffff;
-                color:#b00020;
-                border-radius:8px;
-                padding:9px 14px;
-                font-weight:700;
-                cursor:pointer;
-              "
-            >
-              ❌ Ablehnen
-            </button>
           </div>
+
         </div>
       `;
     }
@@ -5741,7 +6017,6 @@ async function bearbeiteAdminDienstAnfrageNeu(
     );
   }
 }
-
 
 // ==========================================================
 // ADMIN – PIN-RESET-ANFRAGEN
