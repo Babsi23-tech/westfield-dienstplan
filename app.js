@@ -1,40 +1,86 @@
 const API_URL =
   'https://script.google.com/macros/s/AKfycbxL-vdBIT5xLORL2k8xdNJXC4bRWt97X-QcvWQ5_bB1xXz083yntxCwimdaiqkoPMKBbg/exec';
-const SESSION_KEY = 'scs_team_session';
-let aktuellerBenutzer = '';
-let aktuellerAdmin = false;
-let letzterDienstplan = [];
-let letzteAbwesenheiten = [];
-let aktuelleKwNeu = 1;
-let dienstplanInitialisiert = false;
-let tauschDatum = '';
-let tauschTag = '';
-let tauschKw = '';
-let tauschDienstCode = '';
-let tauschDienstText = '';
-let tauschZeit = '';
 
-async function apiPost(action, daten = {}) {
-  const response = await fetch(
-    API_URL,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
-      body: JSON.stringify({
-        action: action,
-        ...daten
-      }),
-      redirect: 'follow',
-      cache: 'no-store'
-    }
-  );
+const SESSION_KEY =
+  'scs_team_session';
+
+let aktuellerBenutzer =
+  '';
+
+let aktuellerAdmin =
+  false;
+
+let letzterDienstplan =
+  [];
+
+let letzteAbwesenheiten =
+  [];
+
+let aktuelleKwNeu =
+  1;
+
+let dienstplanInitialisiert =
+  false;
+
+let tauschDatum =
+  '';
+
+let tauschTag =
+  '';
+
+let tauschKw =
+  '';
+
+let tauschDienstCode =
+  '';
+
+let tauschDienstText =
+  '';
+
+let tauschZeit =
+  '';
+
+
+// ==========================================================
+// API
+// ==========================================================
+
+async function apiPost(
+  action,
+  daten = {}
+) {
+  const response =
+    await fetch(
+      API_URL,
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type':
+            'text/plain;charset=utf-8'
+        },
+
+        body:
+          JSON.stringify({
+            action:
+              action,
+            ...daten
+          }),
+
+        redirect:
+          'follow',
+
+        cache:
+          'no-store'
+      }
+    );
 
   const text =
     await response.text();
 
-  if (!response.ok) {
+  if (
+    !response.ok
+  ) {
     throw new Error(
       'HTTP ' +
       response.status +
@@ -50,6 +96,7 @@ async function apiPost(action, daten = {}) {
     return JSON.parse(
       text
     );
+
   } catch (error) {
     throw new Error(
       'Server hat kein gültiges JSON zurückgegeben: ' +
@@ -61,15 +108,26 @@ async function apiPost(action, daten = {}) {
   }
 }
 
+
+// ==========================================================
+// START
+// ==========================================================
+
 document.addEventListener(
   'DOMContentLoaded',
   async function() {
     installiereDynamischeAnsichtenNeu();
+
     installiereNavigationErweiterungNeu();
+
+    installierePinFestlegenDialogNeu();
+
     await starteApp();
+
     ladeAppInfoNeu();
   }
 );
+
 
 async function starteApp() {
   const token =
@@ -83,7 +141,8 @@ async function starteApp() {
         await apiPost(
           'session',
           {
-            token: token
+            token:
+              token
           }
         );
 
@@ -109,6 +168,7 @@ async function starteApp() {
           window.zeigeSeite(
             'dienstplan'
           );
+
         } else {
           await ladeMeinDienstplanNeu();
         }
@@ -133,6 +193,11 @@ async function starteApp() {
   await ladeMitarbeiter();
 }
 
+
+// ==========================================================
+// LOGIN ANZEIGEN
+// ==========================================================
+
 function zeigeLogin() {
   const login =
     document.getElementById(
@@ -154,6 +219,11 @@ function zeigeLogin() {
       'none';
   }
 }
+
+
+// ==========================================================
+// MITARBEITER LADEN
+// ==========================================================
 
 async function ladeMitarbeiter() {
   const select =
@@ -244,6 +314,11 @@ async function ladeMitarbeiter() {
   }
 }
 
+
+// ==========================================================
+// LOGIN
+// ==========================================================
+
 async function loginAusfuehren() {
   const nameElement =
     document.getElementById(
@@ -277,6 +352,7 @@ async function loginAusfuehren() {
       'Bitte wähle deinen Namen aus.',
       'fehler'
     );
+
     return;
   }
 
@@ -308,10 +384,39 @@ async function loginAusfuehren() {
       await apiPost(
         'login',
         {
-          name: name,
-          pin: pin
+          name:
+            name,
+
+          pin:
+            pin
         }
       );
+
+    /*
+      Wenn Babsi den PIN-Reset genehmigt hat,
+      ist der alte PIN gelöscht.
+
+      Das Backend meldet dann pinFehlt=true.
+      In diesem Fall darf der Mitarbeiter
+      direkt einen neuen PIN festlegen.
+    */
+    if (
+      result &&
+      result.pinFehlt === true
+    ) {
+      if (pinElement) {
+        pinElement.value =
+          '';
+      }
+
+      zeigePinFestlegenDialogNeu(
+        name,
+        result.message ||
+        'Bitte lege jetzt einen neuen PIN fest.'
+      );
+
+      return;
+    }
 
     if (
       !result ||
@@ -332,7 +437,8 @@ async function loginAusfuehren() {
     );
 
     aktuellerBenutzer =
-      result.name || name;
+      result.name ||
+      name;
 
     aktuellerAdmin =
       result.admin === true;
@@ -357,6 +463,7 @@ async function loginAusfuehren() {
       window.zeigeSeite(
         'dienstplan'
       );
+
     } else {
       await ladeMeinDienstplanNeu();
     }
@@ -382,6 +489,598 @@ async function loginAusfuehren() {
     }
   }
 }
+
+
+// ==========================================================
+// PIN VERGESSEN
+// ==========================================================
+
+async function pinVergessenNeu() {
+  const name =
+    String(
+      document
+        .getElementById(
+          'loginName'
+        )
+        ?.value || ''
+    ).trim();
+
+  if (!name) {
+    zeigeLoginMeldung(
+      'Bitte wähle zuerst deinen Namen aus.',
+      'fehler'
+    );
+
+    return;
+  }
+
+  loescheLoginMeldung();
+
+  try {
+    const result =
+      await apiPost(
+        'pinVergessen',
+        {
+          name:
+            name
+        }
+      );
+
+    /*
+      Der PIN wurde bereits von Babsi gelöscht.
+      Mitarbeiter darf direkt einen neuen setzen.
+    */
+    if (
+      result &&
+      result.pinFehlt === true
+    ) {
+      zeigePinFestlegenDialogNeu(
+        name,
+        result.message ||
+        'Bitte lege jetzt einen neuen PIN fest.'
+      );
+
+      return;
+    }
+
+    /*
+      Sonderfall Babsi:
+      Sie kann ihren eigenen Reset nicht
+      selbst im Admin-Bereich genehmigen.
+    */
+    if (
+      result &&
+      result.adminReset === true
+    ) {
+      zeigeLoginMeldung(
+        result.message ||
+        'Der Admin-PIN muss direkt zurückgesetzt werden.',
+        'fehler'
+      );
+
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'PIN-Anfrage konnte nicht gesendet werden.'
+      );
+    }
+
+    zeigeLoginMeldung(
+      '✅ ' +
+      (
+        result.message ||
+        'Die PIN-Anfrage wurde an Babsi geschickt.'
+      ),
+      'erfolg'
+    );
+
+  } catch (error) {
+    console.error(
+      'PIN vergessen:',
+      error
+    );
+
+    zeigeLoginMeldung(
+      '❌ ' +
+      error.message,
+      'fehler'
+    );
+  }
+}
+
+
+// ==========================================================
+// NEUEN PIN FESTLEGEN – DIALOG INSTALLIEREN
+// ==========================================================
+
+function installierePinFestlegenDialogNeu() {
+  if (
+    document.getElementById(
+      'pinFestlegenOverlayNeu'
+    )
+  ) {
+    return;
+  }
+
+  const overlay =
+    document.createElement(
+      'div'
+    );
+
+  overlay.id =
+    'pinFestlegenOverlayNeu';
+
+  overlay.style.cssText = `
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    box-sizing:border-box;
+    background:rgba(0,0,0,.48);
+  `;
+
+  overlay.innerHTML = `
+    <div
+      style="
+        width:100%;
+        max-width:430px;
+        background:#ffffff;
+        border-radius:16px;
+        padding:24px;
+        box-sizing:border-box;
+        box-shadow:
+          0 20px 60px
+          rgba(0,0,0,.25);
+      "
+    >
+      <div
+        style="
+          font-size:38px;
+          text-align:center;
+          margin-bottom:10px;
+        "
+      >
+        🔐
+      </div>
+
+      <h2
+        style="
+          margin:0 0 8px;
+          text-align:center;
+        "
+      >
+        Neuen PIN festlegen
+      </h2>
+
+      <p
+        id="pinFestlegenInfoNeu"
+        style="
+          margin:0 0 20px;
+          color:#666;
+          text-align:center;
+          line-height:1.5;
+        "
+      >
+        Bitte lege deinen neuen 4-stelligen PIN fest.
+      </p>
+
+      <input
+        id="pinFestlegenNameNeu"
+        type="hidden"
+      >
+
+      <label
+        for="pinFestlegen1Neu"
+        style="
+          display:block;
+          margin-bottom:6px;
+          font-weight:700;
+        "
+      >
+        Neuer PIN
+      </label>
+
+      <input
+        id="pinFestlegen1Neu"
+        type="password"
+        inputmode="numeric"
+        maxlength="4"
+        autocomplete="new-password"
+        placeholder="••••"
+        style="
+          width:100%;
+          box-sizing:border-box;
+          border:1px solid #d7dce1;
+          border-radius:9px;
+          padding:12px;
+          margin-bottom:15px;
+          font-size:18px;
+          letter-spacing:4px;
+        "
+      >
+
+      <label
+        for="pinFestlegen2Neu"
+        style="
+          display:block;
+          margin-bottom:6px;
+          font-weight:700;
+        "
+      >
+        PIN wiederholen
+      </label>
+
+      <input
+        id="pinFestlegen2Neu"
+        type="password"
+        inputmode="numeric"
+        maxlength="4"
+        autocomplete="new-password"
+        placeholder="••••"
+        style="
+          width:100%;
+          box-sizing:border-box;
+          border:1px solid #d7dce1;
+          border-radius:9px;
+          padding:12px;
+          margin-bottom:18px;
+          font-size:18px;
+          letter-spacing:4px;
+        "
+      >
+
+      <button
+        id="pinFestlegenButtonNeu"
+        type="button"
+        onclick="speichereNeuenPinNeu()"
+        style="
+          width:100%;
+          border:0;
+          background:#e30613;
+          color:#ffffff;
+          border-radius:9px;
+          padding:12px 16px;
+          font-weight:700;
+          font-size:15px;
+          cursor:pointer;
+        "
+      >
+        🔐 Neuen PIN speichern
+      </button>
+
+      <button
+        type="button"
+        onclick="schliessePinFestlegenDialogNeu()"
+        style="
+          width:100%;
+          margin-top:9px;
+          border:1px solid #d7dce1;
+          background:#ffffff;
+          color:#555;
+          border-radius:9px;
+          padding:10px 16px;
+          font-weight:600;
+          cursor:pointer;
+        "
+      >
+        Abbrechen
+      </button>
+
+      <div
+        id="pinFestlegenMeldungNeu"
+        style="
+          margin-top:14px;
+          min-height:22px;
+          text-align:center;
+        "
+      ></div>
+    </div>
+  `;
+
+  document.body.appendChild(
+    overlay
+  );
+}
+
+
+// ==========================================================
+// PIN-FESTLEGEN-DIALOG ANZEIGEN
+// ==========================================================
+
+function zeigePinFestlegenDialogNeu(
+  name,
+  info
+) {
+  installierePinFestlegenDialogNeu();
+
+  const overlay =
+    document.getElementById(
+      'pinFestlegenOverlayNeu'
+    );
+
+  const nameElement =
+    document.getElementById(
+      'pinFestlegenNameNeu'
+    );
+
+  const infoElement =
+    document.getElementById(
+      'pinFestlegenInfoNeu'
+    );
+
+  const pin1 =
+    document.getElementById(
+      'pinFestlegen1Neu'
+    );
+
+  const pin2 =
+    document.getElementById(
+      'pinFestlegen2Neu'
+    );
+
+  const meldung =
+    document.getElementById(
+      'pinFestlegenMeldungNeu'
+    );
+
+  if (nameElement) {
+    nameElement.value =
+      name || '';
+  }
+
+  if (infoElement) {
+    infoElement.textContent =
+      info ||
+      'Bitte lege deinen neuen 4-stelligen PIN fest.';
+  }
+
+  if (pin1) {
+    pin1.value =
+      '';
+  }
+
+  if (pin2) {
+    pin2.value =
+      '';
+  }
+
+  if (meldung) {
+    meldung.textContent =
+      '';
+  }
+
+  if (overlay) {
+    overlay.style.display =
+      'flex';
+  }
+
+  setTimeout(
+    function() {
+      pin1?.focus();
+    },
+    100
+  );
+}
+
+
+// ==========================================================
+// PIN-FESTLEGEN-DIALOG SCHLIESSEN
+// ==========================================================
+
+function schliessePinFestlegenDialogNeu() {
+  const overlay =
+    document.getElementById(
+      'pinFestlegenOverlayNeu'
+    );
+
+  if (overlay) {
+    overlay.style.display =
+      'none';
+  }
+}
+
+
+// ==========================================================
+// NEUEN PIN SPEICHERN
+// ==========================================================
+
+async function speichereNeuenPinNeu() {
+  const name =
+    String(
+      document
+        .getElementById(
+          'pinFestlegenNameNeu'
+        )
+        ?.value || ''
+    ).trim();
+
+  const pin1 =
+    String(
+      document
+        .getElementById(
+          'pinFestlegen1Neu'
+        )
+        ?.value || ''
+    ).trim();
+
+  const pin2 =
+    String(
+      document
+        .getElementById(
+          'pinFestlegen2Neu'
+        )
+        ?.value || ''
+    ).trim();
+
+  const button =
+    document.getElementById(
+      'pinFestlegenButtonNeu'
+    );
+
+  const meldung =
+    document.getElementById(
+      'pinFestlegenMeldungNeu'
+    );
+
+  if (
+    !/^\d{4}$/.test(
+      pin1
+    )
+  ) {
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        'Der neue PIN muss genau aus 4 Ziffern bestehen.';
+    }
+
+    return;
+  }
+
+  if (
+    pin1 !== pin2
+  ) {
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        'Die beiden PINs stimmen nicht überein.';
+    }
+
+    return;
+  }
+
+  if (!name) {
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        'Mitarbeiter konnte nicht bestimmt werden.';
+    }
+
+    return;
+  }
+
+  if (button) {
+    button.disabled =
+      true;
+
+    button.textContent =
+      'PIN wird gespeichert …';
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'pinFestlegen',
+        {
+          name:
+            name,
+
+          pin1:
+            pin1,
+
+          pin2:
+            pin2
+        }
+      );
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'PIN konnte nicht gespeichert werden.'
+      );
+    }
+
+    localStorage.setItem(
+      SESSION_KEY,
+      result.token
+    );
+
+    aktuellerBenutzer =
+      result.name ||
+      name;
+
+    aktuellerAdmin =
+      result.admin === true;
+
+    dienstplanInitialisiert =
+      false;
+
+    if (meldung) {
+      meldung.style.color =
+        '#14943b';
+
+      meldung.textContent =
+        '✅ Neuer PIN wurde gespeichert.';
+    }
+
+    setTimeout(
+      function() {
+        schliessePinFestlegenDialogNeu();
+
+        zeigeHauptApp(
+          aktuellerBenutzer,
+          aktuellerAdmin
+        );
+
+        if (
+          typeof window.zeigeSeite ===
+          'function'
+        ) {
+          window.zeigeSeite(
+            'dienstplan'
+          );
+        }
+      },
+      500
+    );
+
+  } catch (error) {
+    console.error(
+      'PIN festlegen:',
+      error
+    );
+
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        '❌ ' +
+        error.message;
+    }
+
+  } finally {
+    if (button) {
+      button.disabled =
+        false;
+
+      button.textContent =
+        '🔐 Neuen PIN speichern';
+    }
+  }
+}
+
+
+// ==========================================================
+// HAUPT-APP ANZEIGEN
+// ==========================================================
 
 function zeigeHauptApp(
   name,
@@ -424,7 +1123,8 @@ function zeigeHauptApp(
 
   if (profilName) {
     profilName.textContent =
-      name || 'Mitarbeiter';
+      name ||
+      'Mitarbeiter';
   }
 
   if (adminNav) {
@@ -442,6 +1142,11 @@ function zeigeHauptApp(
   }
 }
 
+
+// ==========================================================
+// DIENSTPLAN LADEN
+// ==========================================================
+
 async function ladeMeinDienstplanNeu() {
   const token =
     localStorage.getItem(
@@ -450,6 +1155,7 @@ async function ladeMeinDienstplanNeu() {
 
   if (!token) {
     await logoutAusfuehren();
+
     return;
   }
 
@@ -481,7 +1187,8 @@ async function ladeMeinDienstplanNeu() {
       await apiPost(
         'meinDienstplan',
         {
-          token: token
+          token:
+            token
         }
       );
 
@@ -494,6 +1201,7 @@ async function ladeMeinDienstplanNeu() {
         result.sessionExpired
       ) {
         await sessionAbgelaufenNeu();
+
         return;
       }
 
@@ -593,6 +1301,11 @@ async function ladeMeinDienstplanNeu() {
   }
 }
 
+
+// ==========================================================
+// START-KW
+// ==========================================================
+
 function ermittleStartKwNeu(
   plan
 ) {
@@ -632,7 +1345,8 @@ function ermittleStartKwNeu(
       function(z) {
         return String(
           z.datum || ''
-        ) === heutigesDatum;
+        ) ===
+          heutigesDatum;
       }
     );
 
@@ -649,6 +1363,11 @@ function ermittleStartKwNeu(
 
   return kws[0];
 }
+
+
+// ==========================================================
+// VERFÜGBARE KW
+// ==========================================================
 
 function ermittleVerfuegbareKwsNeu(
   plan
@@ -680,6 +1399,11 @@ function ermittleVerfuegbareKwsNeu(
     }
   );
 }
+
+
+// ==========================================================
+// WOCHE WECHSELN
+// ==========================================================
 
 function wechselWoche(
   richtung
@@ -749,6 +1473,11 @@ function wechselWoche(
   );
 }
 
+
+// ==========================================================
+// KW ANZEIGE
+// ==========================================================
+
 function aktualisiereKwAnzeigeNeu() {
   const anzeige =
     document.getElementById(
@@ -765,6 +1494,11 @@ function aktualisiereKwAnzeigeNeu() {
       aktuelleKwNeu || 1
     );
 }
+
+
+// ==========================================================
+// DIENSTPLAN RENDERN
+// ==========================================================
 
 function rendereDienstplan(
   plan
@@ -852,6 +1586,10 @@ function rendereDienstplan(
       const dienste =
         [];
 
+      // ------------------------------------------------------
+      // GARDEN PLAZA FRÜH
+      // ------------------------------------------------------
+
       if (
         z.gpFrueh
       ) {
@@ -880,6 +1618,10 @@ function rendereDienstplan(
             ''
         });
       }
+
+      // ------------------------------------------------------
+      // GARDEN PLAZA SPÄT
+      // ------------------------------------------------------
 
       if (
         z.gpSpaet
@@ -923,6 +1665,10 @@ function rendereDienstplan(
             zusatz
         });
       }
+
+      // ------------------------------------------------------
+      // WATER PLAZA
+      // ------------------------------------------------------
 
       if (
         z.wpFrueh &&
@@ -1014,6 +1760,10 @@ function rendereDienstplan(
         }
       }
 
+      // ------------------------------------------------------
+      // GP PAUSENABLÖSE
+      // ------------------------------------------------------
+
       if (
         z.gpAbloese
       ) {
@@ -1041,6 +1791,11 @@ function rendereDienstplan(
             ''
         });
       }
+
+      // ------------------------------------------------------
+      // WP PAUSENABLÖSE
+      // Nur separat anzeigen, wenn kein GP Spät vorhanden ist.
+      // ------------------------------------------------------
 
       if (
         z.wpAbloese &&
@@ -1070,6 +1825,10 @@ function rendereDienstplan(
             ''
         });
       }
+
+      // ------------------------------------------------------
+      // TAG-KARTE
+      // ------------------------------------------------------
 
       html += `
         <div
@@ -1104,6 +1863,10 @@ function rendereDienstplan(
             </strong>
           </div>
       `;
+
+      // ------------------------------------------------------
+      // DIENSTE DES TAGES
+      // ------------------------------------------------------
 
       dienste.forEach(
         function(dienst) {
@@ -1255,7 +2018,6 @@ function rendereDienstplan(
                       `
                       : ''
                   }
-
                 </div>
 
                 ${
@@ -1280,7 +2042,6 @@ function rendereDienstplan(
                     `
                     : ''
                 }
-
               </div>
             </div>
           `;
@@ -1311,6 +2072,11 @@ function rendereDienstplan(
   liste.innerHTML =
     html;
 }
+
+
+// ==========================================================
+// DIREKTEN TAUSCH STARTEN
+// ==========================================================
 
 function starteDirektenTausch(
   datum,
@@ -1367,6 +2133,11 @@ function starteDirektenTausch(
   );
 }
 
+
+// ==========================================================
+// TAUSCHANSICHT FÜLLEN
+// ==========================================================
+
 function fuelleTauschAnsichtNeu() {
   const ansicht =
     document.getElementById(
@@ -1413,7 +2184,6 @@ function fuelleTauschAnsichtNeu() {
       </h3>
 
       <div class="dienst-mini">
-
         <div class="dienst-links">
 
           <span
@@ -1439,7 +2209,6 @@ function fuelleTauschAnsichtNeu() {
         >
           ${escapeHtmlNeu(aktuellerBenutzer)}
         </strong>
-
       </div>
 
       ${
@@ -1500,7 +2269,6 @@ function fuelleTauschAnsichtNeu() {
         class="dienst-option ausgewaehlt"
         type="button"
       >
-
         <span class="radio aktiv"></span>
 
         <div class="dienst-symbol">
@@ -1535,7 +2303,6 @@ function fuelleTauschAnsichtNeu() {
           </small>
 
         </div>
-
       </button>
     `;
   }
@@ -1580,6 +2347,11 @@ function fuelleTauschAnsichtNeu() {
   }
 }
 
+
+// ==========================================================
+// TAUSCHPARTNER LADEN
+// ==========================================================
+
 async function ladeEchteTauschpartner() {
   const bereich =
     document.getElementById(
@@ -1621,8 +2393,11 @@ async function ladeEchteTauschpartner() {
       await apiPost(
         'tauschMoeglichkeiten',
         {
-          token: token,
-          datum: tauschDatum
+          token:
+            token,
+
+          datum:
+            tauschDatum
         }
       );
 
@@ -1635,6 +2410,7 @@ async function ladeEchteTauschpartner() {
         result.sessionExpired
       ) {
         await sessionAbgelaufenNeu();
+
         return;
       }
 
@@ -1763,7 +2539,6 @@ async function ladeEchteTauschpartner() {
           border-top:1px solid #e1e4e8;
         "
       >
-
         <h2>
           4. Anfrage senden
         </h2>
@@ -1839,7 +2614,6 @@ async function ladeEchteTauschpartner() {
             margin-top:12px;
           "
         ></div>
-
       </div>
     `;
 
@@ -1865,6 +2639,11 @@ async function ladeEchteTauschpartner() {
     `;
   }
 }
+
+
+// ==========================================================
+// WP FRÜH + SPÄT BEI GLEICHER PERSON = GANZTAG
+// ==========================================================
 
 function kombiniereWpGanztagKandidaten(
   kandidaten
@@ -1949,6 +2728,11 @@ function kombiniereWpGanztagKandidaten(
   return ergebnis;
 }
 
+
+// ==========================================================
+// KOLLEGEN-BOX
+// ==========================================================
+
 function baueKollegenBox(
   titel,
   klasse,
@@ -2020,6 +2804,11 @@ function baueKollegenBox(
 
   return html;
 }
+
+
+// ==========================================================
+// TAUSCH-AUSWAHL AKTUALISIEREN
+// ==========================================================
 
 function aktualisiereTauschSchritt4() {
   const ausgewaehlt =
@@ -2106,6 +2895,11 @@ function aktualisiereTauschSchritt4() {
   }
 }
 
+
+// ==========================================================
+// TAUSCHANFRAGE SENDEN
+// ==========================================================
+
 async function sendeTauschAnfrageNeu() {
   const ausgewaehlt =
     document.querySelector(
@@ -2146,6 +2940,7 @@ async function sendeTauschAnfrageNeu() {
 
   if (!token) {
     await sessionAbgelaufenNeu();
+
     return;
   }
 
@@ -2188,12 +2983,23 @@ async function sendeTauschAnfrageNeu() {
       await apiPost(
         'tauschAnfrageSenden',
         {
-          token: token,
-          datum: tauschDatum,
-          eigenerDienstCode: tauschDienstCode,
-          partnerName: partnerName,
-          partnerDienstCode: partnerDienstCode,
-          nachricht: nachricht
+          token:
+            token,
+
+          datum:
+            tauschDatum,
+
+          eigenerDienstCode:
+            tauschDienstCode,
+
+          partnerName:
+            partnerName,
+
+          partnerDienstCode:
+            partnerDienstCode,
+
+          nachricht:
+            nachricht
         }
       );
 
@@ -2206,6 +3012,7 @@ async function sendeTauschAnfrageNeu() {
         result.sessionExpired
       ) {
         await sessionAbgelaufenNeu();
+
         return;
       }
 
@@ -2286,6 +3093,11 @@ async function sendeTauschAnfrageNeu() {
   }
 }
 
+
+// ==========================================================
+// DIENST-SYMBOL AM ANFANG ENTFERNEN
+// ==========================================================
+
 function entferneDienstSymbol(
   text
 ) {
@@ -2299,6 +3111,10 @@ function entferneDienstSymbol(
     .trim();
 }
 
+
+// ==========================================================
+// MEINE ANFRAGEN – ANSICHT
+// ==========================================================
 
 function installiereAnfragenAnsichtNeu() {
   if (
@@ -2332,7 +3148,10 @@ function installiereAnfragenAnsichtNeu() {
   section.innerHTML = `
     <div class="content-header">
       <div>
-        <h1>Meine Anfragen</h1>
+        <h1>
+          Meine Anfragen
+        </h1>
+
         <p>
           Hier siehst du deine Dienst- und Tauschanfragen.
         </p>
@@ -2426,6 +3245,10 @@ function installiereAnfragenAnsichtNeu() {
 }
 
 
+// ==========================================================
+// MEINE ANFRAGEN LADEN
+// ==========================================================
+
 async function ladeMeineAnfragenNeu(
   zeigeLaden = true
 ) {
@@ -2478,14 +3301,16 @@ async function ladeMeineAnfragenNeu(
         apiPost(
           'tauschAnfragen',
           {
-            token: token
+            token:
+              token
           }
         ),
 
         apiPost(
           'meineDienstAnfragen',
           {
-            token: token
+            token:
+              token
           }
         )
       ]);
@@ -2501,6 +3326,7 @@ async function ladeMeineAnfragenNeu(
       tauschResult.sessionExpired
     ) {
       await sessionAbgelaufenNeu();
+
       return;
     }
 
@@ -2509,6 +3335,7 @@ async function ladeMeineAnfragenNeu(
       dienstResult.sessionExpired
     ) {
       await sessionAbgelaufenNeu();
+
       return;
     }
 
@@ -2601,6 +3428,10 @@ async function ladeMeineAnfragenNeu(
   }
 }
 
+
+// ==========================================================
+// ERHALTENE TAUSCHANFRAGEN
+// ==========================================================
 
 function rendereErhalteneTauschAnfragenNeu(
   anfragen
@@ -2820,6 +3651,10 @@ function rendereErhalteneTauschAnfragenNeu(
 }
 
 
+// ==========================================================
+// GESENDETE TAUSCHANFRAGEN
+// ==========================================================
+
 function rendereGesendeteTauschAnfragenNeu(
   anfragen
 ) {
@@ -2895,7 +3730,9 @@ function rendereGesendeteTauschAnfragenNeu(
                 a.eigenerDienst || ''
               )
             )}
+
             ↔
+
             ${escapeHtmlNeu(
               entferneDienstSymbol(
                 a.partnerDienst || ''
@@ -2935,6 +3772,10 @@ function rendereGesendeteTauschAnfragenNeu(
     html;
 }
 
+
+// ==========================================================
+// TAUSCHSTATUS ALS TEXT
+// ==========================================================
 
 function statusTextTauschNeu(
   anfrage
@@ -3008,6 +3849,10 @@ function statusTextTauschNeu(
 }
 
 
+// ==========================================================
+// ERHALTENE TAUSCHANFRAGE BEARBEITEN
+// ==========================================================
+
 async function bearbeiteErhalteneTauschAnfrageNeu(
   zeile,
   genehmigen
@@ -3019,6 +3864,7 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
 
   if (!token) {
     await sessionAbgelaufenNeu();
+
     return;
   }
 
@@ -3040,10 +3886,14 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
       await apiPost(
         'tauschAnfrageBearbeiten',
         {
-          token: token,
-          zeile: Number(
-            zeile
-          ),
+          token:
+            token,
+
+          zeile:
+            Number(
+              zeile
+            ),
+
           genehmigen:
             genehmigen === true
         }
@@ -3058,6 +3908,7 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
         result.sessionExpired
       ) {
         await sessionAbgelaufenNeu();
+
         return;
       }
 
@@ -3088,6 +3939,10 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
   }
 }
 
+
+// ==========================================================
+// SONSTIGE WÜNSCHE – EIGENE ANZEIGE
+// ==========================================================
 
 function rendereMeineDienstAnfragenNeu(
   anfragen
@@ -3177,6 +4032,7 @@ function rendereMeineDienstAnfragenNeu(
                   "
                 >
                   📅 ${escapeHtmlNeu(a.datum)}
+
                   ${
                     a.kw
                       ? ' · KW ' +
@@ -3241,6 +4097,10 @@ function rendereMeineDienstAnfragenNeu(
 }
 
 
+// ==========================================================
+// ANFRAGEN-BADGE
+// ==========================================================
+
 function aktualisiereAnfragenBadgeNeu(
   erhalten
 ) {
@@ -3263,6 +4123,7 @@ function aktualisiereAnfragenBadgeNeu(
             .trim()
             .toUpperCase() ===
             'OFFEN' &&
+
           String(
             a.gesamtstatus || ''
           )
@@ -3284,6 +4145,10 @@ function aktualisiereAnfragenBadgeNeu(
       : 'none';
 }
 
+
+// ==========================================================
+// ABWESENHEITEN – ANSICHT
+// ==========================================================
 
 function installiereAbwesenheitenAnsichtNeu() {
   if (
@@ -3317,7 +4182,9 @@ function installiereAbwesenheitenAnsichtNeu() {
   section.innerHTML = `
     <div class="content-header">
       <div>
-        <h1>Meine Abwesenheiten</h1>
+        <h1>
+          Meine Abwesenheiten
+        </h1>
 
         <p>
           Hier siehst du deine eingetragenen Abwesenheiten.
@@ -3369,6 +4236,10 @@ function installiereAbwesenheitenAnsichtNeu() {
 }
 
 
+// ==========================================================
+// ABWESENHEITEN LADEN
+// ==========================================================
+
 async function ladeMeineAbwesenheitenNeu() {
   const token =
     localStorage.getItem(
@@ -3377,6 +4248,7 @@ async function ladeMeineAbwesenheitenNeu() {
 
   if (!token) {
     await sessionAbgelaufenNeu();
+
     return;
   }
 
@@ -3395,7 +4267,8 @@ async function ladeMeineAbwesenheitenNeu() {
       await apiPost(
         'meinDienstplan',
         {
-          token: token
+          token:
+            token
         }
       );
 
@@ -3408,6 +4281,7 @@ async function ladeMeineAbwesenheitenNeu() {
         result.sessionExpired
       ) {
         await sessionAbgelaufenNeu();
+
         return;
       }
 
@@ -3447,6 +4321,10 @@ async function ladeMeineAbwesenheitenNeu() {
 }
 
 
+// ==========================================================
+// ABWESENHEITEN RENDERN
+// ==========================================================
+
 function rendereAbwesenheiten(
   abwesenheiten
 ) {
@@ -3455,6 +4333,7 @@ function rendereAbwesenheiten(
       document.getElementById(
         'abwesenheitenListe'
       ),
+
       document.getElementById(
         'abwesenheitenListeNeu'
       )
@@ -3524,6 +4403,7 @@ function rendereAbwesenheiten(
             "
           >
             ${escapeHtmlNeu(a.von || '')}
+
             ${
               a.bis
                 ? ' – ' +
@@ -3546,6 +4426,10 @@ function rendereAbwesenheiten(
   );
 }
 
+
+// ==========================================================
+// PIN & SICHERHEIT – ANSICHT
+// ==========================================================
 
 function installierePinAnsichtNeu() {
   if (
@@ -3715,6 +4599,10 @@ function installierePinAnsichtNeu() {
 }
 
 
+// ==========================================================
+// PIN ÄNDERN
+// ==========================================================
+
 async function aenderePinNeu() {
   const alterPin =
     String(
@@ -3788,6 +4676,7 @@ async function aenderePinNeu() {
 
   if (!token) {
     await sessionAbgelaufenNeu();
+
     return;
   }
 
@@ -3809,10 +4698,17 @@ async function aenderePinNeu() {
       await apiPost(
         'pinAendern',
         {
-          token: token,
-          alterPin: alterPin,
-          neuerPin1: neuerPin1,
-          neuerPin2: neuerPin2
+          token:
+            token,
+
+          alterPin:
+            alterPin,
+
+          neuerPin1:
+            neuerPin1,
+
+          neuerPin2:
+            neuerPin2
         }
       );
 
@@ -3825,6 +4721,7 @@ async function aenderePinNeu() {
         result.sessionExpired
       ) {
         await sessionAbgelaufenNeu();
+
         return;
       }
 
@@ -3880,6 +4777,10 @@ async function aenderePinNeu() {
 }
 
 
+// ==========================================================
+// PIN-MELDUNG
+// ==========================================================
+
 function zeigePinMeldungNeu(
   text,
   erfolgreich
@@ -3902,8 +4803,9 @@ function zeigePinMeldungNeu(
       : '#b00020';
 }
 
+
 // ==========================================================
-// ADMIN-BEREICH
+// ADMIN-BEREICH – ANSICHT
 // ==========================================================
 
 function installiereAdminAnsichtNeu() {
@@ -3992,7 +4894,12 @@ function installiereAdminAnsichtNeu() {
       </div>
     </div>
 
-    <div class="panel">
+    <div
+      class="panel"
+      style="
+        margin-bottom:18px;
+      "
+    >
       <h2 style="margin-top:0;">
         💬 Sonstige Wünsche
       </h2>
@@ -4004,7 +4911,40 @@ function installiereAdminAnsichtNeu() {
 
       <div id="adminDienstAnfragenListe">
         <div class="empty-state">
-          Anfragen werden geladen …
+          Wünsche werden geladen …
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 style="margin-top:0;">
+        🔐 PIN-Reset
+      </h2>
+
+      <p style="color:#666;">
+        Hier kannst du PIN-Reset-Anfragen
+        von Mitarbeitern genehmigen oder ablehnen.
+      </p>
+
+      <div
+        style="
+          margin:12px 0 16px;
+          padding:11px 12px;
+          border-radius:8px;
+          background:#fff8e8;
+          color:#6d5500;
+          font-size:13px;
+          line-height:1.45;
+        "
+      >
+        ℹ️ Bei einer Genehmigung wird der bisherige PIN gelöscht.
+        Der Mitarbeiter kann anschließend selbst
+        einen neuen 4-stelligen PIN festlegen.
+      </div>
+
+      <div id="adminPinResetListe">
+        <div class="empty-state">
+          PIN-Anfragen werden geladen …
         </div>
       </div>
     </div>
@@ -4033,6 +4973,11 @@ async function ladeAdminAnfragenNeu() {
       'adminDienstAnfragenListe'
     );
 
+  const pinListe =
+    document.getElementById(
+      'adminPinResetListe'
+    );
+
   if (
     !aktuellerAdmin
   ) {
@@ -4055,6 +5000,11 @@ async function ladeAdminAnfragenNeu() {
         html;
     }
 
+    if (pinListe) {
+      pinListe.innerHTML =
+        html;
+    }
+
     return;
   }
 
@@ -4065,6 +5015,7 @@ async function ladeAdminAnfragenNeu() {
 
   if (!token) {
     await sessionAbgelaufenNeu();
+
     return;
   }
 
@@ -4078,20 +5029,35 @@ async function ladeAdminAnfragenNeu() {
       '<div class="empty-state">Wünsche werden geladen …</div>';
   }
 
+  if (pinListe) {
+    pinListe.innerHTML =
+      '<div class="empty-state">PIN-Anfragen werden geladen …</div>';
+  }
+
   try {
     const ergebnisse =
       await Promise.all([
         apiPost(
           'adminTauschAnfragen',
           {
-            token: token
+            token:
+              token
           }
         ),
 
         apiPost(
           'adminDienstAnfragen',
           {
-            token: token
+            token:
+              token
+          }
+        ),
+
+        apiPost(
+          'adminPinResets',
+          {
+            token:
+              token
           }
         )
       ]);
@@ -4102,11 +5068,15 @@ async function ladeAdminAnfragenNeu() {
     const dienstResult =
       ergebnisse[1];
 
+    const pinResult =
+      ergebnisse[2];
+
     if (
       tauschResult &&
       tauschResult.sessionExpired
     ) {
       await sessionAbgelaufenNeu();
+
       return;
     }
 
@@ -4115,6 +5085,16 @@ async function ladeAdminAnfragenNeu() {
       dienstResult.sessionExpired
     ) {
       await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
+      pinResult &&
+      pinResult.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
       return;
     }
 
@@ -4138,6 +5118,16 @@ async function ladeAdminAnfragenNeu() {
       );
     }
 
+    if (
+      !pinResult ||
+      !pinResult.ok
+    ) {
+      throw new Error(
+        pinResult?.message ||
+        'PIN-Reset-Anfragen konnten nicht geladen werden.'
+      );
+    }
+
     const tauschAnfragen =
       Array.isArray(
         tauschResult.anfragen
@@ -4152,12 +5142,23 @@ async function ladeAdminAnfragenNeu() {
         ? dienstResult.anfragen
         : [];
 
+    const pinAnfragen =
+      Array.isArray(
+        pinResult.anfragen
+      )
+        ? pinResult.anfragen
+        : [];
+
     rendereAdminTauschAnfragenNeu(
       tauschAnfragen
     );
 
     rendereAdminDienstAnfragenNeu(
       dienstAnfragen
+    );
+
+    rendereAdminPinResetsNeu(
+      pinAnfragen
     );
 
   } catch (error) {
@@ -4182,6 +5183,11 @@ async function ladeAdminAnfragenNeu() {
 
     if (dienstListe) {
       dienstListe.innerHTML =
+        html;
+    }
+
+    if (pinListe) {
+      pinListe.innerHTML =
         html;
     }
   }
@@ -4376,6 +5382,7 @@ async function bearbeiteAdminTauschAnfrageNeu(
 
   if (!token) {
     await sessionAbgelaufenNeu();
+
     return;
   }
 
@@ -4384,10 +5391,14 @@ async function bearbeiteAdminTauschAnfrageNeu(
       await apiPost(
         'adminTauschAnfrageBearbeiten',
         {
-          token: token,
-          zeile: Number(
-            zeile
-          ),
+          token:
+            token,
+
+          zeile:
+            Number(
+              zeile
+            ),
+
           genehmigen:
             genehmigen === true
         }
@@ -4402,6 +5413,7 @@ async function bearbeiteAdminTauschAnfrageNeu(
         result.sessionExpired
       ) {
         await sessionAbgelaufenNeu();
+
         return;
       }
 
@@ -4503,6 +5515,7 @@ function rendereAdminDienstAnfragenNeu(
                   "
                 >
                   📅 ${escapeHtmlNeu(a.datum)}
+
                   ${
                     a.kw
                       ? ' · KW ' +
@@ -4545,6 +5558,7 @@ function rendereAdminDienstAnfragenNeu(
                   "
                 >
                   Dienst:
+
                   <strong>
                     ${escapeHtmlNeu(
                       entferneDienstSymbol(
@@ -4668,6 +5682,7 @@ async function bearbeiteAdminDienstAnfrageNeu(
 
   if (!token) {
     await sessionAbgelaufenNeu();
+
     return;
   }
 
@@ -4676,10 +5691,14 @@ async function bearbeiteAdminDienstAnfrageNeu(
       await apiPost(
         'adminDienstAnfrageBearbeiten',
         {
-          token: token,
-          zeile: Number(
-            zeile
-          ),
+          token:
+            token,
+
+          zeile:
+            Number(
+              zeile
+            ),
+
           genehmigen:
             genehmigen === true
         }
@@ -4694,6 +5713,7 @@ async function bearbeiteAdminDienstAnfrageNeu(
         result.sessionExpired
       ) {
         await sessionAbgelaufenNeu();
+
         return;
       }
 
@@ -4712,6 +5732,270 @@ async function bearbeiteAdminDienstAnfrageNeu(
 
   } catch (error) {
     console.error(
+      error
+    );
+
+    window.alert(
+      'Fehler: ' +
+      error.message
+    );
+  }
+}
+
+
+// ==========================================================
+// ADMIN – PIN-RESET-ANFRAGEN
+// ==========================================================
+
+function rendereAdminPinResetsNeu(
+  anfragen
+) {
+  const liste =
+    document.getElementById(
+      'adminPinResetListe'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (
+    !anfragen ||
+    anfragen.length === 0
+  ) {
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine offenen PIN-Reset-Anfragen.
+      </div>
+    `;
+
+    return;
+  }
+
+  let html =
+    '';
+
+  anfragen.forEach(
+    function(a) {
+      html += `
+        <div
+          style="
+            border:1px solid #dde1e5;
+            border-radius:11px;
+            padding:15px;
+            margin-bottom:12px;
+            background:#ffffff;
+          "
+        >
+          <div
+            style="
+              display:flex;
+              align-items:flex-start;
+              gap:12px;
+            "
+          >
+            <div
+              style="
+                width:42px;
+                height:42px;
+                border-radius:50%;
+                background:#f4f5f6;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:21px;
+                flex:0 0 auto;
+              "
+            >
+              🔐
+            </div>
+
+            <div
+              style="
+                flex:1;
+                min-width:0;
+              "
+            >
+              <strong
+                style="
+                  display:block;
+                  font-size:16px;
+                "
+              >
+                ${escapeHtmlNeu(a.mitarbeiter || '')}
+              </strong>
+
+              <div
+                style="
+                  margin-top:4px;
+                  color:#666;
+                "
+              >
+                Möchte den persönlichen PIN zurücksetzen.
+              </div>
+
+              ${
+                a.zeitstempel
+                  ? `
+                    <div
+                      style="
+                        margin-top:6px;
+                        color:#888;
+                        font-size:13px;
+                      "
+                    >
+                      🕒 ${escapeHtmlNeu(a.zeitstempel)}
+                    </div>
+                  `
+                  : ''
+              }
+            </div>
+          </div>
+
+          <div
+            style="
+              margin-top:12px;
+              padding:10px 11px;
+              border-radius:8px;
+              background:#fff8e8;
+              color:#6d5500;
+              font-size:13px;
+              line-height:1.45;
+            "
+          >
+            Bei Genehmigung wird nur der bisherige PIN gelöscht.
+            Der Mitarbeiter legt danach selbst einen neuen PIN fest.
+          </div>
+
+          <div
+            style="
+              display:flex;
+              gap:10px;
+              flex-wrap:wrap;
+              margin-top:14px;
+            "
+          >
+            <button
+              type="button"
+              onclick="bearbeiteAdminPinResetNeu(${Number(a.zeile)}, true)"
+              style="
+                border:0;
+                background:#14943b;
+                color:#ffffff;
+                border-radius:8px;
+                padding:9px 14px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ✅ Reset genehmigen
+            </button>
+
+            <button
+              type="button"
+              onclick="bearbeiteAdminPinResetNeu(${Number(a.zeile)}, false)"
+              style="
+                border:1px solid #c9cdd2;
+                background:#ffffff;
+                color:#b00020;
+                border-radius:8px;
+                padding:9px 14px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ❌ Ablehnen
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  );
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// ADMIN – PIN RESET BEARBEITEN
+// ==========================================================
+
+async function bearbeiteAdminPinResetNeu(
+  zeile,
+  genehmigen
+) {
+  const frage =
+    genehmigen
+      ? 'PIN-Reset wirklich genehmigen? Der bisherige PIN des Mitarbeiters wird gelöscht.'
+      : 'PIN-Reset-Anfrage wirklich ablehnen?';
+
+  if (
+    !window.confirm(
+      frage
+    )
+  ) {
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+
+    return;
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'adminPinResetBearbeiten',
+        {
+          token:
+            token,
+
+          zeile:
+            Number(
+              zeile
+            ),
+
+          genehmigen:
+            genehmigen === true
+        }
+      );
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      if (
+        result &&
+        result.sessionExpired
+      ) {
+        await sessionAbgelaufenNeu();
+
+        return;
+      }
+
+      throw new Error(
+        result?.message ||
+        'PIN-Reset konnte nicht bearbeitet werden.'
+      );
+    }
+
+    window.alert(
+      result.message ||
+      'PIN-Anfrage wurde bearbeitet.'
+    );
+
+    await ladeAdminAnfragenNeu();
+
+  } catch (error) {
+    console.error(
+      'PIN Reset Admin:',
       error
     );
 
@@ -4801,6 +6085,7 @@ function installiereSonstigerWunschAnsichtNeu() {
         "
       >
         Bezug zu einem Dienst
+
         <span
           style="
             font-weight:400;
@@ -4918,7 +6203,7 @@ function installiereSonstigerWunschAnsichtNeu() {
 
 
 // ==========================================================
-// EIGENE DIENSTE FÜR SONSTIGEN WUNSCH
+// DIENSTE FÜR SONSTIGEN WUNSCH
 // ==========================================================
 
 function ladeSonstigerWunschDiensteNeu() {
@@ -4953,8 +6238,10 @@ function ladeSonstigerWunschDiensteNeu() {
         JSON.stringify({
           datum:
             option.datum,
+
           kw:
             option.kw,
+
           dienst:
             option.dienst
         });
@@ -4971,7 +6258,7 @@ function ladeSonstigerWunschDiensteNeu() {
 
 
 // ==========================================================
-// EIGENE TAUSCHBARE DIENSTE ZUSAMMENFASSEN
+// EIGENE DIENSTE ZUSAMMENFASSEN
 // ==========================================================
 
 function baueEigeneDienstOptionenNeu(
@@ -5003,10 +6290,13 @@ function baueEigeneDienstOptionenNeu(
         ergebnis.push({
           datum:
             datum,
+
           kw:
             kw,
+
           dienst:
             'Garden Plaza – Früh',
+
           label:
             datum +
             ' · ' +
@@ -5021,10 +6311,13 @@ function baueEigeneDienstOptionenNeu(
         ergebnis.push({
           datum:
             datum,
+
           kw:
             kw,
+
           dienst:
             'Garden Plaza – Spät',
+
           label:
             datum +
             ' · ' +
@@ -5040,10 +6333,13 @@ function baueEigeneDienstOptionenNeu(
         ergebnis.push({
           datum:
             datum,
+
           kw:
             kw,
+
           dienst:
             'Water Plaza – Ganztag',
+
           label:
             datum +
             ' · ' +
@@ -5060,10 +6356,13 @@ function baueEigeneDienstOptionenNeu(
         ergebnis.push({
           datum:
             datum,
+
           kw:
             kw,
+
           dienst:
             'Water Plaza – Früh',
+
           label:
             datum +
             ' · ' +
@@ -5078,10 +6377,13 @@ function baueEigeneDienstOptionenNeu(
         ergebnis.push({
           datum:
             datum,
+
           kw:
             kw,
+
           dienst:
             'Water Plaza – Spät',
+
           label:
             datum +
             ' · ' +
@@ -5162,6 +6464,7 @@ async function sendeSonstigenWunschNeu() {
 
   if (!token) {
     await sessionAbgelaufenNeu();
+
     return;
   }
 
@@ -5232,14 +6535,19 @@ async function sendeSonstigenWunschNeu() {
         {
           token:
             token,
+
           datum:
             datum,
+
           kw:
             kw,
+
           dienst:
             dienst,
+
           art:
             'Sonstiger Wunsch',
+
           nachricht:
             nachricht
         }
@@ -5254,6 +6562,7 @@ async function sendeSonstigenWunschNeu() {
         result.sessionExpired
       ) {
         await sessionAbgelaufenNeu();
+
         return;
       }
 
@@ -5787,11 +7096,6 @@ function installiereNavigationErweiterungNeu() {
         seite ===
         'sonstigerWunsch'
       ) {
-        /*
-          Falls der Dienstplan nach einem direkten Seitenaufruf
-          noch nicht im Speicher ist, laden wir ihn zuerst.
-        */
-
         if (
           !Array.isArray(
             letzterDienstplan
@@ -6029,7 +7333,8 @@ async function logoutAusfuehren() {
       await apiPost(
         'logout',
         {
-          token: token
+          token:
+            token
         }
       );
 
@@ -6071,39 +7376,11 @@ async function logoutAusfuehren() {
       'none';
   }
 
+  schliessePinFestlegenDialogNeu();
+
   zeigeLogin();
 
   await ladeMitarbeiter();
-}
-
-
-// ==========================================================
-// PIN VERGESSEN
-// ==========================================================
-
-async function pinVergessenNeu() {
-  const name =
-    String(
-      document
-        .getElementById(
-          'loginName'
-        )
-        ?.value || ''
-    ).trim();
-
-  if (!name) {
-    zeigeLoginMeldung(
-      'Bitte wähle zuerst deinen Namen aus.',
-      'fehler'
-    );
-
-    return;
-  }
-
-  zeigeLoginMeldung(
-    'Bitte wende dich für einen PIN-Reset an Babsi.',
-    'erfolg'
-  );
 }
 
 
