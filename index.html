@@ -10,11 +10,6 @@
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
   >
 
-  <!-- Browser soll bei der Hauptseite immer auf Aktualität prüfen. -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-
   <meta
     name="theme-color"
     content="#e30613"
@@ -22,24 +17,21 @@
 
   <title>SCS Team</title>
 
-
   <link
     rel="stylesheet"
-    href="style.css?v=1.0.0"
+    href="style.css?v=20260821-1"
   >
-
 
   <link
     rel="manifest"
-    href="manifest.json?v=1.0.0"
+    href="manifest.json"
   >
-
 
 
   <style>
 
     /* =====================================================
-       GRUNDLAYOUT
+       APP-LAYOUT
        ===================================================== */
 
     #hauptApp {
@@ -48,240 +40,77 @@
       min-width: 0 !important;
     }
 
-
     #hauptApp .content {
       width: 100% !important;
-      min-width: 0 !important;
       margin-left: 0 !important;
+      min-width: 0 !important;
     }
-
 
 
     /* =====================================================
-       OBERER BALKEN
-       HANDY + PC
+       MOBILER HEADER
        ===================================================== */
 
     .mobile-header {
-      position: sticky !important;
-      top: 0 !important;
-
-      z-index: 1200 !important;
-
-      display: flex !important;
-      align-items: center !important;
-
+      flex: 0 0 auto !important;
       width: 100% !important;
-      min-height: 66px !important;
-
-      padding:
-        8px 18px !important;
-
-      background:
-        rgba(
-          247,
-          248,
-          250,
-          0.97
-        ) !important;
-
-      border-bottom:
-        1px solid #e6e8eb !important;
-
-      backdrop-filter:
-        blur(10px);
-
-      -webkit-backdrop-filter:
-        blur(10px);
     }
-
 
     .mobile-header > div {
       display: none !important;
     }
 
-
     .mobile-header > .mobile-seitentitel {
       display: block !important;
     }
 
-
-    .mobile-menu {
-      flex: 0 0 auto !important;
-
-      width: 48px !important;
-      height: 48px !important;
-
-      padding: 0 !important;
-
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-
-      border: none !important;
-
-      border-radius:
-        11px !important;
-
-      background:
-        #e30613 !important;
-
-      color:
-        #ffffff !important;
-
-      font-size:
-        27px !important;
-
-      line-height:
-        1 !important;
-
-      cursor:
-        pointer;
-
-      box-shadow:
-        0 7px 18px
-        rgba(
-          227,
-          6,
-          19,
-          0.20
-        );
-    }
-
-
     .mobile-seitentitel {
       flex: 1;
-
       min-width: 0;
-
-      margin-right:
-        48px;
-
-      text-align:
-        center;
-
-      color:
-        #171717;
-
-      font-size:
-        22px;
-
-      font-weight:
-        800;
-
-      line-height:
-        1.2;
-
-      white-space:
-        nowrap;
-
-      overflow:
-        hidden;
-
-      text-overflow:
-        ellipsis;
+      margin-right: 50px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 750;
+      line-height: 1.15;
+      color: #171717;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
 
 
     /* =====================================================
        NEUTRALES KALENDER-SYMBOL
+
+       Kein Emoji mit "July 17".
        ===================================================== */
 
-    .kalender-icon-neu {
-      position:
-        relative;
-
-      display:
-        inline-block;
-
-      width:
-        23px;
-
-      height:
-        21px;
-
-      margin-right:
-        7px;
-
-      border:
-        2px solid #e30613;
-
-      border-radius:
-        5px;
-
-      vertical-align:
-        -3px;
-
-      box-sizing:
-        border-box;
+    .kalender-symbol {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 29px;
+      height: 29px;
+      margin-right: 5px;
+      border: 2px solid #e30613;
+      border-radius: 5px;
+      color: #e30613;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+      vertical-align: -3px;
     }
-
-
-    .kalender-icon-neu::before {
-      content:
-        "";
-
-      position:
-        absolute;
-
-      left:
-        -2px;
-
-      right:
-        -2px;
-
-      top:
-        4px;
-
-      height:
-        4px;
-
-      background:
-        #e30613;
-    }
-
-
-    .kalender-icon-neu::after {
-      content:
-        "";
-
-      position:
-        absolute;
-
-      left:
-        4px;
-
-      top:
-        11px;
-
-      width:
-        3px;
-
-      height:
-        3px;
-
-      border-radius:
-        50%;
-
-      background:
-        #e30613;
-
-      box-shadow:
-        6px 0 #e30613,
-        12px 0 #e30613;
-    }
-
 
 
     /* =====================================================
-       PLAZA-FARBEN
+       DIENSTFARBEN
 
-       Farbe = Arbeitsplatz
-       NICHT Früh / Spät
+       Früh nur grün
+       Spät nur blau
        ===================================================== */
 
-    #dienstplanListe .scs-plaza-garden {
+    #dienstplanListe .einsatz.scs-schicht-frueh {
       border-left:
         6px solid #14943b !important;
 
@@ -289,8 +118,7 @@
         #f5fff8 !important;
     }
 
-
-    #dienstplanListe .scs-plaza-water {
+    #dienstplanListe .einsatz.scs-schicht-spaet {
       border-left:
         6px solid #1754d1 !important;
 
@@ -299,338 +127,88 @@
     }
 
 
+    /* Falls app.js andere Kartennamen verwendet */
 
-    /* =====================================================
-       WOCHEN-NAVIGATION
-       HANDY + PC
-       ===================================================== */
-
-    #wochenNavigation.wochen-navigation {
-      display:
-        grid !important;
-
-      grid-template-columns:
-        58px minmax(0, 1fr) 58px !important;
-
-      align-items:
-        center !important;
-
-      gap:
-        12px !important;
-
-      width:
-        100% !important;
-
-      min-height:
-        108px !important;
-
-      margin:
-        0 0 20px !important;
-
-      padding:
-        18px 14px !important;
-
-      border:
-        1px solid #dfe2e6 !important;
-
-      border-radius:
-        13px !important;
-
-      background:
-        #fafafa !important;
-
-      box-sizing:
-        border-box !important;
+    #dienstplanListe .scs-schicht-frueh {
+      border-left-color:
+        #14943b !important;
     }
 
-
-    #wochenNavigation .wochen-mitte {
-      display:
-        flex !important;
-
-      flex-direction:
-        column !important;
-
-      align-items:
-        center !important;
-
-      justify-content:
-        center !important;
-
-      min-width:
-        0 !important;
-
-      text-align:
-        center !important;
+    #dienstplanListe .scs-schicht-spaet {
+      border-left-color:
+        #1754d1 !important;
     }
-
-
-    #wochenNavigation .wochen-label {
-      display:
-        block !important;
-
-      margin:
-        0 0 5px !important;
-
-      color:
-        #666666 !important;
-
-      font-size:
-        15px !important;
-
-      font-weight:
-        500 !important;
-
-      line-height:
-        1.2 !important;
-    }
-
-
-    #kwAnzeige {
-      display:
-        block !important;
-
-      margin:
-        0 !important;
-
-      color:
-        #e30613 !important;
-
-      font-size:
-        25px !important;
-
-      font-weight:
-        800 !important;
-
-      line-height:
-        1.15 !important;
-    }
-
-
-    #wochenNavigation .wochen-button {
-      width:
-        58px !important;
-
-      height:
-        58px !important;
-
-      min-width:
-        58px !important;
-
-      min-height:
-        58px !important;
-
-      padding:
-        0 !important;
-
-      margin:
-        0 !important;
-
-      display:
-        flex !important;
-
-      align-items:
-        center !important;
-
-      justify-content:
-        center !important;
-
-      border:
-        1px solid #d4d7db !important;
-
-      border-radius:
-        12px !important;
-
-      background:
-        #ffffff !important;
-
-      color:
-        #e30613 !important;
-
-      font-size:
-        34px !important;
-
-      font-weight:
-        400 !important;
-
-      line-height:
-        1 !important;
-
-      cursor:
-        pointer;
-    }
-
-
-    #wochenNavigation .wochen-button:hover {
-      background:
-        #fff5f6 !important;
-
-      border-color:
-        #e30613 !important;
-    }
-
-
-    #wochenNavigation .wochen-button:active {
-      transform:
-        scale(0.95);
-    }
-
 
 
     /* =====================================================
-       DIENSTKARTEN
-       ===================================================== */
-
-    #dienstplanListe {
-      width:
-        100% !important;
-    }
-
-
-    #dienstplanListe button {
-      min-height:
-        42px !important;
-    }
-
-
-    #dienstplanListe .scs-plaza-garden,
-    #dienstplanListe .scs-plaza-water {
-      border-radius:
-        11px !important;
-    }
-
-
-
-    /* =====================================================
-       DESKTOP
-       ===================================================== */
-
-    @media screen and (min-width: 901px) {
-
-      #hauptApp .content {
-        width:
-          min(
-            100%,
-            1500px
-          ) !important;
-
-        margin:
-          0 auto !important;
-
-        padding:
-          18px 34px 50px !important;
-      }
-
-
-      .content-header {
-        width:
-          100% !important;
-      }
-
-
-      /*
-        Seitentitel steht oben im Balken.
-      */
-
-      .content-header h1 {
-        display:
-          none !important;
-      }
-
-
-      #dienstplanAnsicht
-      .content-header {
-        margin:
-          0 !important;
-      }
-
-
-      /*
-        Nur die kurze Beschreibung bleibt
-        unter dem oberen Balken sichtbar.
-      */
-
-      #dienstplanAnsicht
-      .content-header p {
-        display:
-          block !important;
-
-        margin:
-          0 0 18px !important;
-
-        text-align:
-          center !important;
-
-        color:
-          #555555 !important;
-      }
-
-
-      .dienstplan-info {
-        width:
-          min(
-            100%,
-            920px
-          ) !important;
-
-        margin:
-          0 auto 26px !important;
-      }
-
-
-      .dienstplan-bereich {
-        width:
-          min(
-            100%,
-            1120px
-          ) !important;
-
-        margin-left:
-          auto !important;
-
-        margin-right:
-          auto !important;
-      }
-
-    }
-
-
-
-    /* =====================================================
-       HANDY / TABLET
+       HANDY
        ===================================================== */
 
     @media screen and (max-width: 900px) {
 
       .mobile-header {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1200 !important;
+
+        display: flex !important;
+        align-items: center !important;
+
+        width: 100% !important;
+        min-height: 66px !important;
+
         padding-top:
-          max(
-            8px,
-            env(safe-area-inset-top)
-          ) !important;
+          max(8px, env(safe-area-inset-top)) !important;
 
         padding-right:
-          max(
-            12px,
-            env(safe-area-inset-right)
-          ) !important;
+          max(12px, env(safe-area-inset-right)) !important;
 
         padding-bottom:
           8px !important;
 
         padding-left:
-          max(
-            12px,
-            env(safe-area-inset-left)
-          ) !important;
+          max(12px, env(safe-area-inset-left)) !important;
+
+        background:
+          rgba(247, 248, 250, 0.97) !important;
+
+        border-bottom:
+          1px solid #eceef1 !important;
+
+        backdrop-filter:
+          blur(10px);
+
+        -webkit-backdrop-filter:
+          blur(10px);
       }
 
+      .mobile-menu {
+        flex: 0 0 auto !important;
+
+        width: 48px !important;
+        height: 48px !important;
+
+        border-radius:
+          11px !important;
+      }
 
       .mobile-seitentitel {
         font-size:
           21px;
       }
 
+
+      /* ===================================================
+         HAUPTINHALT
+         =================================================== */
+
+      #hauptApp {
+        flex-direction:
+          column !important;
+
+        width:
+          100% !important;
+      }
 
       #hauptApp .content {
         display:
@@ -652,35 +230,22 @@
           12px !important;
 
         padding-right:
-          max(
-            12px,
-            env(safe-area-inset-right)
-          ) !important;
+          max(12px, env(safe-area-inset-right)) !important;
 
         padding-bottom:
-          max(
-            35px,
-            env(safe-area-inset-bottom)
-          ) !important;
+          max(35px, env(safe-area-inset-bottom)) !important;
 
         padding-left:
-          max(
-            12px,
-            env(safe-area-inset-left)
-          ) !important;
+          max(12px, env(safe-area-inset-left)) !important;
       }
 
 
-
-      /* -----------------------------------------------
-         TITEL UNTEN AUSBLENDEN
-         ----------------------------------------------- */
+      /* Titel steht bereits oben im Balken */
 
       .content-header h1 {
         display:
           none !important;
       }
-
 
       .content-header {
         width:
@@ -688,8 +253,10 @@
 
         margin:
           0 0 18px !important;
-      }
 
+        text-align:
+          left !important;
+      }
 
       .content-header p {
         margin:
@@ -706,10 +273,9 @@
       }
 
 
-
-      /* -----------------------------------------------
+      /* ===================================================
          WOCHENSTUNDEN
-         ----------------------------------------------- */
+         =================================================== */
 
       .dienstplan-info {
         width:
@@ -722,17 +288,15 @@
           0 0 14px !important;
       }
 
-
       .dienstplan-info > div {
         padding:
           15px 16px !important;
       }
 
 
-
-      /* -----------------------------------------------
+      /* ===================================================
          MEINE DIENSTE
-         ----------------------------------------------- */
+         =================================================== */
 
       .dienstplan-bereich {
         width:
@@ -748,60 +312,169 @@
           0 !important;
       }
 
-
       .dienstplan-bereich h2 {
         margin-bottom:
           16px !important;
       }
 
 
-      #wochenNavigation.wochen-navigation {
+      /* ===================================================
+         WOCHENAUSWAHL
+
+         ‹    Ausgewählte Woche    ›
+                     KW 1
+         =================================================== */
+
+      .wochen-navigation {
+        display:
+          grid !important;
+
         grid-template-columns:
-          50px minmax(0, 1fr) 50px !important;
+          54px minmax(0, 1fr) 54px !important;
+
+        align-items:
+          center !important;
 
         gap:
-          9px !important;
+          10px !important;
 
-        min-height:
-          104px !important;
+        width:
+          100% !important;
 
         padding:
-          14px 10px !important;
+          15px 12px !important;
 
-        margin-bottom:
-          18px !important;
+        margin:
+          0 0 18px !important;
+
+        border:
+          1px solid #e1e4e8 !important;
+
+        border-radius:
+          13px !important;
+
+        background:
+          #fafafa !important;
       }
 
+      .wochen-mitte {
+        display:
+          flex !important;
 
-      #wochenNavigation .wochen-button {
-        width:
-          50px !important;
+        flex-direction:
+          column !important;
 
-        height:
-          50px !important;
+        align-items:
+          center !important;
+
+        justify-content:
+          center !important;
 
         min-width:
-          50px !important;
+          0 !important;
 
-        min-height:
-          50px !important;
-
-        font-size:
-          31px !important;
+        text-align:
+          center !important;
       }
 
+      .wochen-label {
+        display:
+          block !important;
 
-      #wochenNavigation .wochen-label {
+        margin-bottom:
+          4px !important;
+
+        color:
+          #666666 !important;
+
         font-size:
           13px !important;
-      }
 
+        line-height:
+          1.2 !important;
+      }
 
       #kwAnzeige {
+        display:
+          block !important;
+
+        color:
+          #e30613 !important;
+
         font-size:
-          22px !important;
+          24px !important;
+
+        font-weight:
+          800 !important;
+
+        line-height:
+          1.2 !important;
       }
 
+      .wochen-button {
+        width:
+          54px !important;
+
+        height:
+          54px !important;
+
+        min-width:
+          54px !important;
+
+        min-height:
+          54px !important;
+
+        padding:
+          0 !important;
+
+        display:
+          flex !important;
+
+        align-items:
+          center !important;
+
+        justify-content:
+          center !important;
+
+        border:
+          1px solid #d5d8dc !important;
+
+        border-radius:
+          12px !important;
+
+        background:
+          #ffffff !important;
+
+        color:
+          #e30613 !important;
+
+        font-family:
+          Arial, sans-serif !important;
+
+        font-size:
+          36px !important;
+
+        font-weight:
+          400 !important;
+
+        line-height:
+          1 !important;
+      }
+
+      .wochen-button:active {
+        transform:
+          scale(0.95);
+      }
+
+
+      /* ===================================================
+         DIENSTKARTEN
+         =================================================== */
+
+      #dienstplanListe {
+        width:
+          100% !important;
+      }
 
       #dienstplanListe button {
         min-height:
@@ -817,8 +490,12 @@
           14px !important;
       }
 
-    }
+      #dienstplanListe .einsatz {
+        border-radius:
+          11px !important;
+      }
 
+    }
 
 
     /* =====================================================
@@ -835,14 +512,18 @@
           20px;
       }
 
-
-      #wochenNavigation.wochen-navigation {
+      .wochen-navigation {
         grid-template-columns:
           48px minmax(0, 1fr) 48px !important;
+
+        gap:
+          8px !important;
+
+        padding:
+          13px 10px !important;
       }
 
-
-      #wochenNavigation .wochen-button {
+      .wochen-button {
         width:
           48px !important;
 
@@ -854,6 +535,14 @@
 
         min-height:
           48px !important;
+
+        font-size:
+          32px !important;
+      }
+
+      #kwAnzeige {
+        font-size:
+          22px !important;
       }
 
     }
@@ -861,6 +550,7 @@
   </style>
 
 </head>
+
 
 <body>
 
@@ -914,11 +604,9 @@
       id="loginName"
       class="login-eingabe"
     >
-
       <option value="">
         👤 Mitarbeiter auswählen
       </option>
-
     </select>
 
 
@@ -999,7 +687,6 @@
         👤
       </div>
 
-
       <div>
 
         <div
@@ -1019,7 +706,6 @@
 
 
     <div class="sidebar-trenner"></div>
-
 
 
     <nav class="nav">
@@ -1052,7 +738,6 @@
         </span>
 
       </button>
-
 
 
       <div
@@ -1124,7 +809,6 @@
       </button>
 
 
-
       <div
         style="
           padding:20px 10px 5px;
@@ -1142,7 +826,6 @@
 
         <button
           class="nav-item nav-hauptpunkt"
-          type="button"
           onclick="toggleTauschMenue()"
         >
 
@@ -1167,15 +850,20 @@
         >
 
           <button
-            type="button"
-            onclick="oeffneDiensttauschAusMenueNeu()"
+            onclick="zeigeSeite('dienstAendern')"
+          >
+            Dienst ändern
+          </button>
+
+
+          <button
+            onclick="zeigeSeite('dienstTauschen')"
           >
             Dienst tauschen
           </button>
 
 
           <button
-            type="button"
             onclick="zeigeSeite('sonstigerWunsch')"
           >
             Sonstiger Wunsch
@@ -1186,11 +874,8 @@
       </div>
 
 
-
       <div
-        id="adminTitel"
         style="
-          display:none;
           padding:20px 10px 5px;
           color:#777;
           font-size:12px;
@@ -1238,13 +923,11 @@
     </nav>
 
 
-
     <div class="sidebar-update">
 
       <div class="sidebar-update-icon">
         🕒
       </div>
-
 
       <div>
 
@@ -1261,7 +944,6 @@
     </div>
 
   </aside>
-
 
 
   <!-- ====================================================
@@ -1290,13 +972,11 @@
   </header>
 
 
-
   <!-- ====================================================
        HAUPTBEREICH
        ==================================================== -->
 
   <main class="content">
-
 
 
     <!-- ==================================================
@@ -1308,26 +988,22 @@
       style="display:none;"
     >
 
-
-      <!--
-        WICHTIG:
-        Hier gibt es absichtlich KEIN zweites
-        <h1>Mein Dienstplan</h1> mehr.
-      -->
-
       <div class="content-header">
 
-        <p>
-          Hier siehst du deine persönlichen Dienste.
-        </p>
+        <div>
+
+          <h1>
+            Mein Dienstplan
+          </h1>
+
+          <p>
+            Hier siehst du deine persönlichen Dienste.
+          </p>
+
+        </div>
 
       </div>
 
-
-
-      <!-- ==================================================
-           WOCHENSTUNDEN
-           ================================================== -->
 
       <div class="dienstplan-info">
 
@@ -1346,32 +1022,16 @@
       </div>
 
 
-
-      <!-- ==================================================
-           MEINE DIENSTE
-           ================================================== -->
-
       <div class="dienstplan-bereich">
 
         <h2>
-
           <span
-            class="kalender-icon-neu"
+            class="kalender-symbol"
             aria-hidden="true"
-          ></span>
-
+          >▦</span>
           Meine Dienste
-
         </h2>
 
-
-
-        <!-- =================================================
-             WOCHEN-NAVIGATION
-
-             ‹      Ausgewählte Woche      ›
-                         KW 1
-             ================================================= -->
 
         <div
           id="wochenNavigation"
@@ -1396,7 +1056,7 @@
             </span>
 
             <strong id="kwAnzeige">
-              KW 1
+              KW —
             </strong>
 
           </div>
@@ -1415,7 +1075,6 @@
         </div>
 
 
-
         <div id="dienstplanLaden">
           Dienstplan wird geladen …
         </div>
@@ -1426,17 +1085,11 @@
       </div>
 
 
-
-      <!-- ==================================================
-           ABWESENHEITEN AUF DIENSTPLANSEITE
-           ================================================== -->
-
       <div class="dienstplan-bereich">
 
         <h2>
           🏖️ Meine Abwesenheiten
         </h2>
-
 
         <div id="abwesenheitenListe">
           Keine Abwesenheiten vorhanden.
@@ -1444,8 +1097,8 @@
 
       </div>
 
-
     </section>
+
 
         <!-- ==================================================
          DIENST TAUSCHEN
@@ -1455,7 +1108,6 @@
       id="tauschAnsicht"
       style="display:none;"
     >
-
 
       <div class="content-header">
 
@@ -1472,12 +1124,10 @@
 
         </div>
 
-
         <button
           class="close-button"
           type="button"
           onclick="zeigeSeite('dienstplan')"
-          aria-label="Schließen"
         >
           ×
         </button>
@@ -1485,13 +1135,11 @@
       </div>
 
 
-
       <!-- ==================================================
            SCHRITTE
            ================================================== -->
 
       <div class="schritte">
-
 
         <div class="schritt aktiv">
 
@@ -1553,14 +1201,11 @@
 
         </div>
 
-
       </div>
-
 
 
       <!-- ==================================================
            SCHRITT 1
-           TAG AUSWÄHLEN
            ================================================== -->
 
       <section class="panel">
@@ -1574,11 +1219,9 @@
               1. Tag auswählen
             </h2>
 
-
             <p class="beschreibung">
               Für welchen Tag möchtest du tauschen?
             </p>
-
 
 
             <div class="datum-navigation">
@@ -1586,7 +1229,6 @@
               <button
                 class="pfeil-button"
                 type="button"
-                aria-label="Vorheriger Tag"
               >
                 ←
               </button>
@@ -1598,7 +1240,7 @@
               >
 
                 <span>
-                  📅
+                  📆
                 </span>
 
                 <strong>
@@ -1613,7 +1255,6 @@
               <button
                 class="pfeil-button"
                 type="button"
-                aria-label="Nächster Tag"
               >
                 →
               </button>
@@ -1621,13 +1262,11 @@
             </div>
 
 
-
             <div class="info-box">
 
               <span>
                 ℹ️
               </span>
-
 
               <div>
                 Es werden nur Tage angezeigt, an denen du
@@ -1637,21 +1276,15 @@
             </div>
 
 
-
             <button
               class="secondary-button"
               type="button"
             >
-              📅 Anderen Tag wählen
+              📆 Anderen Tag wählen
             </button>
 
           </div>
 
-
-
-          <!-- ==================================================
-               EIGENE DIENSTE
-               ================================================== -->
 
           <div class="eigene-dienste">
 
@@ -1659,37 +1292,30 @@
               Deine Dienste an diesem Tag
             </h3>
 
-
             <div class="empty-state">
               Bitte wähle zuerst einen Tag aus.
             </div>
 
           </div>
 
-
         </div>
 
       </section>
 
 
-
       <!-- ==================================================
            SCHRITT 2
-           DIENST WÄHLEN
            ================================================== -->
 
       <section class="panel">
-
 
         <h2>
           2. Dienst wählen
         </h2>
 
-
         <p class="beschreibung">
           Wähle den Dienst, den du tauschen möchtest.
         </p>
-
 
 
         <div class="dienst-auswahl">
@@ -1701,9 +1327,7 @@
         </div>
 
 
-
         <div class="panel-unten">
-
 
           <div class="hinweis">
 
@@ -1712,7 +1336,6 @@
             mit dem du tauschen möchtest.
 
           </div>
-
 
 
           <button
@@ -1724,17 +1347,13 @@
             <span>→</span>
           </button>
 
-
         </div>
-
 
       </section>
 
 
-
       <!-- ==================================================
            SCHRITT 3
-           KOLLEGEN WÄHLEN
            ================================================== -->
 
       <section
@@ -1742,16 +1361,13 @@
         class="panel versteckt"
       >
 
-
         <h2>
           3. Kollegen wählen
         </h2>
 
-
         <p class="beschreibung">
           Mit wem möchtest du deinen Dienst tauschen?
         </p>
-
 
 
         <div class="kollegen-grid">
@@ -1761,7 +1377,6 @@
           </div>
 
         </div>
-
 
       </section>
 
@@ -1777,17 +1392,18 @@
 </div>
 <!-- /hauptApp -->
 
+
   <!-- ======================================================
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=1.0.0"></script>
+<script src="app.js?v=20260821-1"></script>
 
 
 <script>
 
 /* =========================================================
-   MOBILER / OBERER SEITENTITEL
+   MOBILE SEITENTITEL
    ========================================================= */
 
 function aktualisiereMobileSeitentitelNeu(seite) {
@@ -1819,6 +1435,9 @@ function aktualisiereMobileSeitentitelNeu(seite) {
     admin:
       'Admin-Bereich',
 
+    dienstAendern:
+      'Dienst ändern',
+
     dienstTauschen:
       'Dienst tauschen',
 
@@ -1837,25 +1456,104 @@ function aktualisiereMobileSeitentitelNeu(seite) {
 
 
 /* =========================================================
-   ÄNDERUNG / TAUSCH UNTERMENÜ
+   VORHANDENE SEITENNAVIGATION ERWEITERN
+
+   Wichtig:
+   Die vorhandene Navigation aus app.js bleibt erhalten.
+   Wir ergänzen nur den Titel oben und schließen das Menü.
    ========================================================= */
 
-function toggleTauschMenue() {
+(function installiereSeitenTitelNeu() {
 
-  const menue =
-    document.getElementById(
-      'tauschUntermenue'
-    );
-
-
-  if (!menue) {
+  if (
+    typeof window.zeigeSeite !==
+    'function'
+  ) {
     return;
   }
 
 
-  menue.classList.toggle(
-    'offen'
-  );
+  if (
+    window.zeigeSeite
+      .__scsMobileTitelInstalliert
+  ) {
+    return;
+  }
+
+
+  const originaleZeigeSeite =
+    window.zeigeSeite;
+
+
+  const neueZeigeSeite =
+    function(seite) {
+
+      aktualisiereMobileSeitentitelNeu(
+        seite
+      );
+
+
+      const ergebnis =
+        originaleZeigeSeite.apply(
+          this,
+          arguments
+        );
+
+
+      window.setTimeout(
+        function() {
+
+          schliesseMobileMenue();
+
+        },
+        30
+      );
+
+
+      return ergebnis;
+
+    };
+
+
+  neueZeigeSeite
+    .__scsMobileTitelInstalliert =
+    true;
+
+
+  window.zeigeSeite =
+    neueZeigeSeite;
+
+})();
+
+
+
+/* =========================================================
+   ÄNDERUNG / TAUSCH UNTERMENÜ
+   ========================================================= */
+
+if (
+  typeof window.toggleTauschMenue !==
+  'function'
+) {
+
+  window.toggleTauschMenue =
+    function() {
+
+      const menue =
+        document.getElementById(
+          'tauschUntermenue'
+        );
+
+      if (!menue) {
+        return;
+      }
+
+
+      menue.classList.toggle(
+        'offen'
+      );
+
+    };
 
 }
 
@@ -1865,59 +1563,66 @@ function toggleTauschMenue() {
    ☰ MENÜ
    ========================================================= */
 
-function toggleMobileMenue() {
+if (
+  typeof window.toggleMobileMenue !==
+  'function'
+) {
 
-  const sidebar =
-    document.getElementById(
-      'sidebar'
-    );
+  window.toggleMobileMenue =
+    function() {
 
+      const sidebar =
+        document.getElementById(
+          'sidebar'
+        );
 
-  const button =
-    document.querySelector(
-      '.mobile-menu'
-    );
-
-
-  if (!sidebar) {
-    return;
-  }
-
-
-  sidebar.classList.toggle(
-    'mobile-offen'
-  );
+      const button =
+        document.querySelector(
+          '.mobile-menu'
+        );
 
 
-  const offen =
-    sidebar.classList.contains(
-      'mobile-offen'
-    );
+      if (!sidebar) {
+        return;
+      }
 
 
-  if (button) {
-
-    button.textContent =
-      offen
-        ? '×'
-        : '☰';
+      sidebar.classList.toggle(
+        'mobile-offen'
+      );
 
 
-    button.setAttribute(
-      'aria-label',
-      offen
-        ? 'Menü schließen'
-        : 'Menü öffnen'
-    );
+      const istOffen =
+        sidebar.classList.contains(
+          'mobile-offen'
+        );
 
-  }
+
+      if (button) {
+
+        button.textContent =
+          istOffen
+            ? '×'
+            : '☰';
+
+
+        button.setAttribute(
+          'aria-label',
+          istOffen
+            ? 'Menü schließen'
+            : 'Menü öffnen'
+        );
+
+      }
+
+    };
 
 }
 
 
 
 /* =========================================================
-   MENÜ SCHLIESSEN
+   ☰ MENÜ SCHLIESSEN
    ========================================================= */
 
 function schliesseMobileMenue() {
@@ -1926,7 +1631,6 @@ function schliesseMobileMenue() {
     document.getElementById(
       'sidebar'
     );
-
 
   const button =
     document.querySelector(
@@ -1961,426 +1665,253 @@ function schliesseMobileMenue() {
 
 
 /* =========================================================
-   DIENST AUSWÄHLEN
+   FALLBACK FÜR WOCHENPFEILE
+
+   Falls app.js bereits wechselWoche() besitzt,
+   wird daran nichts geändert.
    ========================================================= */
 
-function waehleDienst(button) {
+if (
+  typeof window.wechselWoche !==
+  'function'
+) {
 
-  document
-    .querySelectorAll(
-      '.dienst-option'
-    )
-    .forEach(function(element) {
+  window.wechselWoche =
+    function(richtung) {
 
-      element.classList.remove(
-        'ausgewaehlt'
-      );
+      if (
+        Number(richtung) < 0 &&
+        typeof window.vorherigeKW ===
+          'function'
+      ) {
 
-
-      const radio =
-        element.querySelector(
-          '.radio'
-        );
-
-
-      if (radio) {
-
-        radio.classList.remove(
-          'aktiv'
-        );
+        window.vorherigeKW();
+        return;
 
       }
-
-    });
-
-
-  if (!button) {
-    return;
-  }
-
-
-  button.classList.add(
-    'ausgewaehlt'
-  );
-
-
-  const radio =
-    button.querySelector(
-      '.radio'
-    );
-
-
-  if (radio) {
-
-    radio.classList.add(
-      'aktiv'
-    );
-
-  }
-
-}
-
-
-
-/* =========================================================
-   KOLLEGEN ANZEIGEN
-   ========================================================= */
-
-function zeigeKollegen() {
-
-  const bereich =
-    document.getElementById(
-      'kollegenBereich'
-    );
-
-
-  if (!bereich) {
-    return;
-  }
-
-
-  bereich.classList.remove(
-    'versteckt'
-  );
-
-
-  bereich.scrollIntoView({
-
-    behavior:
-      'smooth',
-
-    block:
-      'start'
-
-  });
-
-}
-
-
-
-/* =========================================================
-   DIENSTTAUSCH AUS DEM MENÜ
-   ========================================================= */
-
-function oeffneDiensttauschAusMenueNeu() {
-
-  if (
-    typeof window.zeigeSeite ===
-    'function'
-  ) {
-
-    window.zeigeSeite(
-      'dienstplan'
-    );
-
-  }
-
-
-  setTimeout(function() {
-
-    const ansicht =
-      document.getElementById(
-        'dienstplanAnsicht'
-      );
-
-
-    if (!ansicht) {
-      return;
-    }
-
-
-    let hinweis =
-      document.getElementById(
-        'dienstTauschMenueHinweisNeu'
-      );
-
-
-    if (!hinweis) {
-
-      hinweis =
-        document.createElement(
-          'div'
-        );
-
-
-      hinweis.id =
-        'dienstTauschMenueHinweisNeu';
-
-
-      hinweis.style.cssText = `
-        margin:0 0 16px;
-        padding:13px 15px;
-        border:1px solid #f0c6c9;
-        border-left:5px solid #e30613;
-        border-radius:9px;
-        background:#fff8f8;
-        color:#333333;
-        line-height:1.45;
-        box-sizing:border-box;
-      `;
-
-
-      hinweis.innerHTML = `
-        <strong style="display:block; margin-bottom:4px;">
-          🔄 Dienst tauschen
-        </strong>
-
-        Wähle bei dem gewünschten Dienst unten
-        den Button <strong>„Dienst tauschen“</strong>.
-      `;
-
-
-      const contentHeader =
-        ansicht.querySelector(
-          '.content-header'
-        );
 
 
       if (
-        contentHeader &&
-        contentHeader.nextSibling
+        Number(richtung) > 0 &&
+        typeof window.naechsteKW ===
+          'function'
       ) {
 
-        contentHeader.parentNode.insertBefore(
-          hinweis,
-          contentHeader.nextSibling
-        );
-
-      } else {
-
-        ansicht.insertBefore(
-          hinweis,
-          ansicht.firstChild
-        );
+        window.naechsteKW();
 
       }
 
-    }
-
-
-    hinweis.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-
-  }, 350);
+    };
 
 }
 
 
+
 /* =========================================================
-   BASIS-SEITENNAVIGATION
+   ISO-KALENDERWOCHE BERECHNEN
    ========================================================= */
 
-function zeigeSeite(seite) {
+function berechneIsoKwNeu(
+  datum
+) {
 
-  aktualisiereMobileSeitentitelNeu(
-    seite
+  if (
+    !(datum instanceof Date) ||
+    isNaN(datum.getTime())
+  ) {
+    return null;
+  }
+
+
+  const temp =
+    new Date(
+      Date.UTC(
+        datum.getFullYear(),
+        datum.getMonth(),
+        datum.getDate()
+      )
+    );
+
+
+  const tag =
+    temp.getUTCDay() || 7;
+
+
+  temp.setUTCDate(
+    temp.getUTCDate() +
+    4 -
+    tag
   );
 
 
-  const dienstplanAnsicht =
-    document.getElementById(
-      'dienstplanAnsicht'
+  const jahresAnfang =
+    new Date(
+      Date.UTC(
+        temp.getUTCFullYear(),
+        0,
+        1
+      )
     );
 
 
-  const tauschAnsicht =
-    document.getElementById(
-      'tauschAnsicht'
-    );
-
-
-  document
-    .querySelectorAll(
-      '.nav-item'
-    )
-    .forEach(function(button) {
-
-      button.classList.remove(
-        'aktiv'
-      );
-
-    });
-
-
-  document
-    .querySelectorAll(
-      '.nav-untermenue button'
-    )
-    .forEach(function(button) {
-
-      button.classList.remove(
-        'aktiv'
-      );
-
-    });
-
-
-  const tauschGruppe =
-    document.querySelector(
-      '.nav-gruppe'
-    );
-
-
-  if (tauschGruppe) {
-
-    tauschGruppe.classList.remove(
-      'aktiv'
-    );
-
-  }
-
-
-
-  /* -------------------------------------------------------
-     MEIN DIENSTPLAN
-     ------------------------------------------------------- */
-
-  if (
-    seite ===
-    'dienstplan'
-  ) {
-
-    if (dienstplanAnsicht) {
-
-      dienstplanAnsicht.style.display =
-        'block';
-
-    }
-
-
-    if (tauschAnsicht) {
-
-      tauschAnsicht.style.display =
-        'none';
-
-    }
-
-
-    const button =
-      document.querySelector(
-        `[onclick="zeigeSeite('dienstplan')"]`
-      );
-
-
-    if (button) {
-
-      button.classList.add(
-        'aktiv'
-      );
-
-    }
-
-
-    if (
-      typeof ladeMeinDienstplanNeu ===
-      'function'
-    ) {
-
-      ladeMeinDienstplanNeu();
-
-    }
-
-  }
-
-
-
-  /* -------------------------------------------------------
-     DIENST TAUSCHEN
-     ------------------------------------------------------- */
-
-  else if (
-    seite ===
-    'dienstTauschen'
-  ) {
-
-    if (dienstplanAnsicht) {
-
-      dienstplanAnsicht.style.display =
-        'none';
-
-    }
-
-
-    if (tauschAnsicht) {
-
-      tauschAnsicht.style.display =
-        'block';
-
-    }
-
-
-    const hauptButton =
-      document.querySelector(
-        '.nav-hauptpunkt'
-      );
-
-
-    if (hauptButton) {
-
-      hauptButton.classList.add(
-        'aktiv'
-      );
-
-    }
-
-
-    if (tauschGruppe) {
-
-      tauschGruppe.classList.add(
-        'aktiv'
-      );
-
-    }
-
-
-    const tauschButton =
-      document.querySelector(
-        `[onclick="zeigeSeite('dienstTauschen')"]`
-      );
-
-
-    if (tauschButton) {
-
-      tauschButton.classList.add(
-        'aktiv'
-      );
-
-    }
-
-  }
-
-
-  schliesseMobileMenue();
+  return Math.ceil(
+    (
+      (
+        temp -
+        jahresAnfang
+      ) /
+      86400000 +
+      1
+    ) /
+    7
+  );
 
 }
 
 
 
 /* =========================================================
-   DIENSTPLAN-FEINSCHLIFF
-
-   WICHTIG:
-
-   Die Farben der Dienstkarten werden hier
-   NICHT mehr verändert.
-
-   Garden Plaza = grün
-   Water Plaza  = blau
-
-   Das vorhandene app.js darf seine ursprünglichen
-   Kartenfarben behalten.
-
-   Wir ändern hier nur:
-   - doppelte KW unter dem Datum entfernen
-   - Sonne für Früh
-   - Mond für Spät
+   DATUM AUS TEXT LESEN
    ========================================================= */
+
+function findeDatumInTextNeu(
+  text
+) {
+
+  const treffer =
+    String(
+      text || ''
+    ).match(
+      /\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/
+    );
+
+
+  if (!treffer) {
+    return null;
+  }
+
+
+  return new Date(
+    Number(treffer[3]),
+    Number(treffer[2]) - 1,
+    Number(treffer[1]),
+    12,
+    0,
+    0
+  );
+
+}
+
 
 
 /* =========================================================
-   DOPPELTE KW ENTFERNEN
+   KW-ANZEIGE KORRIGIEREN
+
+   Liest das tatsächlich angezeigte Datum aus dem
+   Dienstplan und berechnet daraus die Kalenderwoche.
+
+   Beispiel:
+   Montag, 04.01.2027 -> KW 1
+   ========================================================= */
+
+function aktualisiereKwAnzeigeNeu() {
+
+  const kwAnzeige =
+    document.getElementById(
+      'kwAnzeige'
+    );
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (
+    !kwAnzeige ||
+    !liste
+  ) {
+    return;
+  }
+
+
+  let datum =
+    null;
+
+
+  /*
+    Zuerst gezielt die Datumselemente prüfen.
+  */
+
+  const datumElemente =
+    liste.querySelectorAll(
+      '.datum'
+    );
+
+
+  for (
+    let i = 0;
+    i < datumElemente.length;
+    i++
+  ) {
+
+    datum =
+      findeDatumInTextNeu(
+        datumElemente[i].textContent
+      );
+
+
+    if (datum) {
+      break;
+    }
+
+  }
+
+
+  /*
+    Falls die Karte anders aufgebaut ist,
+    im gesamten Dienstplan nach dem ersten
+    Datum suchen.
+  */
+
+  if (!datum) {
+
+    datum =
+      findeDatumInTextNeu(
+        liste.textContent
+      );
+
+  }
+
+
+  if (!datum) {
+    return;
+  }
+
+
+  const kw =
+    berechneIsoKwNeu(
+      datum
+    );
+
+
+  if (!kw) {
+    return;
+  }
+
+
+  kwAnzeige.textContent =
+    'KW ' +
+    kw;
+
+}
+
+
+
+/* =========================================================
+   DOPPELTE KW INNERHALB EINER TAGESKARTE ENTFERNEN
+
+   Die obere #kwAnzeige bleibt immer bestehen.
    ========================================================= */
 
 function entferneDoppelteKwNeu() {
@@ -2397,60 +1928,142 @@ function entferneDoppelteKwNeu() {
 
 
   liste
-    .querySelectorAll(
-      '*'
-    )
-    .forEach(function(element) {
+    .querySelectorAll('*')
+    .forEach(
+      function(element) {
 
-      /*
-        Nur einzelne Textelemente prüfen.
-      */
-
-      if (
-        element.children.length !==
-        0
-      ) {
-
-        return;
-
-      }
+        if (
+          element.children.length !== 0
+        ) {
+          return;
+        }
 
 
-      const text =
-        String(
-          element.textContent || ''
-        )
-          .replace(
-            /\s+/g,
-            ' '
+        const text =
+          String(
+            element.textContent || ''
           )
-          .trim();
+            .replace(
+              /\s+/g,
+              ' '
+            )
+            .trim();
 
 
-      if (
-        /^KW\s*\d{1,2}$/i.test(
-          text
-        )
-      ) {
+        if (
+          /^KW\s*\d{1,2}$/i.test(
+            text
+          )
+        ) {
 
-        element.style.display =
-          'none';
+          element.style.setProperty(
+            'display',
+            'none',
+            'important'
+          );
+
+        }
 
       }
-
-    });
+    );
 
 }
 
 
 
 /* =========================================================
-   FRÜH / SPÄT SYMBOLE
-
-   Farbe wird NICHT verändert.
+   RICHTIGE DIENSTKARTE FINDEN
    ========================================================= */
 
-function optimiereDienstSymboleNeu() {
+function findeEinsatzKarteNeu(
+  dienstname
+) {
+
+  if (!dienstname) {
+    return null;
+  }
+
+
+  /*
+    Bevorzugt die echte Einsatzkarte.
+  */
+
+  const direkteKarte =
+    dienstname.closest(
+      '.einsatz, .dienst-karte, .dienst-card, .schicht-card'
+    );
+
+
+  if (direkteKarte) {
+    return direkteKarte;
+  }
+
+
+  /*
+    Fallback:
+    nach oben gehen und die kleinste Box suchen,
+    die einen Tausch-/Änderungsbutton enthält.
+  */
+
+  let element =
+    dienstname.parentElement;
+
+
+  for (
+    let i = 0;
+    i < 7 && element;
+    i++
+  ) {
+
+    const button =
+      element.querySelector(
+        'button'
+      );
+
+
+    if (button) {
+
+      const buttonText =
+        String(
+          button.textContent || ''
+        ).toLowerCase();
+
+
+      if (
+        buttonText.includes('tausch') ||
+        buttonText.includes('änder')
+      ) {
+
+        return element;
+
+      }
+
+    }
+
+
+    element =
+      element.parentElement;
+
+  }
+
+
+  return dienstname.parentElement;
+
+}
+
+
+
+/* =========================================================
+   FRÜH GRÜN / SPÄT BLAU
+
+   Hier wird der alte GP-Grünrand bei einem Spätdienst
+   ausdrücklich überschrieben.
+
+   Dadurch gibt es beim Spätdienst nicht mehr
+   gleichzeitig einen grünen UND blauen Balken.
+   ========================================================= */
+
+function optimiereDienstFarbenNeu() {
 
   const liste =
     document.getElementById(
@@ -2463,21 +2076,57 @@ function optimiereDienstSymboleNeu() {
   }
 
 
-  liste
-    .querySelectorAll(
-      '*'
-    )
-    .forEach(function(element) {
+  let dienstnamen =
+    Array.from(
+      liste.querySelectorAll(
+        '.dienstname'
+      )
+    );
 
-      if (
-        element.children.length !==
-        0
-      ) {
 
-        return;
+  /*
+    Falls app.js keine .dienstname-Klasse verwendet,
+    kleine Textelemente als Fallback durchsuchen.
+  */
 
-      }
+  if (
+    dienstnamen.length === 0
+  ) {
 
+    dienstnamen =
+      Array.from(
+        liste.querySelectorAll(
+          'div, span, strong'
+        )
+      ).filter(
+        function(element) {
+
+          if (
+            element.children.length !== 0
+          ) {
+            return false;
+          }
+
+
+          const text =
+            String(
+              element.textContent || ''
+            );
+
+
+          return (
+            /Garden Plaza/i.test(text) ||
+            /Water Plaza/i.test(text)
+          );
+
+        }
+      );
+
+  }
+
+
+  dienstnamen.forEach(
+    function(element) {
 
       const original =
         String(
@@ -2491,78 +2140,192 @@ function optimiereDienstSymboleNeu() {
 
 
       /*
-        Erkennt zum Beispiel:
-
-        🟢 Garden Plaza – Früh
-        🟢 Garden Plaza – Spät
-        🔵 Water Plaza – Früh
-        🔵 Water Plaza – Spät
-        ☀️ Garden Plaza – Früh
-        🌙 Garden Plaza – Spät
-
-        Die Farbe der Karte selbst bleibt unberührt.
+        Pausenablösen und Ganztag nicht verändern.
       */
 
-      const treffer =
-        original.match(
-          /^(?:🟢|🔵|☀️?|🌙|🌞|🌜)?\s*(Garden Plaza|Water Plaza)\s*[–-]\s*(Früh|Spät)$/i
-        );
-
-
-      if (!treffer) {
+      if (
+        /Pausenablöse/i.test(
+          original
+        ) ||
+        /Ganztag/i.test(
+          original
+        )
+      ) {
         return;
       }
 
 
-      const plaza =
-        treffer[1];
+      const istFrueh =
+        /(?:^|\s|–|-)\s*Früh\b/i.test(
+          original
+        );
 
 
-      const schicht =
-        treffer[2]
-          .toLowerCase();
+      const istSpaet =
+        /(?:^|\s|–|-)\s*Spät\b/i.test(
+          original
+        );
 
 
       if (
-        schicht ===
-        'früh'
+        !istFrueh &&
+        !istSpaet
       ) {
+        return;
+      }
 
-        element.textContent =
+
+      const karte =
+        findeEinsatzKarteNeu(
+          element
+        );
+
+
+      if (!karte) {
+        return;
+      }
+
+
+      /*
+        Eventuelle alte Zusatzklassen entfernen.
+      */
+
+      karte.classList.remove(
+        'scs-schicht-frueh',
+        'scs-schicht-spaet'
+      );
+
+
+      /*
+        Vorhandenes Symbol entfernen.
+      */
+
+      const saubererText =
+        original
+          .replace(
+            /^(?:🟢|🔵|🟠|☀️?|🌙|🌞|🌜)\s*/u,
+            ''
+          )
+          .trim();
+
+
+
+      /* -----------------------------------------------------
+         FRÜH
+         ----------------------------------------------------- */
+
+      if (istFrueh) {
+
+        karte.classList.add(
+          'scs-schicht-frueh'
+        );
+
+
+        /*
+          !important ist absichtlich gesetzt,
+          damit ein vorhandener GP-Grünrand
+          korrekt überschrieben wird.
+        */
+
+        karte.style.setProperty(
+          'border-left',
+          '6px solid #14943b',
+          'important'
+        );
+
+
+        karte.style.setProperty(
+          'background',
+          '#f5fff8',
+          'important'
+        );
+
+
+        const neuerText =
           '☀️ ' +
-          plaza +
-          ' – Früh';
+          saubererText;
+
+
+        if (
+          element.textContent !==
+          neuerText
+        ) {
+
+          element.textContent =
+            neuerText;
+
+        }
 
       }
 
 
-      else if (
-        schicht ===
-        'spät'
-      ) {
 
-        element.textContent =
+      /* -----------------------------------------------------
+         SPÄT
+         ----------------------------------------------------- */
+
+      else if (istSpaet) {
+
+        karte.classList.add(
+          'scs-schicht-spaet'
+        );
+
+
+        /*
+          Ganz wichtig:
+          vorhandenen grünen GP-Rand mit
+          blauem !important-Rand ersetzen.
+        */
+
+        karte.style.setProperty(
+          'border-left',
+          '6px solid #1754d1',
+          'important'
+        );
+
+
+        karte.style.setProperty(
+          'background',
+          '#f5f8ff',
+          'important'
+        );
+
+
+        const neuerText =
           '🌙 ' +
-          plaza +
-          ' – Spät';
+          saubererText;
+
+
+        if (
+          element.textContent !==
+          neuerText
+        ) {
+
+          element.textContent =
+            neuerText;
+
+        }
 
       }
 
-    });
+    }
+  );
 
 }
 
 
 
 /* =========================================================
-   DIENSTPLAN DARSTELLUNG
+   ALLE DIENSTPLAN-OPTIMIERUNGEN
    ========================================================= */
 
 function optimiereDienstplanDarstellungNeu() {
 
+  aktualisiereKwAnzeigeNeu();
+
   entferneDoppelteKwNeu();
 
-  optimiereDienstSymboleNeu();
+  optimiereDienstFarbenNeu();
 
 }
 
@@ -2571,12 +2334,14 @@ function optimiereDienstplanDarstellungNeu() {
 /* =========================================================
    DIENSTPLAN BEOBACHTEN
 
-   app.js lädt den Inhalt dynamisch.
-   Sobald neue Karten geladen wurden,
-   werden nur KW und Symbole angepasst.
+   Sobald app.js eine andere Woche lädt,
+   wird automatisch erneut:
+   - KW berechnet
+   - doppeltes KW entfernt
+   - Früh/Spät eingefärbt
    ========================================================= */
 
-function installiereDienstplanOptimierungNeu() {
+function installiereDienstplanBeobachterNeu() {
 
   const liste =
     document.getElementById(
@@ -2587,6 +2352,9 @@ function installiereDienstplanOptimierungNeu() {
   if (!liste) {
     return;
   }
+
+
+  optimiereDienstplanDarstellungNeu();
 
 
   let geplant =
@@ -2625,64 +2393,169 @@ function installiereDienstplanOptimierungNeu() {
   observer.observe(
     liste,
     {
-
       childList:
         true,
 
       subtree:
         true
-
     }
   );
-
-
-  optimiereDienstplanDarstellungNeu();
 
 }
 
 
 
 /* =========================================================
-   MENÜPUNKT GEWÄHLT
+   FALLBACK: DIENST AUSWÄHLEN
+   ========================================================= */
+
+if (
+  typeof window.waehleDienst !==
+  'function'
+) {
+
+  window.waehleDienst =
+    function(button) {
+
+      document
+        .querySelectorAll(
+          '.dienst-option'
+        )
+        .forEach(
+          function(element) {
+
+            element.classList.remove(
+              'ausgewaehlt'
+            );
+
+
+            const radio =
+              element.querySelector(
+                '.radio'
+              );
+
+
+            if (radio) {
+
+              radio.classList.remove(
+                'aktiv'
+              );
+
+            }
+
+          }
+        );
+
+
+      if (!button) {
+        return;
+      }
+
+
+      button.classList.add(
+        'ausgewaehlt'
+      );
+
+
+      const radio =
+        button.querySelector(
+          '.radio'
+        );
+
+
+      if (radio) {
+
+        radio.classList.add(
+          'aktiv'
+        );
+
+      }
+
+    };
+
+}
+
+
+
+/* =========================================================
+   FALLBACK: KOLLEGENBEREICH
+   ========================================================= */
+
+if (
+  typeof window.zeigeKollegen !==
+  'function'
+) {
+
+  window.zeigeKollegen =
+    function() {
+
+      const bereich =
+        document.getElementById(
+          'kollegenBereich'
+        );
+
+
+      if (!bereich) {
+        return;
+      }
+
+
+      bereich.classList.remove(
+        'versteckt'
+      );
+
+
+      bereich.scrollIntoView(
+        {
+          behavior:
+            'smooth',
+
+          block:
+            'start'
+        }
+      );
+
+    };
+
+}
+
+
+
+/* =========================================================
+   SIDEBAR NACH AUSWAHL SCHLIESSEN
    ========================================================= */
 
 document.addEventListener(
   'click',
   function(event) {
 
-    const ziel =
+    const button =
       event.target.closest(
         '.sidebar button'
       );
 
 
-    if (!ziel) {
+    if (!button) {
       return;
     }
 
 
     /*
-      Änderung / Tausch Hauptpunkt
-      öffnet nur das Untermenü.
+      Beim Hauptpunkt Änderung/Tausch
+      das Untermenü offen lassen.
     */
 
     if (
-      ziel.classList.contains(
+      button.classList.contains(
         'nav-hauptpunkt'
       )
     ) {
-
       return;
-
     }
 
 
-    setTimeout(
-      function() {
-
-        schliesseMobileMenue();
-
-      },
+    window.setTimeout(
+      schliesseMobileMenue,
       40
     );
 
@@ -2692,7 +2565,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   AUSSERHALB DES MENÜS KLICKEN
+   AUSSERHALB DES MENÜS ANTIPPEN
    ========================================================= */
 
 document.addEventListener(
@@ -2717,9 +2590,7 @@ document.addEventListener(
         'mobile-offen'
       )
     ) {
-
       return;
-
     }
 
 
@@ -2728,9 +2599,7 @@ document.addEventListener(
         event.target
       )
     ) {
-
       return;
-
     }
 
 
@@ -2740,9 +2609,7 @@ document.addEventListener(
         event.target
       )
     ) {
-
       return;
-
     }
 
 
@@ -2754,7 +2621,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   ESC SCHLIESST MENÜ
+   ESC
    ========================================================= */
 
 document.addEventListener(
@@ -2776,48 +2643,10 @@ document.addEventListener(
 
 
 /* =========================================================
-   ENTER BEIM LOGIN
-   ========================================================= */
-
-document.addEventListener(
-  'keydown',
-  function(event) {
-
-    const login =
-      document.getElementById(
-        'loginAnsicht'
-      );
-
-
-    if (
-      event.key ===
-        'Enter' &&
-      login &&
-      login.style.display !==
-        'none'
-    ) {
-
-      if (
-        typeof loginAusfuehren ===
-        'function'
-      ) {
-
-        loginAusfuehren();
-
-      }
-
-    }
-
-  }
-);
-
-
-
-/* =========================================================
    LAYOUT ABSICHERN
    ========================================================= */
 
-function sichereLayoutNeu() {
+function sichereHandyLayoutNeu() {
 
   const hauptApp =
     document.getElementById(
@@ -2833,105 +2662,38 @@ function sichereLayoutNeu() {
 
   if (hauptApp) {
 
-    hauptApp.style.flexDirection =
-      'column';
+    hauptApp.style.setProperty(
+      'flex-direction',
+      'column',
+      'important'
+    );
 
 
-    hauptApp.style.width =
-      '100%';
+    hauptApp.style.setProperty(
+      'width',
+      '100%',
+      'important'
+    );
 
   }
 
 
   if (content) {
 
-    content.style.width =
-      '100%';
-
-
-    content.style.marginLeft =
-      '0';
-
-  }
-
-}
-
-
-
-/* =========================================================
-   ADMIN-ÜBERSCHRIFT
-
-   Nur anzeigen, wenn auch der Admin-Bereich
-   tatsächlich sichtbar ist.
-   ========================================================= */
-
-function installiereAdminTitelNeu() {
-
-  const adminNav =
-    document.getElementById(
-      'adminNav'
+    content.style.setProperty(
+      'width',
+      '100%',
+      'important'
     );
 
 
-  const adminTitel =
-    document.getElementById(
-      'adminTitel'
+    content.style.setProperty(
+      'margin-left',
+      '0',
+      'important'
     );
 
-
-  if (
-    !adminNav ||
-    !adminTitel
-  ) {
-
-    return;
-
   }
-
-
-  function aktualisieren() {
-
-    const sichtbar =
-      window
-        .getComputedStyle(
-          adminNav
-        )
-        .display !==
-      'none';
-
-
-    adminTitel.style.display =
-      sichtbar
-        ? 'block'
-        : 'none';
-
-  }
-
-
-  aktualisieren();
-
-
-  const observer =
-    new MutationObserver(
-      aktualisieren
-    );
-
-
-  observer.observe(
-    adminNav,
-    {
-
-      attributes:
-        true,
-
-      attributeFilter:
-        [
-          'style',
-          'class'
-        ]
-
-    }
-  );
 
 }
 
@@ -2945,7 +2707,7 @@ document.addEventListener(
   'DOMContentLoaded',
   function() {
 
-    sichereLayoutNeu();
+    sichereHandyLayoutNeu();
 
 
     aktualisiereMobileSeitentitelNeu(
@@ -2953,25 +2715,38 @@ document.addEventListener(
     );
 
 
-    installiereDienstplanOptimierungNeu();
+    installiereDienstplanBeobachterNeu();
 
 
-    installiereAdminTitelNeu();
+    /*
+      Falls der Dienstplan beim DOMContentLoaded
+      bereits vorhanden ist.
+    */
+
+    window.setTimeout(
+      optimiereDienstplanDarstellungNeu,
+      300
+    );
+
+
+    window.setTimeout(
+      optimiereDienstplanDarstellungNeu,
+      1000
+    );
 
   }
 );
 
 
-
 window.addEventListener(
   'resize',
-  sichereLayoutNeu
+  sichereHandyLayoutNeu
 );
 
 
 window.addEventListener(
   'orientationchange',
-  sichereLayoutNeu
+  sichereHandyLayoutNeu
 );
 
 </script>
@@ -2995,7 +2770,7 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js?v=1.0.0',
+          './service-worker.js?v=20260821-1',
           {
             updateViaCache:
               'none'
@@ -3012,9 +2787,8 @@ if (
           function() {
 
             /*
-              Die App funktioniert auch,
-              wenn der Service Worker
-              gerade nicht verfügbar ist.
+              App funktioniert auch ohne
+              Service Worker.
             */
 
           }
@@ -3027,512 +2801,6 @@ if (
 
 </script>
 
-
-
-
-<script>
-/* =========================================================
-   DIENSTTAUSCH – TAGWECHSEL / DIENSTAUSWAHL
-   Ergänzung 2026-08-20
-   ========================================================= */
-
-function scsTauschDienstzeitenNeu(code, tag) {
-  if (code === 'GP_FRUEH' || code === 'WP_FRUEH') {
-    return typeof zeitFruehNeu === 'function'
-      ? zeitFruehNeu(tag)
-      : '';
-  }
-
-  if (code === 'GP_SPAET' || code === 'WP_SPAET') {
-    return typeof zeitSpaetNeu === 'function'
-      ? zeitSpaetNeu(tag)
-      : '';
-  }
-
-  if (code === 'WP_GANZTAG') {
-    const ende = typeof zeitSpaetEndeNeu === 'function'
-      ? zeitSpaetEndeNeu(tag)
-      : '';
-
-    return ende
-      ? '09:00 – ' + ende
-      : '';
-  }
-
-  return '';
-}
-
-function scsTauschDiensteFuerZeileNeu(z) {
-  const dienste = [];
-  const tag = String(z && z.tag || '');
-
-  if (z && z.gpFrueh) {
-    dienste.push({
-      code: 'GP_FRUEH',
-      name: 'Garden Plaza – Früh',
-      symbol: '☀️',
-      plaza: 'garden',
-      zeit: scsTauschDienstzeitenNeu('GP_FRUEH', tag)
-    });
-  }
-
-  if (z && z.gpSpaet) {
-    dienste.push({
-      code: 'GP_SPAET',
-      name: 'Garden Plaza – Spät',
-      symbol: '🌙',
-      plaza: 'garden',
-      zeit: scsTauschDienstzeitenNeu('GP_SPAET', tag)
-    });
-  }
-
-  if (z && z.wpFrueh && z.wpSpaet) {
-    dienste.push({
-      code: 'WP_GANZTAG',
-      name: 'Water Plaza – Ganztag',
-      symbol: '🔵',
-      plaza: 'water',
-      zeit: scsTauschDienstzeitenNeu('WP_GANZTAG', tag)
-    });
-  } else {
-    if (z && z.wpFrueh) {
-      dienste.push({
-        code: 'WP_FRUEH',
-        name: 'Water Plaza – Früh',
-        symbol: '☀️',
-        plaza: 'water',
-        zeit: scsTauschDienstzeitenNeu('WP_FRUEH', tag)
-      });
-    }
-
-    if (z && z.wpSpaet) {
-      dienste.push({
-        code: 'WP_SPAET',
-        name: 'Water Plaza – Spät',
-        symbol: '🌙',
-        plaza: 'water',
-        zeit: scsTauschDienstzeitenNeu('WP_SPAET', tag)
-      });
-    }
-  }
-
-  return dienste;
-}
-
-function scsTauschDatumSortNeu(datum) {
-  const teile = String(datum || '').split('.');
-
-  if (teile.length !== 3) {
-    return 0;
-  }
-
-  const tag = Number(teile[0]);
-  const monat = Number(teile[1]);
-  const jahr = Number(teile[2]);
-
-  return new Date(jahr, monat - 1, tag).getTime();
-}
-
-function scsBaueTauschTageNeu() {
-  const plan = Array.isArray(letzterDienstplan)
-    ? letzterDienstplan
-    : [];
-
-  const tage = [];
-
-  plan.forEach(function(z) {
-    const dienste = scsTauschDiensteFuerZeileNeu(z);
-
-    if (!dienste.length) {
-      return;
-    }
-
-    tage.push({
-      datum: String(z.datum || ''),
-      tag: String(z.tag || ''),
-      kw: String(z.kw || ''),
-      dienste: dienste
-    });
-  });
-
-  tage.sort(function(a, b) {
-    return scsTauschDatumSortNeu(a.datum) -
-      scsTauschDatumSortNeu(b.datum);
-  });
-
-  return tage;
-}
-
-function scsFindeTauschTagNeu(datum) {
-  const tage = scsBaueTauschTageNeu();
-
-  return tage.find(function(tag) {
-    return String(tag.datum) === String(datum || '');
-  }) || null;
-}
-
-function scsSetzeTauschTagUndDienstNeu(tagObjekt, dienstCode) {
-  if (!tagObjekt || !Array.isArray(tagObjekt.dienste) || !tagObjekt.dienste.length) {
-    return false;
-  }
-
-  let dienst = tagObjekt.dienste.find(function(d) {
-    return String(d.code) === String(dienstCode || '');
-  });
-
-  if (!dienst) {
-    dienst = tagObjekt.dienste[0];
-  }
-
-  tauschDatum = String(tagObjekt.datum || '');
-  tauschTag = String(tagObjekt.tag || '');
-  tauschKw = String(tagObjekt.kw || '');
-  tauschDienstCode = String(dienst.code || '');
-  tauschDienstText = String(dienst.name || '');
-  tauschZeit = String(dienst.zeit || '');
-
-  return true;
-}
-
-function scsWechselTauschTagNeu(richtung) {
-  const tage = scsBaueTauschTageNeu();
-
-  if (!tage.length) {
-    return;
-  }
-
-  let index = tage.findIndex(function(tag) {
-    return String(tag.datum) === String(tauschDatum || '');
-  });
-
-  if (index < 0) {
-    index = 0;
-  } else {
-    index += Number(richtung || 0) < 0 ? -1 : 1;
-  }
-
-  if (index < 0) {
-    index = tage.length - 1;
-  }
-
-  if (index >= tage.length) {
-    index = 0;
-  }
-
-  scsSetzeTauschTagUndDienstNeu(tage[index], '');
-  scsSchliesseTauschTagListeNeu();
-  fuelleTauschAnsichtNeu();
-}
-
-function scsWaehleTauschTagDirektNeu(datum) {
-  const tagObjekt = scsFindeTauschTagNeu(datum);
-
-  if (!tagObjekt) {
-    return;
-  }
-
-  scsSetzeTauschTagUndDienstNeu(tagObjekt, '');
-  scsSchliesseTauschTagListeNeu();
-  fuelleTauschAnsichtNeu();
-}
-
-function scsWaehleTauschDienstNeu(code) {
-  const tagObjekt = scsFindeTauschTagNeu(tauschDatum);
-
-  if (!tagObjekt) {
-    return;
-  }
-
-  scsSetzeTauschTagUndDienstNeu(tagObjekt, code);
-  fuelleTauschAnsichtNeu();
-}
-
-function scsSchliesseTauschTagListeNeu() {
-  const liste = document.getElementById('scsTauschTagListeNeu');
-
-  if (liste) {
-    liste.remove();
-  }
-}
-
-function scsZeigeTauschTagListeNeu() {
-  const ansicht = document.getElementById('tauschAnsicht');
-
-  if (!ansicht) {
-    return;
-  }
-
-  const vorhanden = document.getElementById('scsTauschTagListeNeu');
-
-  if (vorhanden) {
-    vorhanden.remove();
-    return;
-  }
-
-  const tage = scsBaueTauschTageNeu();
-  const navigation = ansicht.querySelector('.datum-navigation');
-
-  if (!navigation) {
-    return;
-  }
-
-  const box = document.createElement('div');
-  box.id = 'scsTauschTagListeNeu';
-  box.style.cssText = [
-    'margin-top:10px',
-    'border:1px solid #d9dde2',
-    'border-radius:10px',
-    'background:#ffffff',
-    'padding:8px',
-    'box-shadow:0 6px 18px rgba(0,0,0,.06)',
-    'max-height:280px',
-    'overflow:auto'
-  ].join(';');
-
-  if (!tage.length) {
-    box.innerHTML = '<div style="padding:10px;color:#666;">Keine tauschbaren Diensttage vorhanden.</div>';
-  } else {
-    tage.forEach(function(tagObjekt) {
-      const button = document.createElement('button');
-      const istAktiv = String(tagObjekt.datum) === String(tauschDatum || '');
-
-      button.type = 'button';
-      button.style.cssText = [
-        'display:block',
-        'width:100%',
-        'text-align:left',
-        'border:0',
-        'border-radius:8px',
-        'padding:10px 11px',
-        'margin:2px 0',
-        'cursor:pointer',
-        'font:inherit',
-        istAktiv ? 'background:#fff1f2' : 'background:#ffffff',
-        istAktiv ? 'font-weight:700' : 'font-weight:400'
-      ].join(';');
-
-      button.textContent =
-        '📅 ' + tagObjekt.datum +
-        ' · ' + tagObjekt.tag +
-        ' · KW ' + tagObjekt.kw;
-
-      button.onclick = function() {
-        scsWaehleTauschTagDirektNeu(tagObjekt.datum);
-      };
-
-      box.appendChild(button);
-    });
-  }
-
-  navigation.insertAdjacentElement('afterend', box);
-}
-
-fuelleTauschAnsichtNeu = function() {
-  const ansicht = document.getElementById('tauschAnsicht');
-
-  if (!ansicht) {
-    return;
-  }
-
-  const tage = scsBaueTauschTageNeu();
-
-  if (!tage.length) {
-    const datumButton = ansicht.querySelector('.datum-button');
-    const eigeneDienste = ansicht.querySelector('.eigene-dienste');
-    const dienstAuswahl = ansicht.querySelector('.dienst-auswahl');
-    const weiterButton = ansicht.querySelector('.weiter-button');
-
-    if (datumButton) {
-      datumButton.innerHTML = '<span>📅</span><strong>—</strong><span></span>';
-    }
-
-    if (eigeneDienste) {
-      eigeneDienste.innerHTML = '<h3>Deine Dienste an diesem Tag</h3><div class="empty-state">Keine tauschbaren Dienste vorhanden.</div>';
-    }
-
-    if (dienstAuswahl) {
-      dienstAuswahl.innerHTML = '<div class="empty-state">Keine tauschbaren Dienste vorhanden.</div>';
-    }
-
-    if (weiterButton) {
-      weiterButton.disabled = true;
-      weiterButton.style.opacity = '.55';
-    }
-
-    return;
-  }
-
-  let tagObjekt = scsFindeTauschTagNeu(tauschDatum);
-
-  if (!tagObjekt) {
-    tagObjekt = tage[0];
-    scsSetzeTauschTagUndDienstNeu(tagObjekt, '');
-  } else {
-    const dienstVorhanden = tagObjekt.dienste.some(function(d) {
-      return String(d.code) === String(tauschDienstCode || '');
-    });
-
-    if (!dienstVorhanden) {
-      scsSetzeTauschTagUndDienstNeu(tagObjekt, '');
-    }
-  }
-
-  const aktuellerDienst = tagObjekt.dienste.find(function(d) {
-    return String(d.code) === String(tauschDienstCode || '');
-  }) || tagObjekt.dienste[0];
-
-  scsSetzeTauschTagUndDienstNeu(tagObjekt, aktuellerDienst.code);
-
-  const pfeile = ansicht.querySelectorAll('.datum-navigation .pfeil-button');
-
-  if (pfeile[0]) {
-    pfeile[0].onclick = function() {
-      scsWechselTauschTagNeu(-1);
-    };
-
-    pfeile[0].disabled = tage.length <= 1;
-    pfeile[0].style.opacity = tage.length <= 1 ? '.45' : '1';
-    pfeile[0].style.cursor = tage.length <= 1 ? 'default' : 'pointer';
-  }
-
-  if (pfeile[1]) {
-    pfeile[1].onclick = function() {
-      scsWechselTauschTagNeu(1);
-    };
-
-    pfeile[1].disabled = tage.length <= 1;
-    pfeile[1].style.opacity = tage.length <= 1 ? '.45' : '1';
-    pfeile[1].style.cursor = tage.length <= 1 ? 'default' : 'pointer';
-  }
-
-  const datumButton = ansicht.querySelector('.datum-button');
-
-  if (datumButton) {
-    datumButton.innerHTML =
-      '<span>📅</span>' +
-      '<strong>' + escapeHtmlNeu(tauschDatum) + '</strong>' +
-      '<span>(' + escapeHtmlNeu(tauschTag) + ')</span>';
-
-    datumButton.onclick = scsZeigeTauschTagListeNeu;
-    datumButton.title = 'Anderen Diensttag auswählen';
-  }
-
-  const andererTagButton = ansicht.querySelector('.secondary-button');
-
-  if (andererTagButton) {
-    andererTagButton.onclick = scsZeigeTauschTagListeNeu;
-  }
-
-  const eigeneDienste = ansicht.querySelector('.eigene-dienste');
-
-  if (eigeneDienste) {
-    let html = '<h3>Deine Dienste an diesem Tag</h3>';
-
-    tagObjekt.dienste.forEach(function(dienst) {
-      const istGarden = String(dienst.code).startsWith('GP');
-
-      html +=
-        '<div class="dienst-mini" style="margin-top:8px;">' +
-          '<div class="dienst-links">' +
-            '<span class="punkt ' + (istGarden ? 'gruen' : 'blau') + '"></span>' +
-            '<span>' + escapeHtmlNeu(dienst.name) + '</span>' +
-          '</div>' +
-          '<strong class="' + (istGarden ? 'gruen-text' : 'blau-text') + '">' +
-            escapeHtmlNeu(aktuellerBenutzer) +
-          '</strong>' +
-        '</div>';
-    });
-
-    if (tauschDienstCode === 'GP_SPAET') {
-      const planZeile = (Array.isArray(letzterDienstplan) ? letzterDienstplan : []).find(function(z) {
-        return String(z.datum || '') === String(tauschDatum || '');
-      });
-
-      if (planZeile && planZeile.wpAbloese) {
-        html +=
-          '<div style="margin-top:10px;padding:10px 12px;border-radius:8px;background:#f6f7f8;color:#666;font-size:13px;line-height:1.45;">' +
-            'ℹ️ Die zugehörige WP-Pausenablöse gehört zum GP-Spätdienst und wird beim genehmigten Tausch automatisch mitgeführt.' +
-          '</div>';
-      }
-    }
-
-    eigeneDienste.innerHTML = html;
-  }
-
-  const dienstAuswahl = ansicht.querySelector('.dienst-auswahl');
-
-  if (dienstAuswahl) {
-    let html = '';
-
-    tagObjekt.dienste.forEach(function(dienst) {
-      const aktiv = String(dienst.code) === String(tauschDienstCode || '');
-      const istGarden = String(dienst.code).startsWith('GP');
-
-      html +=
-        '<button class="dienst-option ' + (aktiv ? 'ausgewaehlt' : '') + '" type="button" onclick="scsWaehleTauschDienstNeu(\'' + dienst.code + '\')">' +
-          '<span class="radio ' + (aktiv ? 'aktiv' : '') + '"></span>' +
-          '<div class="dienst-symbol">' + escapeHtmlNeu(dienst.symbol) + '</div>' +
-          '<div class="dienst-option-text">' +
-            '<strong class="' + (istGarden ? 'gruen-text' : 'blau-text') + '">' + escapeHtmlNeu(dienst.name) + '</strong>' +
-            '<span>Dienstzeit: ' + escapeHtmlNeu(dienst.zeit) + '</span>' +
-            '<small class="status-chip ' + (istGarden ? 'gruen-chip' : 'blau-chip') + '">Du bist eingetragen</small>' +
-          '</div>' +
-        '</button>';
-    });
-
-    dienstAuswahl.innerHTML = html;
-  }
-
-  const weiterButton = ansicht.querySelector('.weiter-button');
-
-  if (weiterButton) {
-    weiterButton.disabled = false;
-    weiterButton.style.opacity = '1';
-    weiterButton.onclick = ladeEchteTauschpartner;
-  }
-
-  const kollegenBereich = document.getElementById('kollegenBereich');
-
-  if (kollegenBereich) {
-    kollegenBereich.classList.add('versteckt');
-    kollegenBereich.innerHTML =
-      '<h2>3. Kollegen wählen</h2>' +
-      '<p class="beschreibung">Mit wem möchtest du deinen Dienst tauschen?</p>' +
-      '<div class="kollegen-grid"><div class="empty-state">Klicke auf „Weiter zu Schritt 3“.</div></div>';
-  }
-};
-
-oeffneDiensttauschAusMenueNeu = async function() {
-  if (!Array.isArray(letzterDienstplan) || letzterDienstplan.length === 0) {
-    if (typeof ladeMeinDienstplanNeu === 'function') {
-      await ladeMeinDienstplanNeu();
-    }
-  }
-
-  const tage = scsBaueTauschTageNeu();
-
-  if (!tage.length) {
-    window.alert('Du hast aktuell keine tauschbaren Dienste.');
-    return;
-  }
-
-  let tagObjekt = scsFindeTauschTagNeu(tauschDatum);
-
-  if (!tagObjekt) {
-    tagObjekt = tage[0];
-  }
-
-  scsSetzeTauschTagUndDienstNeu(tagObjekt, tauschDienstCode);
-
-  if (typeof window.zeigeSeite === 'function') {
-    await window.zeigeSeite('dienstTauschen');
-  }
-
-  setTimeout(function() {
-    fuelleTauschAnsichtNeu();
-  }, 50);
-};
-</script>
 
 </body>
 </html>
