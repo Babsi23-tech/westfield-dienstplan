@@ -19,7 +19,7 @@
 
   <link
     rel="stylesheet"
-    href="style.css?v=20260821-1"
+    href="style.css?v=20260821-2"
   >
 
   <link
@@ -81,8 +81,6 @@
 
     /* =====================================================
        NEUTRALES KALENDER-SYMBOL
-
-       Kein Emoji mit "July 17".
        ===================================================== */
 
     .kalender-symbol {
@@ -104,39 +102,435 @@
 
 
     /* =====================================================
-       DIENSTFARBEN
+       FESTE FARBLOGIK
 
-       Früh nur grün
-       Spät nur blau
+       GP = GRÜN
+       WP = BLAU
+       ABLÖSE = ORANGE
        ===================================================== */
 
-    #dienstplanListe .einsatz.scs-schicht-frueh {
+    #dienstplanListe .einsatz.gp {
       border-left:
-        6px solid #14943b !important;
+        7px solid #70ad47 !important;
+    }
+
+    #dienstplanListe .einsatz.wp {
+      border-left:
+        7px solid #4472c4 !important;
+    }
+
+    #dienstplanListe .einsatz.abloese {
+      border-left:
+        7px solid #f4b183 !important;
+    }
+
+
+    /* =====================================================
+       DIENST ÄNDERN
+       ===================================================== */
+
+    #dienstAendernAnsicht {
+      display: none;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .aendern-kopf {
+      margin-bottom: 22px;
+    }
+
+    .aendern-kopf h1 {
+      margin:
+        0 0 7px;
+
+      font-size:
+        30px;
+
+      color:
+        #171717;
+    }
+
+    .aendern-kopf p {
+      margin:
+        0;
+
+      color:
+        #666;
+
+      line-height:
+        1.5;
+    }
+
+    .aendern-panel {
+      width:
+        100%;
+
+      padding:
+        22px;
+
+      border:
+        1px solid #e2e4e7;
+
+      border-radius:
+        15px;
 
       background:
-        #f5fff8 !important;
+        #ffffff;
+
+      box-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.05);
     }
 
-    #dienstplanListe .einsatz.scs-schicht-spaet {
-      border-left:
-        6px solid #1754d1 !important;
+    .aendern-schritt {
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      gap:
+        10px;
+
+      margin-bottom:
+        9px;
+
+      color:
+        #171717;
+
+      font-size:
+        19px;
+
+      font-weight:
+        750;
+    }
+
+    .aendern-nummer {
+      display:
+        inline-flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      flex:
+        0 0 auto;
+
+      width:
+        30px;
+
+      height:
+        30px;
+
+      border-radius:
+        50%;
 
       background:
-        #f5f8ff !important;
+        #e30613;
+
+      color:
+        #ffffff;
+
+      font-size:
+        15px;
+
+      font-weight:
+        800;
     }
 
+    .aendern-hinweis {
+      margin:
+        0 0 14px 40px;
 
-    /* Falls app.js andere Kartennamen verwendet */
+      color:
+        #666;
 
-    #dienstplanListe .scs-schicht-frueh {
-      border-left-color:
-        #14943b !important;
+      font-size:
+        14px;
+
+      line-height:
+        1.45;
     }
 
-    #dienstplanListe .scs-schicht-spaet {
-      border-left-color:
-        #1754d1 !important;
+    #dienstAendernAuswahl {
+      width:
+        100%;
+
+      min-height:
+        54px;
+
+      margin-bottom:
+        16px;
+
+      padding:
+        0 14px;
+
+      border:
+        1px solid #d4d7db;
+
+      border-radius:
+        10px;
+
+      background:
+        #ffffff;
+
+      color:
+        #222;
+
+      font-size:
+        16px;
+    }
+
+    #dienstAendernVorschau {
+      display:
+        none;
+
+      margin:
+        4px 0 22px;
+
+      padding:
+        15px 16px;
+
+      border:
+        1px solid #dfe2e6;
+
+      border-radius:
+        11px;
+
+      background:
+        #f8f9fa;
+    }
+
+    .aendern-vorschau-datum {
+      margin-bottom:
+        6px;
+
+      color:
+        #555;
+
+      font-size:
+        14px;
+    }
+
+    .aendern-vorschau-dienst {
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      gap:
+        8px;
+
+      font-size:
+        17px;
+
+      font-weight:
+        750;
+    }
+
+    .aendern-vorschau-dienst.gp {
+      color:
+        #37811f;
+    }
+
+    .aendern-vorschau-dienst.wp {
+      color:
+        #315fae;
+    }
+
+    #dienstAendernNachricht {
+      box-sizing:
+        border-box;
+
+      width:
+        100%;
+
+      min-height:
+        145px;
+
+      resize:
+        vertical;
+
+      margin:
+        0;
+
+      padding:
+        14px;
+
+      border:
+        1px solid #d4d7db;
+
+      border-radius:
+        10px;
+
+      background:
+        #ffffff;
+
+      font-family:
+        inherit;
+
+      font-size:
+        16px;
+
+      line-height:
+        1.5;
+    }
+
+    #dienstAendernNachricht:focus,
+    #dienstAendernAuswahl:focus {
+      outline:
+        none;
+
+      border-color:
+        #e30613;
+
+      box-shadow:
+        0 0 0 3px rgba(227, 6, 19, 0.08);
+    }
+
+    .aendern-zeichen {
+      margin-top:
+        6px;
+
+      text-align:
+        right;
+
+      color:
+        #888;
+
+      font-size:
+        12px;
+    }
+
+    .aendern-info {
+      margin:
+        20px 0;
+
+      padding:
+        13px 14px;
+
+      border-left:
+        4px solid #4472c4;
+
+      border-radius:
+        8px;
+
+      background:
+        #f1f6ff;
+
+      color:
+        #365274;
+
+      font-size:
+        14px;
+
+      line-height:
+        1.5;
+    }
+
+    #dienstAendernSenden {
+      display:
+        block;
+
+      width:
+        100%;
+
+      min-height:
+        52px;
+
+      border:
+        0;
+
+      border-radius:
+        10px;
+
+      background:
+        #e30613;
+
+      color:
+        #ffffff;
+
+      font-size:
+        16px;
+
+      font-weight:
+        750;
+
+      cursor:
+        pointer;
+    }
+
+    #dienstAendernSenden:disabled {
+      opacity:
+        .55;
+
+      cursor:
+        default;
+    }
+
+    #dienstAendernMeldung {
+      display:
+        none;
+
+      margin-top:
+        15px;
+
+      padding:
+        13px 14px;
+
+      border-radius:
+        9px;
+
+      font-size:
+        14px;
+
+      font-weight:
+        650;
+
+      line-height:
+        1.45;
+    }
+
+    #dienstAendernMeldung.erfolg {
+      display:
+        block;
+
+      border:
+        1px solid #bae0c0;
+
+      background:
+        #effaf1;
+
+      color:
+        #247236;
+    }
+
+    #dienstAendernMeldung.fehler {
+      display:
+        block;
+
+      border:
+        1px solid #efc0c5;
+
+      background:
+        #fff1f2;
+
+      color:
+        #a51c2b;
+    }
+
+    #dienstAendernLaden {
+      padding:
+        25px 10px;
+
+      text-align:
+        center;
+
+      color:
+        #777;
     }
 
 
@@ -147,15 +541,26 @@
     @media screen and (max-width: 900px) {
 
       .mobile-header {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 1200 !important;
+        position:
+          sticky !important;
 
-        display: flex !important;
-        align-items: center !important;
+        top:
+          0 !important;
 
-        width: 100% !important;
-        min-height: 66px !important;
+        z-index:
+          1200 !important;
+
+        display:
+          flex !important;
+
+        align-items:
+          center !important;
+
+        width:
+          100% !important;
+
+        min-height:
+          66px !important;
 
         padding-top:
           max(8px, env(safe-area-inset-top)) !important;
@@ -183,10 +588,14 @@
       }
 
       .mobile-menu {
-        flex: 0 0 auto !important;
+        flex:
+          0 0 auto !important;
 
-        width: 48px !important;
-        height: 48px !important;
+        width:
+          48px !important;
+
+        height:
+          48px !important;
 
         border-radius:
           11px !important;
@@ -196,11 +605,6 @@
         font-size:
           21px;
       }
-
-
-      /* ===================================================
-         HAUPTINHALT
-         =================================================== */
 
       #hauptApp {
         flex-direction:
@@ -239,9 +643,6 @@
           max(12px, env(safe-area-inset-left)) !important;
       }
 
-
-      /* Titel steht bereits oben im Balken */
-
       .content-header h1 {
         display:
           none !important;
@@ -253,9 +654,6 @@
 
         margin:
           0 0 18px !important;
-
-        text-align:
-          left !important;
       }
 
       .content-header p {
@@ -269,35 +667,10 @@
           1.45 !important;
 
         color:
-          #555555 !important;
+          #555 !important;
       }
 
-
-      /* ===================================================
-         WOCHENSTUNDEN
-         =================================================== */
-
-      .dienstplan-info {
-        width:
-          100% !important;
-
-        max-width:
-          none !important;
-
-        margin:
-          0 0 14px !important;
-      }
-
-      .dienstplan-info > div {
-        padding:
-          15px 16px !important;
-      }
-
-
-      /* ===================================================
-         MEINE DIENSTE
-         =================================================== */
-
+      .dienstplan-info,
       .dienstplan-bereich {
         width:
           100% !important;
@@ -312,18 +685,15 @@
           0 !important;
       }
 
-      .dienstplan-bereich h2 {
+      .dienstplan-info {
         margin-bottom:
-          16px !important;
+          14px !important;
       }
 
-
-      /* ===================================================
-         WOCHENAUSWAHL
-
-         ‹    Ausgewählte Woche    ›
-                     KW 1
-         =================================================== */
+      .dienstplan-info > div {
+        padding:
+          15px 16px !important;
+      }
 
       .wochen-navigation {
         display:
@@ -385,13 +755,10 @@
           4px !important;
 
         color:
-          #666666 !important;
+          #666 !important;
 
         font-size:
           13px !important;
-
-        line-height:
-          1.2 !important;
       }
 
       #kwAnzeige {
@@ -406,12 +773,18 @@
 
         font-weight:
           800 !important;
-
-        line-height:
-          1.2 !important;
       }
 
       .wochen-button {
+        display:
+          flex !important;
+
+        align-items:
+          center !important;
+
+        justify-content:
+          center !important;
+
         width:
           54px !important;
 
@@ -426,15 +799,6 @@
 
         padding:
           0 !important;
-
-        display:
-          flex !important;
-
-        align-items:
-          center !important;
-
-        justify-content:
-          center !important;
 
         border:
           1px solid #d5d8dc !important;
@@ -456,51 +820,43 @@
 
         font-weight:
           400 !important;
-
-        line-height:
-          1 !important;
       }
 
-      .wochen-button:active {
-        transform:
-          scale(0.95);
+      #dienstAendernAnsicht {
+        max-width:
+          none;
       }
 
-
-      /* ===================================================
-         DIENSTKARTEN
-         =================================================== */
-
-      #dienstplanListe {
-        width:
-          100% !important;
+      .aendern-kopf h1 {
+        display:
+          none;
       }
 
-      #dienstplanListe button {
-        min-height:
-          42px !important;
+      .aendern-kopf {
+        margin-bottom:
+          17px;
+      }
 
-        padding:
-          8px 12px !important;
-
-        margin-top:
-          10px !important;
-
+      .aendern-kopf p {
         font-size:
-          14px !important;
+          14px;
       }
 
-      #dienstplanListe .einsatz {
+      .aendern-panel {
+        padding:
+          17px 14px;
+
         border-radius:
-          11px !important;
+          13px;
+      }
+
+      .aendern-hinweis {
+        margin-left:
+          0;
       }
 
     }
 
-
-    /* =====================================================
-       KLEINE HANDYS
-       ===================================================== */
 
     @media screen and (max-width: 480px) {
 
@@ -670,10 +1026,6 @@
   style="display:none;"
 >
 
-
-  <!-- ====================================================
-       SEITENMENÜ
-       ==================================================== -->
 
   <aside
     id="sidebar"
@@ -946,8 +1298,9 @@
   </aside>
 
 
+
   <!-- ====================================================
-       OBERER BALKEN
+       MOBILE HEADER
        ==================================================== -->
 
   <header class="mobile-header">
@@ -970,6 +1323,7 @@
     </div>
 
   </header>
+
 
 
   <!-- ====================================================
@@ -1025,11 +1379,16 @@
       <div class="dienstplan-bereich">
 
         <h2>
+
           <span
             class="kalender-symbol"
             aria-hidden="true"
-          >▦</span>
+          >
+            ▦
+          </span>
+
           Meine Dienste
+
         </h2>
 
 
@@ -1100,6 +1459,132 @@
     </section>
 
 
+
+    <!-- ==================================================
+         DIENST ÄNDERN
+         ================================================== -->
+
+    <section
+      id="dienstAendernAnsicht"
+    >
+
+      <div class="aendern-kopf">
+
+        <h1>
+          Dienst ändern
+        </h1>
+
+        <p>
+          Wähle einen deiner eingetragenen Dienste aus und
+          beschreibe, was geändert werden soll.
+        </p>
+
+      </div>
+
+
+      <div class="aendern-panel">
+
+
+        <div class="aendern-schritt">
+
+          <span class="aendern-nummer">
+            1
+          </span>
+
+          Eigenen Dienst auswählen
+
+        </div>
+
+
+        <div class="aendern-hinweis">
+          Es werden nur deine tatsächlich eingetragenen
+          Hauptdienste angezeigt. Pausenablösen können
+          nicht separat geändert werden.
+        </div>
+
+
+        <div id="dienstAendernLaden">
+          Dienste werden geladen …
+        </div>
+
+
+        <select
+          id="dienstAendernAuswahl"
+          style="display:none;"
+          onchange="dienstAendernAuswahlGeaendertNeu()"
+        >
+
+          <option value="">
+            Bitte Dienst auswählen
+          </option>
+
+        </select>
+
+
+        <div id="dienstAendernVorschau"></div>
+
+
+
+        <div class="aendern-schritt">
+
+          <span class="aendern-nummer">
+            2
+          </span>
+
+          Was möchtest du ändern?
+
+        </div>
+
+
+        <div class="aendern-hinweis">
+          Bitte kurz und eindeutig beschreiben.
+          Dieses Feld ist verpflichtend.
+        </div>
+
+
+        <textarea
+          id="dienstAendernNachricht"
+          maxlength="500"
+          placeholder="z. B. Ich kann an diesem Tag nur den Spätdienst machen."
+          oninput="dienstAendernZeichenNeu()"
+        ></textarea>
+
+
+        <div
+          id="dienstAendernZeichen"
+          class="aendern-zeichen"
+        >
+          0 / 500
+        </div>
+
+
+        <div class="aendern-info">
+
+          ℹ️ Die Anfrage verändert deinen Dienstplan
+          nicht automatisch. Nach der Genehmigung wird
+          die Änderung im Dienstplan eingetragen.
+
+        </div>
+
+
+        <button
+          id="dienstAendernSenden"
+          type="button"
+          onclick="sendeDienstAenderungNeu()"
+        >
+          Anfrage senden
+        </button>
+
+
+        <div
+          id="dienstAendernMeldung"
+          aria-live="polite"
+        ></div>
+
+      </div>
+
+    </section>
+
         <!-- ==================================================
          DIENST TAUSCHEN
          ================================================== -->
@@ -1118,11 +1603,12 @@
           </h1>
 
           <p>
-            Wähle einen Tag aus und tausche deinen Dienst direkt
-            mit einem Kollegen.
+            Wähle einen Tag aus und tausche deinen Dienst
+            direkt mit einem Kollegen.
           </p>
 
         </div>
+
 
         <button
           class="close-button"
@@ -1135,11 +1621,13 @@
       </div>
 
 
+
       <!-- ==================================================
            SCHRITTE
            ================================================== -->
 
       <div class="schritte">
+
 
         <div class="schritt aktiv">
 
@@ -1204,6 +1692,7 @@
       </div>
 
 
+
       <!-- ==================================================
            SCHRITT 1
            ================================================== -->
@@ -1219,12 +1708,14 @@
               1. Tag auswählen
             </h2>
 
+
             <p class="beschreibung">
               Für welchen Tag möchtest du tauschen?
             </p>
 
 
             <div class="datum-navigation">
+
 
               <button
                 class="pfeil-button"
@@ -1259,6 +1750,7 @@
                 →
               </button>
 
+
             </div>
 
 
@@ -1286,11 +1778,13 @@
           </div>
 
 
+
           <div class="eigene-dienste">
 
             <h3>
               Deine Dienste an diesem Tag
             </h3>
+
 
             <div class="empty-state">
               Bitte wähle zuerst einen Tag aus.
@@ -1298,9 +1792,11 @@
 
           </div>
 
+
         </div>
 
       </section>
+
 
 
       <!-- ==================================================
@@ -1312,6 +1808,7 @@
         <h2>
           2. Dienst wählen
         </h2>
+
 
         <p class="beschreibung">
           Wähle den Dienst, den du tauschen möchtest.
@@ -1329,6 +1826,7 @@
 
         <div class="panel-unten">
 
+
           <div class="hinweis">
 
             💡 Wähle deinen eigenen Dienst aus.
@@ -1343,13 +1841,20 @@
             type="button"
             onclick="zeigeKollegen()"
           >
+
             Weiter zu Schritt 3
-            <span>→</span>
+
+            <span>
+              →
+            </span>
+
           </button>
+
 
         </div>
 
       </section>
+
 
 
       <!-- ==================================================
@@ -1364,6 +1869,7 @@
         <h2>
           3. Kollegen wählen
         </h2>
+
 
         <p class="beschreibung">
           Mit wem möchtest du deinen Dienst tauschen?
@@ -1392,26 +1898,49 @@
 </div>
 <!-- /hauptApp -->
 
-
   <!-- ======================================================
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=20260821-1"></script>
+<script src="app.js?v=20260821-2"></script>
 
 
 <script>
 
 /* =========================================================
+   ALLGEMEINE HILFSFUNKTION
+   ========================================================= */
+
+function escapeHtmlIndexNeu(text) {
+
+  return String(
+    text == null
+      ? ''
+      : text
+  )
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+}
+
+
+
+/* =========================================================
    MOBILE SEITENTITEL
    ========================================================= */
 
-function aktualisiereMobileSeitentitelNeu(seite) {
+function aktualisiereMobileSeitentitelNeu(
+  seite
+) {
 
   const titel =
     document.getElementById(
       'mobileSeitentitel'
     );
+
 
   if (!titel) {
     return;
@@ -1456,173 +1985,7 @@ function aktualisiereMobileSeitentitelNeu(seite) {
 
 
 /* =========================================================
-   VORHANDENE SEITENNAVIGATION ERWEITERN
-
-   Wichtig:
-   Die vorhandene Navigation aus app.js bleibt erhalten.
-   Wir ergänzen nur den Titel oben und schließen das Menü.
-   ========================================================= */
-
-(function installiereSeitenTitelNeu() {
-
-  if (
-    typeof window.zeigeSeite !==
-    'function'
-  ) {
-    return;
-  }
-
-
-  if (
-    window.zeigeSeite
-      .__scsMobileTitelInstalliert
-  ) {
-    return;
-  }
-
-
-  const originaleZeigeSeite =
-    window.zeigeSeite;
-
-
-  const neueZeigeSeite =
-    function(seite) {
-
-      aktualisiereMobileSeitentitelNeu(
-        seite
-      );
-
-
-      const ergebnis =
-        originaleZeigeSeite.apply(
-          this,
-          arguments
-        );
-
-
-      window.setTimeout(
-        function() {
-
-          schliesseMobileMenue();
-
-        },
-        30
-      );
-
-
-      return ergebnis;
-
-    };
-
-
-  neueZeigeSeite
-    .__scsMobileTitelInstalliert =
-    true;
-
-
-  window.zeigeSeite =
-    neueZeigeSeite;
-
-})();
-
-
-
-/* =========================================================
-   ÄNDERUNG / TAUSCH UNTERMENÜ
-   ========================================================= */
-
-if (
-  typeof window.toggleTauschMenue !==
-  'function'
-) {
-
-  window.toggleTauschMenue =
-    function() {
-
-      const menue =
-        document.getElementById(
-          'tauschUntermenue'
-        );
-
-      if (!menue) {
-        return;
-      }
-
-
-      menue.classList.toggle(
-        'offen'
-      );
-
-    };
-
-}
-
-
-
-/* =========================================================
-   ☰ MENÜ
-   ========================================================= */
-
-if (
-  typeof window.toggleMobileMenue !==
-  'function'
-) {
-
-  window.toggleMobileMenue =
-    function() {
-
-      const sidebar =
-        document.getElementById(
-          'sidebar'
-        );
-
-      const button =
-        document.querySelector(
-          '.mobile-menu'
-        );
-
-
-      if (!sidebar) {
-        return;
-      }
-
-
-      sidebar.classList.toggle(
-        'mobile-offen'
-      );
-
-
-      const istOffen =
-        sidebar.classList.contains(
-          'mobile-offen'
-        );
-
-
-      if (button) {
-
-        button.textContent =
-          istOffen
-            ? '×'
-            : '☰';
-
-
-        button.setAttribute(
-          'aria-label',
-          istOffen
-            ? 'Menü schließen'
-            : 'Menü öffnen'
-        );
-
-      }
-
-    };
-
-}
-
-
-
-/* =========================================================
-   ☰ MENÜ SCHLIESSEN
+   MOBILES MENÜ SCHLIESSEN
    ========================================================= */
 
 function schliesseMobileMenue() {
@@ -1631,6 +1994,7 @@ function schliesseMobileMenue() {
     document.getElementById(
       'sidebar'
     );
+
 
   const button =
     document.querySelector(
@@ -1665,39 +2029,59 @@ function schliesseMobileMenue() {
 
 
 /* =========================================================
-   FALLBACK FÜR WOCHENPFEILE
-
-   Falls app.js bereits wechselWoche() besitzt,
-   wird daran nichts geändert.
+   MOBILES MENÜ
    ========================================================= */
 
 if (
-  typeof window.wechselWoche !==
+  typeof window.toggleMobileMenue !==
   'function'
 ) {
 
-  window.wechselWoche =
-    function(richtung) {
+  window.toggleMobileMenue =
+    function() {
 
-      if (
-        Number(richtung) < 0 &&
-        typeof window.vorherigeKW ===
-          'function'
-      ) {
+      const sidebar =
+        document.getElementById(
+          'sidebar'
+        );
 
-        window.vorherigeKW();
+
+      const button =
+        document.querySelector(
+          '.mobile-menu'
+        );
+
+
+      if (!sidebar) {
         return;
-
       }
 
 
-      if (
-        Number(richtung) > 0 &&
-        typeof window.naechsteKW ===
-          'function'
-      ) {
+      sidebar.classList.toggle(
+        'mobile-offen'
+      );
 
-        window.naechsteKW();
+
+      const offen =
+        sidebar.classList.contains(
+          'mobile-offen'
+        );
+
+
+      if (button) {
+
+        button.textContent =
+          offen
+            ? '×'
+            : '☰';
+
+
+        button.setAttribute(
+          'aria-label',
+          offen
+            ? 'Menü schließen'
+            : 'Menü öffnen'
+        );
 
       }
 
@@ -1708,705 +2092,40 @@ if (
 
 
 /* =========================================================
-   ISO-KALENDERWOCHE BERECHNEN
+   ÄNDERUNG / TAUSCH UNTERMENÜ
    ========================================================= */
 
-function berechneIsoKwNeu(
-  datum
+if (
+  typeof window.toggleTauschMenue !==
+  'function'
 ) {
 
-  if (
-    !(datum instanceof Date) ||
-    isNaN(datum.getTime())
-  ) {
-    return null;
-  }
+  window.toggleTauschMenue =
+    function() {
 
+      const menue =
+        document.getElementById(
+          'tauschUntermenue'
+        );
 
-  const temp =
-    new Date(
-      Date.UTC(
-        datum.getFullYear(),
-        datum.getMonth(),
-        datum.getDate()
-      )
-    );
 
-
-  const tag =
-    temp.getUTCDay() || 7;
-
-
-  temp.setUTCDate(
-    temp.getUTCDate() +
-    4 -
-    tag
-  );
-
-
-  const jahresAnfang =
-    new Date(
-      Date.UTC(
-        temp.getUTCFullYear(),
-        0,
-        1
-      )
-    );
-
-
-  return Math.ceil(
-    (
-      (
-        temp -
-        jahresAnfang
-      ) /
-      86400000 +
-      1
-    ) /
-    7
-  );
-
-}
-
-
-
-/* =========================================================
-   DATUM AUS TEXT LESEN
-   ========================================================= */
-
-function findeDatumInTextNeu(
-  text
-) {
-
-  const treffer =
-    String(
-      text || ''
-    ).match(
-      /\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/
-    );
-
-
-  if (!treffer) {
-    return null;
-  }
-
-
-  return new Date(
-    Number(treffer[3]),
-    Number(treffer[2]) - 1,
-    Number(treffer[1]),
-    12,
-    0,
-    0
-  );
-
-}
-
-
-
-/* =========================================================
-   KW-ANZEIGE KORRIGIEREN
-
-   Liest das tatsächlich angezeigte Datum aus dem
-   Dienstplan und berechnet daraus die Kalenderwoche.
-
-   Beispiel:
-   Montag, 04.01.2027 -> KW 1
-   ========================================================= */
-
-function aktualisiereKwAnzeigeNeu() {
-
-  const kwAnzeige =
-    document.getElementById(
-      'kwAnzeige'
-    );
-
-  const liste =
-    document.getElementById(
-      'dienstplanListe'
-    );
-
-
-  if (
-    !kwAnzeige ||
-    !liste
-  ) {
-    return;
-  }
-
-
-  let datum =
-    null;
-
-
-  /*
-    Zuerst gezielt die Datumselemente prüfen.
-  */
-
-  const datumElemente =
-    liste.querySelectorAll(
-      '.datum'
-    );
-
-
-  for (
-    let i = 0;
-    i < datumElemente.length;
-    i++
-  ) {
-
-    datum =
-      findeDatumInTextNeu(
-        datumElemente[i].textContent
-      );
-
-
-    if (datum) {
-      break;
-    }
-
-  }
-
-
-  /*
-    Falls die Karte anders aufgebaut ist,
-    im gesamten Dienstplan nach dem ersten
-    Datum suchen.
-  */
-
-  if (!datum) {
-
-    datum =
-      findeDatumInTextNeu(
-        liste.textContent
-      );
-
-  }
-
-
-  if (!datum) {
-    return;
-  }
-
-
-  const kw =
-    berechneIsoKwNeu(
-      datum
-    );
-
-
-  if (!kw) {
-    return;
-  }
-
-
-  kwAnzeige.textContent =
-    'KW ' +
-    kw;
-
-}
-
-
-
-/* =========================================================
-   DOPPELTE KW INNERHALB EINER TAGESKARTE ENTFERNEN
-
-   Die obere #kwAnzeige bleibt immer bestehen.
-   ========================================================= */
-
-function entferneDoppelteKwNeu() {
-
-  const liste =
-    document.getElementById(
-      'dienstplanListe'
-    );
-
-
-  if (!liste) {
-    return;
-  }
-
-
-  liste
-    .querySelectorAll('*')
-    .forEach(
-      function(element) {
-
-        if (
-          element.children.length !== 0
-        ) {
-          return;
-        }
-
-
-        const text =
-          String(
-            element.textContent || ''
-          )
-            .replace(
-              /\s+/g,
-              ' '
-            )
-            .trim();
-
-
-        if (
-          /^KW\s*\d{1,2}$/i.test(
-            text
-          )
-        ) {
-
-          element.style.setProperty(
-            'display',
-            'none',
-            'important'
-          );
-
-        }
-
-      }
-    );
-
-}
-
-
-
-/* =========================================================
-   RICHTIGE DIENSTKARTE FINDEN
-   ========================================================= */
-
-function findeEinsatzKarteNeu(
-  dienstname
-) {
-
-  if (!dienstname) {
-    return null;
-  }
-
-
-  /*
-    Bevorzugt die echte Einsatzkarte.
-  */
-
-  const direkteKarte =
-    dienstname.closest(
-      '.einsatz, .dienst-karte, .dienst-card, .schicht-card'
-    );
-
-
-  if (direkteKarte) {
-    return direkteKarte;
-  }
-
-
-  /*
-    Fallback:
-    nach oben gehen und die kleinste Box suchen,
-    die einen Tausch-/Änderungsbutton enthält.
-  */
-
-  let element =
-    dienstname.parentElement;
-
-
-  for (
-    let i = 0;
-    i < 7 && element;
-    i++
-  ) {
-
-    const button =
-      element.querySelector(
-        'button'
-      );
-
-
-    if (button) {
-
-      const buttonText =
-        String(
-          button.textContent || ''
-        ).toLowerCase();
-
-
-      if (
-        buttonText.includes('tausch') ||
-        buttonText.includes('änder')
-      ) {
-
-        return element;
-
-      }
-
-    }
-
-
-    element =
-      element.parentElement;
-
-  }
-
-
-  return dienstname.parentElement;
-
-}
-
-
-
-/* =========================================================
-   FRÜH GRÜN / SPÄT BLAU
-
-   Hier wird der alte GP-Grünrand bei einem Spätdienst
-   ausdrücklich überschrieben.
-
-   Dadurch gibt es beim Spätdienst nicht mehr
-   gleichzeitig einen grünen UND blauen Balken.
-   ========================================================= */
-
-function optimiereDienstFarbenNeu() {
-
-  const liste =
-    document.getElementById(
-      'dienstplanListe'
-    );
-
-
-  if (!liste) {
-    return;
-  }
-
-
-  let dienstnamen =
-    Array.from(
-      liste.querySelectorAll(
-        '.dienstname'
-      )
-    );
-
-
-  /*
-    Falls app.js keine .dienstname-Klasse verwendet,
-    kleine Textelemente als Fallback durchsuchen.
-  */
-
-  if (
-    dienstnamen.length === 0
-  ) {
-
-    dienstnamen =
-      Array.from(
-        liste.querySelectorAll(
-          'div, span, strong'
-        )
-      ).filter(
-        function(element) {
-
-          if (
-            element.children.length !== 0
-          ) {
-            return false;
-          }
-
-
-          const text =
-            String(
-              element.textContent || ''
-            );
-
-
-          return (
-            /Garden Plaza/i.test(text) ||
-            /Water Plaza/i.test(text)
-          );
-
-        }
-      );
-
-  }
-
-
-  dienstnamen.forEach(
-    function(element) {
-
-      const original =
-        String(
-          element.textContent || ''
-        )
-          .replace(
-            /\s+/g,
-            ' '
-          )
-          .trim();
-
-
-      /*
-        Pausenablösen und Ganztag nicht verändern.
-      */
-
-      if (
-        /Pausenablöse/i.test(
-          original
-        ) ||
-        /Ganztag/i.test(
-          original
-        )
-      ) {
+      if (!menue) {
         return;
       }
 
 
-      const istFrueh =
-        /(?:^|\s|–|-)\s*Früh\b/i.test(
-          original
-        );
-
-
-      const istSpaet =
-        /(?:^|\s|–|-)\s*Spät\b/i.test(
-          original
-        );
-
-
-      if (
-        !istFrueh &&
-        !istSpaet
-      ) {
-        return;
-      }
-
-
-      const karte =
-        findeEinsatzKarteNeu(
-          element
-        );
-
-
-      if (!karte) {
-        return;
-      }
-
-
-      /*
-        Eventuelle alte Zusatzklassen entfernen.
-      */
-
-      karte.classList.remove(
-        'scs-schicht-frueh',
-        'scs-schicht-spaet'
+      menue.classList.toggle(
+        'offen'
       );
 
-
-      /*
-        Vorhandenes Symbol entfernen.
-      */
-
-      const saubererText =
-        original
-          .replace(
-            /^(?:🟢|🔵|🟠|☀️?|🌙|🌞|🌜)\s*/u,
-            ''
-          )
-          .trim();
-
-
-
-      /* -----------------------------------------------------
-         FRÜH
-         ----------------------------------------------------- */
-
-      if (istFrueh) {
-
-        karte.classList.add(
-          'scs-schicht-frueh'
-        );
-
-
-        /*
-          !important ist absichtlich gesetzt,
-          damit ein vorhandener GP-Grünrand
-          korrekt überschrieben wird.
-        */
-
-        karte.style.setProperty(
-          'border-left',
-          '6px solid #14943b',
-          'important'
-        );
-
-
-        karte.style.setProperty(
-          'background',
-          '#f5fff8',
-          'important'
-        );
-
-
-        const neuerText =
-          '☀️ ' +
-          saubererText;
-
-
-        if (
-          element.textContent !==
-          neuerText
-        ) {
-
-          element.textContent =
-            neuerText;
-
-        }
-
-      }
-
-
-
-      /* -----------------------------------------------------
-         SPÄT
-         ----------------------------------------------------- */
-
-      else if (istSpaet) {
-
-        karte.classList.add(
-          'scs-schicht-spaet'
-        );
-
-
-        /*
-          Ganz wichtig:
-          vorhandenen grünen GP-Rand mit
-          blauem !important-Rand ersetzen.
-        */
-
-        karte.style.setProperty(
-          'border-left',
-          '6px solid #1754d1',
-          'important'
-        );
-
-
-        karte.style.setProperty(
-          'background',
-          '#f5f8ff',
-          'important'
-        );
-
-
-        const neuerText =
-          '🌙 ' +
-          saubererText;
-
-
-        if (
-          element.textContent !==
-          neuerText
-        ) {
-
-          element.textContent =
-            neuerText;
-
-        }
-
-      }
-
-    }
-  );
+    };
 
 }
 
 
 
 /* =========================================================
-   ALLE DIENSTPLAN-OPTIMIERUNGEN
-   ========================================================= */
-
-function optimiereDienstplanDarstellungNeu() {
-
-  aktualisiereKwAnzeigeNeu();
-
-  entferneDoppelteKwNeu();
-
-  optimiereDienstFarbenNeu();
-
-}
-
-
-
-/* =========================================================
-   DIENSTPLAN BEOBACHTEN
-
-   Sobald app.js eine andere Woche lädt,
-   wird automatisch erneut:
-   - KW berechnet
-   - doppeltes KW entfernt
-   - Früh/Spät eingefärbt
-   ========================================================= */
-
-function installiereDienstplanBeobachterNeu() {
-
-  const liste =
-    document.getElementById(
-      'dienstplanListe'
-    );
-
-
-  if (!liste) {
-    return;
-  }
-
-
-  optimiereDienstplanDarstellungNeu();
-
-
-  let geplant =
-    false;
-
-
-  const observer =
-    new MutationObserver(
-      function() {
-
-        if (geplant) {
-          return;
-        }
-
-
-        geplant =
-          true;
-
-
-        window.requestAnimationFrame(
-          function() {
-
-            geplant =
-              false;
-
-
-            optimiereDienstplanDarstellungNeu();
-
-          }
-        );
-
-      }
-    );
-
-
-  observer.observe(
-    liste,
-    {
-      childList:
-        true,
-
-      subtree:
-        true
-    }
-  );
-
-}
-
-
-
-/* =========================================================
-   FALLBACK: DIENST AUSWÄHLEN
+   DIENST-TAUSCH FALLBACK
    ========================================================= */
 
 if (
@@ -2477,10 +2196,6 @@ if (
 
 
 
-/* =========================================================
-   FALLBACK: KOLLEGENBEREICH
-   ========================================================= */
-
 if (
   typeof window.zeigeKollegen !==
   'function'
@@ -2505,19 +2220,2428 @@ if (
       );
 
 
-      bereich.scrollIntoView(
-        {
-          behavior:
-            'smooth',
+      bereich.scrollIntoView({
+        behavior:
+          'smooth',
 
-          block:
-            'start'
-        }
-      );
+        block:
+          'start'
+      });
 
     };
 
 }
+
+
+
+/* =========================================================
+   WOCHENPFEILE FALLBACK
+   ========================================================= */
+
+if (
+  typeof window.wechselWoche !==
+  'function'
+) {
+
+  window.wechselWoche =
+    function(richtung) {
+
+      if (
+        Number(richtung) < 0 &&
+        typeof window.vorherigeKW ===
+          'function'
+      ) {
+
+        window.vorherigeKW();
+
+        return;
+
+      }
+
+
+      if (
+        Number(richtung) > 0 &&
+        typeof window.naechsteKW ===
+          'function'
+      ) {
+
+        window.naechsteKW();
+
+      }
+
+    };
+
+}
+
+
+
+/* =========================================================
+   DATUM LESEN
+   ========================================================= */
+
+function parseDatumIndexNeu(
+  text
+) {
+
+  const treffer =
+    String(
+      text || ''
+    ).match(
+      /\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/
+    );
+
+
+  if (!treffer) {
+    return null;
+  }
+
+
+  return new Date(
+    Number(treffer[3]),
+    Number(treffer[2]) - 1,
+    Number(treffer[1]),
+    12,
+    0,
+    0
+  );
+
+}
+
+
+
+/* =========================================================
+   ISO-KALENDERWOCHE
+   ========================================================= */
+
+function berechneIsoKwNeu(
+  datum
+) {
+
+  if (
+    !(datum instanceof Date) ||
+    isNaN(
+      datum.getTime()
+    )
+  ) {
+    return null;
+  }
+
+
+  const temp =
+    new Date(
+      Date.UTC(
+        datum.getFullYear(),
+        datum.getMonth(),
+        datum.getDate()
+      )
+    );
+
+
+  const tag =
+    temp.getUTCDay() || 7;
+
+
+  temp.setUTCDate(
+    temp.getUTCDate() +
+    4 -
+    tag
+  );
+
+
+  const jahresAnfang =
+    new Date(
+      Date.UTC(
+        temp.getUTCFullYear(),
+        0,
+        1
+      )
+    );
+
+
+  return Math.ceil(
+    (
+      (
+        temp -
+        jahresAnfang
+      ) /
+      86400000 +
+      1
+    ) /
+    7
+  );
+
+}
+
+
+
+/* =========================================================
+   KW-ANZEIGE
+   ========================================================= */
+
+function aktualisiereKwAnzeigeNeu() {
+
+  const kwAnzeige =
+    document.getElementById(
+      'kwAnzeige'
+    );
+
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (
+    !kwAnzeige ||
+    !liste
+  ) {
+    return;
+  }
+
+
+  const datum =
+    parseDatumIndexNeu(
+      liste.textContent
+    );
+
+
+  if (!datum) {
+    return;
+  }
+
+
+  const kw =
+    berechneIsoKwNeu(
+      datum
+    );
+
+
+  if (!kw) {
+    return;
+  }
+
+
+  kwAnzeige.textContent =
+    'KW ' +
+    kw;
+
+}
+
+
+
+/* =========================================================
+   DOPPELTE KW IN DEN KARTEN ENTFERNEN
+   ========================================================= */
+
+function entferneDoppelteKwNeu() {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  liste
+    .querySelectorAll('*')
+    .forEach(
+      function(element) {
+
+        if (
+          element.children.length !== 0
+        ) {
+          return;
+        }
+
+
+        const text =
+          String(
+            element.textContent || ''
+          )
+            .replace(
+              /\s+/g,
+              ' '
+            )
+            .trim();
+
+
+        if (
+          /^KW\s*\d{1,2}$/i.test(
+            text
+          )
+        ) {
+
+          element.style.setProperty(
+            'display',
+            'none',
+            'important'
+          );
+
+        }
+
+      }
+    );
+
+}
+
+
+
+/* =========================================================
+   DIENSTSYMBOLE
+
+   Farbe bleibt über GP/WP-Karte:
+   GP = grün
+   WP = blau
+
+   Symbol zeigt:
+   ☀️ Früh
+   🌙 Spät
+   ========================================================= */
+
+function optimiereDienstSymboleNeu() {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  liste
+    .querySelectorAll(
+      '.dienstname'
+    )
+    .forEach(
+      function(element) {
+
+        const original =
+          String(
+            element.textContent || ''
+          )
+            .replace(
+              /\s+/g,
+              ' '
+            )
+            .trim();
+
+
+        if (
+          /Pausenablöse/i.test(
+            original
+          )
+        ) {
+          return;
+        }
+
+
+        if (
+          /Ganztag/i.test(
+            original
+          )
+        ) {
+          return;
+        }
+
+
+        const sauber =
+          original
+            .replace(
+              /^(?:🟢|🔵|☀️?|🌙)\s*/u,
+              ''
+            )
+            .trim();
+
+
+        if (
+          /\bFrüh\b/i.test(
+            sauber
+          )
+        ) {
+
+          element.textContent =
+            '☀️ ' +
+            sauber;
+
+        }
+
+
+        else if (
+          /\bSpät\b/i.test(
+            sauber
+          )
+        ) {
+
+          element.textContent =
+            '🌙 ' +
+            sauber;
+
+        }
+
+      }
+    );
+
+}
+
+
+
+/* =========================================================
+   DIENSTPLAN-DARSTELLUNG
+   ========================================================= */
+
+function optimiereDienstplanDarstellungNeu() {
+
+  aktualisiereKwAnzeigeNeu();
+
+  entferneDoppelteKwNeu();
+
+  optimiereDienstSymboleNeu();
+
+}
+
+
+
+/* =========================================================
+   DIENSTPLAN BEOBACHTEN
+   ========================================================= */
+
+function installiereDienstplanBeobachterNeu() {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  let geplant =
+    false;
+
+
+  const observer =
+    new MutationObserver(
+      function() {
+
+        if (geplant) {
+          return;
+        }
+
+
+        geplant =
+          true;
+
+
+        window.requestAnimationFrame(
+          function() {
+
+            geplant =
+              false;
+
+
+            optimiereDienstplanDarstellungNeu();
+
+          }
+        );
+
+      }
+    );
+
+
+  observer.observe(
+    liste,
+    {
+      childList:
+        true,
+
+      subtree:
+        true
+    }
+  );
+
+
+  optimiereDienstplanDarstellungNeu();
+
+}
+
+
+
+/* =========================================================
+   DIENST ÄNDERN – DATEN
+   ========================================================= */
+
+let dienstAendernDiensteNeu =
+  [];
+
+
+
+/* =========================================================
+   ÄNDERBARE HAUPTDIENSTE SAMMELN
+
+   GP Früh bleibt einzeln.
+   GP Spät bleibt einzeln.
+
+   WP Früh + WP Spät =
+   EIN Water Plaza Ganztag.
+
+   Pausenablöse wird NICHT aufgenommen.
+   ========================================================= */
+
+function sammleDienstAendernDiensteNeu(
+  plan
+) {
+
+  const ergebnis =
+    [];
+
+
+  (
+    Array.isArray(plan)
+      ? plan
+      : []
+  ).forEach(
+    function(z) {
+
+      const datum =
+        String(
+          z.datum || ''
+        ).trim();
+
+
+      const kw =
+        Number(
+          z.kw || 0
+        );
+
+
+      const tag =
+        String(
+          z.tag || ''
+        ).trim();
+
+
+      if (
+        !datum ||
+        !kw
+      ) {
+        return;
+      }
+
+
+      const datumObj =
+        parseDatumIndexNeu(
+          datum
+        );
+
+
+      /* -----------------------------------------------
+         GARDEN PLAZA FRÜH
+         ----------------------------------------------- */
+
+      if (z.gpFrueh) {
+
+        ergebnis.push({
+
+          datum:
+            datum,
+
+          datumObj:
+            datumObj,
+
+          kw:
+            kw,
+
+          tag:
+            tag,
+
+          dienst:
+            'Garden Plaza – Früh',
+
+          platz:
+            'gp',
+
+          schicht:
+            'frueh',
+
+          symbol:
+            '☀️'
+
+        });
+
+      }
+
+
+      /* -----------------------------------------------
+         GARDEN PLAZA SPÄT
+         ----------------------------------------------- */
+
+      if (z.gpSpaet) {
+
+        ergebnis.push({
+
+          datum:
+            datum,
+
+          datumObj:
+            datumObj,
+
+          kw:
+            kw,
+
+          tag:
+            tag,
+
+          dienst:
+            'Garden Plaza – Spät',
+
+          platz:
+            'gp',
+
+          schicht:
+            'spaet',
+
+          symbol:
+            '🌙'
+
+        });
+
+      }
+
+
+      const wpGanztag =
+        z.wpGanztag === true ||
+        (
+          z.wpFrueh === true &&
+          z.wpSpaet === true
+        );
+
+
+      /* -----------------------------------------------
+         WATER PLAZA GANZTAG
+         ----------------------------------------------- */
+
+      if (wpGanztag) {
+
+        ergebnis.push({
+
+          datum:
+            datum,
+
+          datumObj:
+            datumObj,
+
+          kw:
+            kw,
+
+          tag:
+            tag,
+
+          dienst:
+            'Water Plaza – Ganztag',
+
+          platz:
+            'wp',
+
+          schicht:
+            'ganztag',
+
+          symbol:
+            '🔵'
+
+        });
+
+      }
+
+
+      else {
+
+
+        /* ---------------------------------------------
+           WATER PLAZA FRÜH
+           --------------------------------------------- */
+
+        if (z.wpFrueh) {
+
+          ergebnis.push({
+
+            datum:
+              datum,
+
+            datumObj:
+              datumObj,
+
+            kw:
+              kw,
+
+            tag:
+              tag,
+
+            dienst:
+              'Water Plaza – Früh',
+
+            platz:
+              'wp',
+
+            schicht:
+              'frueh',
+
+            symbol:
+              '☀️'
+
+          });
+
+        }
+
+
+        /* ---------------------------------------------
+           WATER PLAZA SPÄT
+           --------------------------------------------- */
+
+        if (z.wpSpaet) {
+
+          ergebnis.push({
+
+            datum:
+              datum,
+
+            datumObj:
+              datumObj,
+
+            kw:
+              kw,
+
+            tag:
+              tag,
+
+            dienst:
+              'Water Plaza – Spät',
+
+            platz:
+              'wp',
+
+            schicht:
+              'spaet',
+
+            symbol:
+              '🌙'
+
+          });
+
+        }
+
+      }
+
+    }
+  );
+
+
+  ergebnis.sort(
+    function(a, b) {
+
+      if (
+        a.datumObj &&
+        b.datumObj
+      ) {
+
+        const unterschied =
+          a.datumObj -
+          b.datumObj;
+
+
+        if (unterschied !== 0) {
+          return unterschied;
+        }
+
+      }
+
+
+      return a.dienst.localeCompare(
+        b.dienst,
+        'de'
+      );
+
+    }
+  );
+
+
+  return ergebnis;
+
+}
+
+
+
+/* =========================================================
+   DIENST ÄNDERN – LADEN
+   ========================================================= */
+
+async function ladeDienstAendernNeu() {
+
+  const laden =
+    document.getElementById(
+      'dienstAendernLaden'
+    );
+
+
+  const auswahl =
+    document.getElementById(
+      'dienstAendernAuswahl'
+    );
+
+
+  const vorschau =
+    document.getElementById(
+      'dienstAendernVorschau'
+    );
+
+
+  const meldung =
+    document.getElementById(
+      'dienstAendernMeldung'
+    );
+
+
+  if (
+    !laden ||
+    !auswahl
+  ) {
+    return;
+  }
+
+
+  laden.style.display =
+    'block';
+
+
+  laden.textContent =
+    'Dienste werden geladen …';
+
+
+  auswahl.style.display =
+    'none';
+
+
+  if (vorschau) {
+
+    vorschau.style.display =
+      'none';
+
+    vorschau.innerHTML =
+      '';
+
+  }
+
+
+  if (meldung) {
+
+    meldung.className =
+      '';
+
+    meldung.textContent =
+      '';
+
+  }
+
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+
+      throw new Error(
+        'Die Verbindung zur App ist noch nicht bereit.'
+      );
+
+    }
+
+
+    const result =
+      await apiPost(
+        'meinDienstplan'
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Dienste konnten nicht geladen werden.'
+      );
+
+    }
+
+
+    dienstAendernDiensteNeu =
+      sammleDienstAendernDiensteNeu(
+        result.dienstplan || []
+      );
+
+
+    auswahl.innerHTML =
+      '<option value="">Bitte Dienst auswählen</option>';
+
+
+    dienstAendernDiensteNeu.forEach(
+      function(dienst, index) {
+
+        const option =
+          document.createElement(
+            'option'
+          );
+
+
+        option.value =
+          String(index);
+
+
+        option.textContent =
+          (
+            dienst.tag
+              ? dienst.tag + ', '
+              : ''
+          ) +
+          dienst.datum +
+          ' · ' +
+          dienst.dienst;
+
+
+        auswahl.appendChild(
+          option
+        );
+
+      }
+    );
+
+
+    laden.style.display =
+      'none';
+
+
+    auswahl.style.display =
+      'block';
+
+
+    if (
+      dienstAendernDiensteNeu.length ===
+      0
+    ) {
+
+      laden.style.display =
+        'block';
+
+
+      laden.textContent =
+        'Es wurden keine änderbaren Dienste gefunden.';
+
+
+      auswahl.style.display =
+        'none';
+
+    }
+
+  }
+
+  catch (error) {
+
+    laden.style.display =
+      'block';
+
+
+    laden.textContent =
+      '❌ ' +
+      (
+        error &&
+        error.message
+          ? error.message
+          : 'Dienste konnten nicht geladen werden.'
+      );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   DIENST ÄNDERN – AUSWAHL GEÄNDERT
+   ========================================================= */
+
+function dienstAendernAuswahlGeaendertNeu() {
+
+  const auswahl =
+    document.getElementById(
+      'dienstAendernAuswahl'
+    );
+
+
+  const vorschau =
+    document.getElementById(
+      'dienstAendernVorschau'
+    );
+
+
+  if (
+    !auswahl ||
+    !vorschau
+  ) {
+    return;
+  }
+
+
+  const index =
+    Number(
+      auswahl.value
+    );
+
+
+  if (
+    auswahl.value === '' ||
+    !dienstAendernDiensteNeu[index]
+  ) {
+
+    vorschau.style.display =
+      'none';
+
+
+    vorschau.innerHTML =
+      '';
+
+
+    return;
+
+  }
+
+
+  const dienst =
+    dienstAendernDiensteNeu[index];
+
+
+  let farbSymbol =
+    dienst.platz === 'gp'
+      ? '🟢'
+      : '🔵';
+
+
+  let schichtSymbol =
+    dienst.symbol || '';
+
+
+  vorschau.innerHTML = `
+
+    <div class="aendern-vorschau-datum">
+
+      ${escapeHtmlIndexNeu(
+        dienst.tag
+      )}${dienst.tag ? ', ' : ''}${escapeHtmlIndexNeu(
+        dienst.datum
+      )}
+
+      · KW ${escapeHtmlIndexNeu(
+        dienst.kw
+      )}
+
+    </div>
+
+    <div
+      class="aendern-vorschau-dienst ${escapeHtmlIndexNeu(
+        dienst.platz
+      )}"
+    >
+
+      <span>
+        ${farbSymbol}
+      </span>
+
+      <span>
+        ${schichtSymbol}
+      </span>
+
+      <span>
+        ${escapeHtmlIndexNeu(
+          dienst.dienst
+        )}
+      </span>
+
+    </div>
+
+  `;
+
+
+  vorschau.style.display =
+    'block';
+
+}
+
+
+
+/* =========================================================
+   ZEICHENZÄHLER
+   ========================================================= */
+
+function dienstAendernZeichenNeu() {
+
+  const feld =
+    document.getElementById(
+      'dienstAendernNachricht'
+    );
+
+
+  const anzeige =
+    document.getElementById(
+      'dienstAendernZeichen'
+    );
+
+
+  if (
+    !feld ||
+    !anzeige
+  ) {
+    return;
+  }
+
+
+  anzeige.textContent =
+    String(
+      feld.value.length
+    ) +
+    ' / 500';
+
+}
+
+
+
+/* =========================================================
+   MELDUNG
+   ========================================================= */
+
+function zeigeDienstAendernMeldungNeu(
+  text,
+  typ
+) {
+
+  const meldung =
+    document.getElementById(
+      'dienstAendernMeldung'
+    );
+
+
+  if (!meldung) {
+    return;
+  }
+
+
+  meldung.className =
+    typ === 'erfolg'
+      ? 'erfolg'
+      : 'fehler';
+
+
+  meldung.textContent =
+    text;
+
+}
+
+
+
+/* =========================================================
+   DIENSTÄNDERUNG SENDEN
+   ========================================================= */
+
+async function sendeDienstAenderungNeu() {
+
+  const auswahl =
+    document.getElementById(
+      'dienstAendernAuswahl'
+    );
+
+
+  const nachrichtFeld =
+    document.getElementById(
+      'dienstAendernNachricht'
+    );
+
+
+  const sendenButton =
+    document.getElementById(
+      'dienstAendernSenden'
+    );
+
+
+  if (
+    !auswahl ||
+    !nachrichtFeld ||
+    !sendenButton
+  ) {
+    return;
+  }
+
+
+  if (
+    auswahl.value === ''
+  ) {
+
+    zeigeDienstAendernMeldungNeu(
+      'Bitte zuerst einen Dienst auswählen.',
+      'fehler'
+    );
+
+
+    return;
+
+  }
+
+
+  const index =
+    Number(
+      auswahl.value
+    );
+
+
+  const dienst =
+    dienstAendernDiensteNeu[
+      index
+    ];
+
+
+  if (!dienst) {
+
+    zeigeDienstAendernMeldungNeu(
+      'Der ausgewählte Dienst wurde nicht gefunden.',
+      'fehler'
+    );
+
+
+    return;
+
+  }
+
+
+  const nachricht =
+    String(
+      nachrichtFeld.value || ''
+    ).trim();
+
+
+  if (!nachricht) {
+
+    zeigeDienstAendernMeldungNeu(
+      'Bitte beschreibe, was du an diesem Dienst ändern möchtest.',
+      'fehler'
+    );
+
+
+    nachrichtFeld.focus();
+
+
+    return;
+
+  }
+
+
+  if (
+    nachricht.length > 500
+  ) {
+
+    zeigeDienstAendernMeldungNeu(
+      'Die Nachricht darf höchstens 500 Zeichen lang sein.',
+      'fehler'
+    );
+
+
+    return;
+
+  }
+
+
+  sendenButton.disabled =
+    true;
+
+
+  sendenButton.textContent =
+    'Anfrage wird gesendet …';
+
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+
+      throw new Error(
+        'Die Verbindung zur App ist noch nicht bereit.'
+      );
+
+    }
+
+
+    const result =
+      await apiPost(
+        'dienstAnfrageSenden',
+        {
+
+          datum:
+            dienst.datum,
+
+          kw:
+            dienst.kw,
+
+          dienst:
+            dienst.dienst,
+
+          art:
+            'Dienst ändern',
+
+          nachricht:
+            nachricht
+
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Die Anfrage konnte nicht gesendet werden.'
+      );
+
+    }
+
+
+    zeigeDienstAendernMeldungNeu(
+      '✅ Deine Änderungsanfrage wurde gesendet.',
+      'erfolg'
+    );
+
+
+    auswahl.value =
+      '';
+
+
+    nachrichtFeld.value =
+      '';
+
+
+    dienstAendernZeichenNeu();
+
+
+    const vorschau =
+      document.getElementById(
+        'dienstAendernVorschau'
+      );
+
+
+    if (vorschau) {
+
+      vorschau.style.display =
+        'none';
+
+      vorschau.innerHTML =
+        '';
+
+    }
+
+
+    /*
+      Vorhandene Anfrageansichten beim nächsten Öffnen
+      wieder frisch laden.
+    */
+
+    window.setTimeout(
+      function() {
+
+        ladeMeineDienstAnfragenIndexNeu();
+
+      },
+      300
+    );
+
+  }
+
+  catch (error) {
+
+    zeigeDienstAendernMeldungNeu(
+      '❌ ' +
+      (
+        error &&
+        error.message
+          ? error.message
+          : 'Die Anfrage konnte nicht gesendet werden.'
+      ),
+      'fehler'
+    );
+
+  }
+
+  finally {
+
+    sendenButton.disabled =
+      false;
+
+
+    sendenButton.textContent =
+      'Anfrage senden';
+
+  }
+
+}
+
+
+
+/* =========================================================
+   MEINE DIENSTÄNDERUNGSANFRAGEN
+
+   Werden zusätzlich zu den bestehenden
+   Tauschanfragen angezeigt.
+   ========================================================= */
+
+async function ladeMeineDienstAnfragenIndexNeu() {
+
+  const ansicht =
+    document.getElementById(
+      'anfragenAnsicht'
+    );
+
+
+  if (!ansicht) {
+    return;
+  }
+
+
+  let bereich =
+    document.getElementById(
+      'dienstAnfragenZusatzNeu'
+    );
+
+
+  if (!bereich) {
+
+    bereich =
+      document.createElement(
+        'div'
+      );
+
+
+    bereich.id =
+      'dienstAnfragenZusatzNeu';
+
+
+    bereich.style.marginTop =
+      '22px';
+
+
+    ansicht.appendChild(
+      bereich
+    );
+
+  }
+
+
+  bereich.innerHTML = `
+
+    <div
+      style="
+        font-size:20px;
+        font-weight:750;
+        margin-bottom:12px;
+      "
+    >
+      ✏️ Dienständerungen / Wünsche
+    </div>
+
+    <div
+      style="
+        color:#777;
+        padding:12px 0;
+      "
+    >
+      Anfragen werden geladen …
+    </div>
+
+  `;
+
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+      return;
+    }
+
+
+    const result =
+      await apiPost(
+        'meineDienstAnfragen'
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Anfragen konnten nicht geladen werden.'
+      );
+
+    }
+
+
+    const anfragen =
+      Array.isArray(
+        result.anfragen
+      )
+        ? result.anfragen
+        : [];
+
+
+    let html = `
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:750;
+          margin-bottom:12px;
+        "
+      >
+        ✏️ Dienständerungen / Wünsche
+      </div>
+
+    `;
+
+
+    if (
+      anfragen.length === 0
+    ) {
+
+      html += `
+
+        <div
+          style="
+            padding:18px;
+            border:1px solid #e2e4e7;
+            border-radius:11px;
+            color:#777;
+            background:#fafafa;
+          "
+        >
+          Du hast aktuell keine Dienständerungsanfragen.
+        </div>
+
+      `;
+
+
+      bereich.innerHTML =
+        html;
+
+
+      return;
+
+    }
+
+
+    anfragen.forEach(
+      function(a) {
+
+        const status =
+          String(
+            a.status || 'OFFEN'
+          )
+            .trim()
+            .toUpperCase();
+
+
+        let statusText =
+          '🟡 Offen';
+
+
+        let statusFarbe =
+          '#8a6500';
+
+
+        let statusHintergrund =
+          '#fff9df';
+
+
+        if (
+          status ===
+          'GENEHMIGT'
+        ) {
+
+          statusText =
+            '🟢 Genehmigt';
+
+          statusFarbe =
+            '#26743a';
+
+          statusHintergrund =
+            '#effaf1';
+
+        }
+
+
+        else if (
+          status ===
+          'ABGELEHNT'
+        ) {
+
+          statusText =
+            '🔴 Abgelehnt';
+
+          statusFarbe =
+            '#a51c2b';
+
+          statusHintergrund =
+            '#fff1f2';
+
+        }
+
+
+        html += `
+
+          <div
+            class="anfrage-card"
+            style="
+              margin-bottom:12px;
+            "
+          >
+
+            <div
+              style="
+                font-weight:750;
+                margin-bottom:6px;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.art || 'Dienst ändern'
+              )}
+            </div>
+
+            <div
+              style="
+                font-weight:700;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.dienst
+              )}
+            </div>
+
+            <div
+              style="
+                margin-top:4px;
+                color:#666;
+                font-size:14px;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.datum
+              )}
+              · KW
+              ${escapeHtmlIndexNeu(
+                a.kw
+              )}
+            </div>
+
+        `;
+
+
+        if (a.nachricht) {
+
+          html += `
+
+            <div
+              style="
+                margin-top:10px;
+                line-height:1.45;
+              "
+            >
+              💬
+              ${escapeHtmlIndexNeu(
+                a.nachricht
+              )}
+            </div>
+
+          `;
+
+        }
+
+
+        if (a.zeitstempel) {
+
+          html += `
+
+            <div
+              style="
+                margin-top:8px;
+                color:#888;
+                font-size:12px;
+              "
+            >
+              Gesendet:
+              ${escapeHtmlIndexNeu(
+                a.zeitstempel
+              )}
+            </div>
+
+          `;
+
+        }
+
+
+        html += `
+
+            <div
+              style="
+                display:inline-block;
+                margin-top:12px;
+                padding:6px 10px;
+                border-radius:999px;
+                color:${statusFarbe};
+                background:${statusHintergrund};
+                font-size:13px;
+                font-weight:750;
+              "
+            >
+              ${statusText}
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    );
+
+
+    bereich.innerHTML =
+      html;
+
+  }
+
+  catch (error) {
+
+    bereich.innerHTML = `
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:750;
+          margin-bottom:12px;
+        "
+      >
+        ✏️ Dienständerungen / Wünsche
+      </div>
+
+      <div
+        style="
+          padding:15px;
+          border-radius:10px;
+          background:#fff1f2;
+          color:#a51c2b;
+        "
+      >
+        ❌
+        ${escapeHtmlIndexNeu(
+          error &&
+          error.message
+            ? error.message
+            : 'Anfragen konnten nicht geladen werden.'
+        )}
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   ADMIN – DIENSTANFRAGEN
+   ========================================================= */
+
+async function ladeAdminDienstAnfragenIndexNeu() {
+
+  const ansicht =
+    document.getElementById(
+      'adminAnsicht'
+    );
+
+
+  if (!ansicht) {
+    return;
+  }
+
+
+  let bereich =
+    document.getElementById(
+      'adminDienstAnfragenZusatzNeu'
+    );
+
+
+  if (!bereich) {
+
+    bereich =
+      document.createElement(
+        'div'
+      );
+
+
+    bereich.id =
+      'adminDienstAnfragenZusatzNeu';
+
+
+    bereich.style.marginTop =
+      '24px';
+
+
+    ansicht.appendChild(
+      bereich
+    );
+
+  }
+
+
+  bereich.innerHTML = `
+
+    <div
+      style="
+        font-size:20px;
+        font-weight:750;
+        margin-bottom:12px;
+      "
+    >
+      ✏️ Offene Dienständerungen / Wünsche
+    </div>
+
+    <div
+      style="
+        color:#777;
+        padding:12px 0;
+      "
+    >
+      Anfragen werden geladen …
+    </div>
+
+  `;
+
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+      return;
+    }
+
+
+    const result =
+      await apiPost(
+        'adminDienstAnfragen'
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Admin-Anfragen konnten nicht geladen werden.'
+      );
+
+    }
+
+
+    const anfragen =
+      Array.isArray(
+        result.anfragen
+      )
+        ? result.anfragen
+        : [];
+
+
+    let html = `
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:750;
+          margin-bottom:6px;
+        "
+      >
+        ✏️ Offene Dienständerungen / Wünsche
+      </div>
+
+      <div
+        style="
+          color:#666;
+          font-size:13px;
+          margin-bottom:14px;
+        "
+      >
+        Eine Genehmigung ändert den Dienstplan
+        nicht automatisch.
+      </div>
+
+    `;
+
+
+    if (
+      anfragen.length === 0
+    ) {
+
+      html += `
+
+        <div
+          style="
+            padding:18px;
+            border:1px solid #e2e4e7;
+            border-radius:11px;
+            color:#777;
+            background:#fafafa;
+          "
+        >
+          Keine offenen Dienständerungsanfragen.
+        </div>
+
+      `;
+
+
+      bereich.innerHTML =
+        html;
+
+
+      return;
+
+    }
+
+
+    anfragen.forEach(
+      function(a) {
+
+        const zeile =
+          Number(
+            a.zeile
+          );
+
+
+        html += `
+
+          <div
+            class="anfrage-card"
+            style="
+              margin-bottom:14px;
+            "
+          >
+
+            <div
+              style="
+                color:#e30613;
+                font-size:17px;
+                font-weight:800;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.mitarbeiter
+              )}
+            </div>
+
+            <div
+              style="
+                margin-top:7px;
+                font-weight:750;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.art || 'Dienst ändern'
+              )}
+            </div>
+
+            <div
+              style="
+                margin-top:4px;
+                font-weight:700;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.dienst
+              )}
+            </div>
+
+            <div
+              style="
+                margin-top:4px;
+                color:#666;
+                font-size:14px;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.datum
+              )}
+              · KW
+              ${escapeHtmlIndexNeu(
+                a.kw
+              )}
+            </div>
+
+        `;
+
+
+        if (a.nachricht) {
+
+          html += `
+
+            <div
+              style="
+                margin-top:10px;
+                padding:11px 12px;
+                border-radius:8px;
+                background:#f6f7f8;
+                line-height:1.45;
+              "
+            >
+              💬
+              ${escapeHtmlIndexNeu(
+                a.nachricht
+              )}
+            </div>
+
+          `;
+
+        }
+
+
+        html += `
+
+            <div
+              style="
+                display:grid;
+                grid-template-columns:1fr 1fr;
+                gap:10px;
+                margin-top:13px;
+              "
+            >
+
+              <button
+                type="button"
+                onclick="bearbeiteAdminDienstAnfrageIndexNeu(${zeile}, true)"
+                style="
+                  min-height:45px;
+                  border:0;
+                  border-radius:9px;
+                  background:#21843d;
+                  color:white;
+                  font-weight:750;
+                  cursor:pointer;
+                "
+              >
+                ✓ Genehmigen
+              </button>
+
+              <button
+                type="button"
+                onclick="bearbeiteAdminDienstAnfrageIndexNeu(${zeile}, false)"
+                style="
+                  min-height:45px;
+                  border:0;
+                  border-radius:9px;
+                  background:#b32435;
+                  color:white;
+                  font-weight:750;
+                  cursor:pointer;
+                "
+              >
+                ✕ Ablehnen
+              </button>
+
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    );
+
+
+    bereich.innerHTML =
+      html;
+
+  }
+
+  catch (error) {
+
+    bereich.innerHTML = `
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:750;
+          margin-bottom:12px;
+        "
+      >
+        ✏️ Offene Dienständerungen / Wünsche
+      </div>
+
+      <div
+        style="
+          padding:15px;
+          border-radius:10px;
+          background:#fff1f2;
+          color:#a51c2b;
+        "
+      >
+        ❌
+        ${escapeHtmlIndexNeu(
+          error &&
+          error.message
+            ? error.message
+            : 'Admin-Anfragen konnten nicht geladen werden.'
+        )}
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   ADMIN – GENEHMIGEN / ABLEHNEN
+   ========================================================= */
+
+async function bearbeiteAdminDienstAnfrageIndexNeu(
+  zeile,
+  genehmigen
+) {
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+
+      throw new Error(
+        'Die Verbindung zur App ist nicht bereit.'
+      );
+
+    }
+
+
+    const result =
+      await apiPost(
+        'adminDienstAnfrageBearbeiten',
+        {
+
+          zeile:
+            Number(
+              zeile
+            ),
+
+          genehmigen:
+            genehmigen === true
+
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Die Anfrage konnte nicht bearbeitet werden.'
+      );
+
+    }
+
+
+    await ladeAdminDienstAnfragenIndexNeu();
+
+  }
+
+  catch (error) {
+
+    alert(
+      '❌ ' +
+      (
+        error &&
+        error.message
+          ? error.message
+          : 'Die Anfrage konnte nicht bearbeitet werden.'
+      )
+    );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   DIENST ÄNDERN ANZEIGEN
+   ========================================================= */
+
+function zeigeDienstAendernSeiteNeu() {
+
+  document
+    .querySelectorAll(
+      '#hauptApp main.content > section'
+    )
+    .forEach(
+      function(section) {
+
+        section.style.display =
+          'none';
+
+      }
+    );
+
+
+  const ansicht =
+    document.getElementById(
+      'dienstAendernAnsicht'
+    );
+
+
+  if (ansicht) {
+
+    ansicht.style.display =
+      'block';
+
+  }
+
+
+  document
+    .querySelectorAll(
+      '.nav-item, .nav-untermenue button'
+    )
+    .forEach(
+      function(button) {
+
+        button.classList.remove(
+          'aktiv'
+        );
+
+      }
+    );
+
+
+  const gruppe =
+    document.querySelector(
+      '.nav-gruppe'
+    );
+
+
+  if (gruppe) {
+
+    gruppe.classList.add(
+      'aktiv'
+    );
+
+  }
+
+
+  const untermenue =
+    document.getElementById(
+      'tauschUntermenue'
+    );
+
+
+  if (untermenue) {
+
+    untermenue.classList.add(
+      'offen'
+    );
+
+  }
+
+
+  const button =
+    document.querySelector(
+      `[onclick="zeigeSeite('dienstAendern')"]`
+    );
+
+
+  if (button) {
+
+    button.classList.add(
+      'aktiv'
+    );
+
+  }
+
+
+  aktualisiereMobileSeitentitelNeu(
+    'dienstAendern'
+  );
+
+
+  schliesseMobileMenue();
+
+
+  ladeDienstAendernNeu();
+
+}
+
+
+
+/* =========================================================
+   VORHANDENE NAVIGATION ERWEITERN
+   ========================================================= */
+
+(function installiereNavigationNeu() {
+
+  const originaleZeigeSeite =
+    typeof window.zeigeSeite ===
+      'function'
+
+      ? window.zeigeSeite
+
+      : null;
+
+
+  window.zeigeSeite =
+    function(seite) {
+
+
+      /* -----------------------------------------------
+         UNSERE NEUE SEITE
+         ----------------------------------------------- */
+
+      if (
+        seite ===
+        'dienstAendern'
+      ) {
+
+        zeigeDienstAendernSeiteNeu();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------
+         BEIM VERLASSEN AUSBLENDEN
+         ----------------------------------------------- */
+
+      const aendernAnsicht =
+        document.getElementById(
+          'dienstAendernAnsicht'
+        );
+
+
+      if (aendernAnsicht) {
+
+        aendernAnsicht.style.display =
+          'none';
+
+      }
+
+
+      let result;
+
+
+      if (originaleZeigeSeite) {
+
+        result =
+          originaleZeigeSeite.apply(
+            this,
+            arguments
+          );
+
+      }
+
+
+      aktualisiereMobileSeitentitelNeu(
+        seite
+      );
+
+
+      schliesseMobileMenue();
+
+
+      /* -----------------------------------------------
+         MEINE ANFRAGEN
+         ----------------------------------------------- */
+
+      if (
+        seite ===
+        'anfragen'
+      ) {
+
+        window.setTimeout(
+          ladeMeineDienstAnfragenIndexNeu,
+          100
+        );
+
+      }
+
+
+      /* -----------------------------------------------
+         ADMIN
+         ----------------------------------------------- */
+
+      if (
+        seite ===
+        'admin'
+      ) {
+
+        window.setTimeout(
+          ladeAdminDienstAnfragenIndexNeu,
+          120
+        );
+
+      }
+
+
+      return result;
+
+    };
+
+})();
 
 
 
@@ -2539,11 +4663,6 @@ document.addEventListener(
       return;
     }
 
-
-    /*
-      Beim Hauptpunkt Änderung/Tausch
-      das Untermenü offen lassen.
-    */
 
     if (
       button.classList.contains(
@@ -2643,7 +4762,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   LAYOUT ABSICHERN
+   HANDY-LAYOUT ABSICHERN
    ========================================================= */
 
 function sichereHandyLayoutNeu() {
@@ -2715,13 +4834,11 @@ document.addEventListener(
     );
 
 
+    dienstAendernZeichenNeu();
+
+
     installiereDienstplanBeobachterNeu();
 
-
-    /*
-      Falls der Dienstplan beim DOMContentLoaded
-      bereits vorhanden ist.
-    */
 
     window.setTimeout(
       optimiereDienstplanDarstellungNeu,
@@ -2770,7 +4887,7 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js?v=20260821-1',
+          './service-worker.js?v=20260821-2',
           {
             updateViaCache:
               'none'
@@ -2787,8 +4904,3030 @@ if (
           function() {
 
             /*
-              App funktioniert auch ohne
-              Service Worker.
+              App funktioniert auch ohne Service Worker.
+            */
+
+          }
+        );
+
+    }
+  );
+
+}
+
+</script>
+
+
+</body>
+</html>
+
+<!-- ======================================================
+     APP.JS
+     ====================================================== -->
+
+<script src="app.js?v=20260821-2"></script>
+
+
+<script>
+
+/* =========================================================
+   ALLGEMEINE HILFSFUNKTION
+   ========================================================= */
+
+function escapeHtmlIndexNeu(text) {
+
+  return String(
+    text == null
+      ? ''
+      : text
+  )
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+}
+
+
+
+/* =========================================================
+   MOBILE SEITENTITEL
+   ========================================================= */
+
+function aktualisiereMobileSeitentitelNeu(
+  seite
+) {
+
+  const titel =
+    document.getElementById(
+      'mobileSeitentitel'
+    );
+
+
+  if (!titel) {
+    return;
+  }
+
+
+  const titelNachSeite = {
+
+    dienstplan:
+      'Mein Dienstplan',
+
+    abwesenheiten:
+      'Meine Abwesenheiten',
+
+    anfragen:
+      'Meine Anfragen',
+
+    pin:
+      'PIN & Sicherheit',
+
+    admin:
+      'Admin-Bereich',
+
+    dienstAendern:
+      'Dienst ändern',
+
+    dienstTauschen:
+      'Dienst tauschen',
+
+    sonstigerWunsch:
+      'Sonstiger Wunsch'
+
+  };
+
+
+  titel.textContent =
+    titelNachSeite[seite] ||
+    'SCS Team';
+
+}
+
+
+
+/* =========================================================
+   MOBILES MENÜ SCHLIESSEN
+   ========================================================= */
+
+function schliesseMobileMenue() {
+
+  const sidebar =
+    document.getElementById(
+      'sidebar'
+    );
+
+
+  const button =
+    document.querySelector(
+      '.mobile-menu'
+    );
+
+
+  if (sidebar) {
+
+    sidebar.classList.remove(
+      'mobile-offen'
+    );
+
+  }
+
+
+  if (button) {
+
+    button.textContent =
+      '☰';
+
+
+    button.setAttribute(
+      'aria-label',
+      'Menü öffnen'
+    );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   MOBILES MENÜ
+   ========================================================= */
+
+if (
+  typeof window.toggleMobileMenue !==
+  'function'
+) {
+
+  window.toggleMobileMenue =
+    function() {
+
+      const sidebar =
+        document.getElementById(
+          'sidebar'
+        );
+
+
+      const button =
+        document.querySelector(
+          '.mobile-menu'
+        );
+
+
+      if (!sidebar) {
+        return;
+      }
+
+
+      sidebar.classList.toggle(
+        'mobile-offen'
+      );
+
+
+      const offen =
+        sidebar.classList.contains(
+          'mobile-offen'
+        );
+
+
+      if (button) {
+
+        button.textContent =
+          offen
+            ? '×'
+            : '☰';
+
+
+        button.setAttribute(
+          'aria-label',
+          offen
+            ? 'Menü schließen'
+            : 'Menü öffnen'
+        );
+
+      }
+
+    };
+
+}
+
+
+
+/* =========================================================
+   ÄNDERUNG / TAUSCH UNTERMENÜ
+   ========================================================= */
+
+if (
+  typeof window.toggleTauschMenue !==
+  'function'
+) {
+
+  window.toggleTauschMenue =
+    function() {
+
+      const menue =
+        document.getElementById(
+          'tauschUntermenue'
+        );
+
+
+      if (!menue) {
+        return;
+      }
+
+
+      menue.classList.toggle(
+        'offen'
+      );
+
+    };
+
+}
+
+
+
+/* =========================================================
+   DIENST-TAUSCH FALLBACK
+   ========================================================= */
+
+if (
+  typeof window.waehleDienst !==
+  'function'
+) {
+
+  window.waehleDienst =
+    function(button) {
+
+      document
+        .querySelectorAll(
+          '.dienst-option'
+        )
+        .forEach(
+          function(element) {
+
+            element.classList.remove(
+              'ausgewaehlt'
+            );
+
+
+            const radio =
+              element.querySelector(
+                '.radio'
+              );
+
+
+            if (radio) {
+
+              radio.classList.remove(
+                'aktiv'
+              );
+
+            }
+
+          }
+        );
+
+
+      if (!button) {
+        return;
+      }
+
+
+      button.classList.add(
+        'ausgewaehlt'
+      );
+
+
+      const radio =
+        button.querySelector(
+          '.radio'
+        );
+
+
+      if (radio) {
+
+        radio.classList.add(
+          'aktiv'
+        );
+
+      }
+
+    };
+
+}
+
+
+
+if (
+  typeof window.zeigeKollegen !==
+  'function'
+) {
+
+  window.zeigeKollegen =
+    function() {
+
+      const bereich =
+        document.getElementById(
+          'kollegenBereich'
+        );
+
+
+      if (!bereich) {
+        return;
+      }
+
+
+      bereich.classList.remove(
+        'versteckt'
+      );
+
+
+      bereich.scrollIntoView({
+        behavior:
+          'smooth',
+
+        block:
+          'start'
+      });
+
+    };
+
+}
+
+
+
+/* =========================================================
+   WOCHENPFEILE FALLBACK
+   ========================================================= */
+
+if (
+  typeof window.wechselWoche !==
+  'function'
+) {
+
+  window.wechselWoche =
+    function(richtung) {
+
+      if (
+        Number(richtung) < 0 &&
+        typeof window.vorherigeKW ===
+          'function'
+      ) {
+
+        window.vorherigeKW();
+
+        return;
+
+      }
+
+
+      if (
+        Number(richtung) > 0 &&
+        typeof window.naechsteKW ===
+          'function'
+      ) {
+
+        window.naechsteKW();
+
+      }
+
+    };
+
+}
+
+
+
+/* =========================================================
+   DATUM LESEN
+   ========================================================= */
+
+function parseDatumIndexNeu(
+  text
+) {
+
+  const treffer =
+    String(
+      text || ''
+    ).match(
+      /\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/
+    );
+
+
+  if (!treffer) {
+    return null;
+  }
+
+
+  return new Date(
+    Number(treffer[3]),
+    Number(treffer[2]) - 1,
+    Number(treffer[1]),
+    12,
+    0,
+    0
+  );
+
+}
+
+
+
+/* =========================================================
+   ISO-KALENDERWOCHE
+   ========================================================= */
+
+function berechneIsoKwNeu(
+  datum
+) {
+
+  if (
+    !(datum instanceof Date) ||
+    isNaN(
+      datum.getTime()
+    )
+  ) {
+    return null;
+  }
+
+
+  const temp =
+    new Date(
+      Date.UTC(
+        datum.getFullYear(),
+        datum.getMonth(),
+        datum.getDate()
+      )
+    );
+
+
+  const tag =
+    temp.getUTCDay() || 7;
+
+
+  temp.setUTCDate(
+    temp.getUTCDate() +
+    4 -
+    tag
+  );
+
+
+  const jahresAnfang =
+    new Date(
+      Date.UTC(
+        temp.getUTCFullYear(),
+        0,
+        1
+      )
+    );
+
+
+  return Math.ceil(
+    (
+      (
+        temp -
+        jahresAnfang
+      ) /
+      86400000 +
+      1
+    ) /
+    7
+  );
+
+}
+
+
+
+/* =========================================================
+   KW-ANZEIGE
+   ========================================================= */
+
+function aktualisiereKwAnzeigeNeu() {
+
+  const kwAnzeige =
+    document.getElementById(
+      'kwAnzeige'
+    );
+
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (
+    !kwAnzeige ||
+    !liste
+  ) {
+    return;
+  }
+
+
+  const datum =
+    parseDatumIndexNeu(
+      liste.textContent
+    );
+
+
+  if (!datum) {
+    return;
+  }
+
+
+  const kw =
+    berechneIsoKwNeu(
+      datum
+    );
+
+
+  if (!kw) {
+    return;
+  }
+
+
+  kwAnzeige.textContent =
+    'KW ' +
+    kw;
+
+}
+
+
+
+/* =========================================================
+   DOPPELTE KW IN DEN KARTEN ENTFERNEN
+   ========================================================= */
+
+function entferneDoppelteKwNeu() {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  liste
+    .querySelectorAll('*')
+    .forEach(
+      function(element) {
+
+        if (
+          element.children.length !== 0
+        ) {
+          return;
+        }
+
+
+        const text =
+          String(
+            element.textContent || ''
+          )
+            .replace(
+              /\s+/g,
+              ' '
+            )
+            .trim();
+
+
+        if (
+          /^KW\s*\d{1,2}$/i.test(
+            text
+          )
+        ) {
+
+          element.style.setProperty(
+            'display',
+            'none',
+            'important'
+          );
+
+        }
+
+      }
+    );
+
+}
+
+
+
+/* =========================================================
+   DIENSTSYMBOLE
+
+   Farbe bleibt über GP/WP-Karte:
+   GP = grün
+   WP = blau
+
+   Symbol zeigt:
+   ☀️ Früh
+   🌙 Spät
+   ========================================================= */
+
+function optimiereDienstSymboleNeu() {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  liste
+    .querySelectorAll(
+      '.dienstname'
+    )
+    .forEach(
+      function(element) {
+
+        const original =
+          String(
+            element.textContent || ''
+          )
+            .replace(
+              /\s+/g,
+              ' '
+            )
+            .trim();
+
+
+        if (
+          /Pausenablöse/i.test(
+            original
+          )
+        ) {
+          return;
+        }
+
+
+        if (
+          /Ganztag/i.test(
+            original
+          )
+        ) {
+          return;
+        }
+
+
+        const sauber =
+          original
+            .replace(
+              /^(?:🟢|🔵|☀️?|🌙)\s*/u,
+              ''
+            )
+            .trim();
+
+
+        if (
+          /\bFrüh\b/i.test(
+            sauber
+          )
+        ) {
+
+          element.textContent =
+            '☀️ ' +
+            sauber;
+
+        }
+
+
+        else if (
+          /\bSpät\b/i.test(
+            sauber
+          )
+        ) {
+
+          element.textContent =
+            '🌙 ' +
+            sauber;
+
+        }
+
+      }
+    );
+
+}
+
+
+
+/* =========================================================
+   DIENSTPLAN-DARSTELLUNG
+   ========================================================= */
+
+function optimiereDienstplanDarstellungNeu() {
+
+  aktualisiereKwAnzeigeNeu();
+
+  entferneDoppelteKwNeu();
+
+  optimiereDienstSymboleNeu();
+
+}
+
+
+
+/* =========================================================
+   DIENSTPLAN BEOBACHTEN
+   ========================================================= */
+
+function installiereDienstplanBeobachterNeu() {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (!liste) {
+    return;
+  }
+
+
+  let geplant =
+    false;
+
+
+  const observer =
+    new MutationObserver(
+      function() {
+
+        if (geplant) {
+          return;
+        }
+
+
+        geplant =
+          true;
+
+
+        window.requestAnimationFrame(
+          function() {
+
+            geplant =
+              false;
+
+
+            optimiereDienstplanDarstellungNeu();
+
+          }
+        );
+
+      }
+    );
+
+
+  observer.observe(
+    liste,
+    {
+      childList:
+        true,
+
+      subtree:
+        true
+    }
+  );
+
+
+  optimiereDienstplanDarstellungNeu();
+
+}
+
+
+
+/* =========================================================
+   DIENST ÄNDERN – DATEN
+   ========================================================= */
+
+let dienstAendernDiensteNeu =
+  [];
+
+
+
+/* =========================================================
+   ÄNDERBARE HAUPTDIENSTE SAMMELN
+
+   GP Früh bleibt einzeln.
+   GP Spät bleibt einzeln.
+
+   WP Früh + WP Spät =
+   EIN Water Plaza Ganztag.
+
+   Pausenablöse wird NICHT aufgenommen.
+   ========================================================= */
+
+function sammleDienstAendernDiensteNeu(
+  plan
+) {
+
+  const ergebnis =
+    [];
+
+
+  (
+    Array.isArray(plan)
+      ? plan
+      : []
+  ).forEach(
+    function(z) {
+
+      const datum =
+        String(
+          z.datum || ''
+        ).trim();
+
+
+      const kw =
+        Number(
+          z.kw || 0
+        );
+
+
+      const tag =
+        String(
+          z.tag || ''
+        ).trim();
+
+
+      if (
+        !datum ||
+        !kw
+      ) {
+        return;
+      }
+
+
+      const datumObj =
+        parseDatumIndexNeu(
+          datum
+        );
+
+
+      /* -----------------------------------------------
+         GARDEN PLAZA FRÜH
+         ----------------------------------------------- */
+
+      if (z.gpFrueh) {
+
+        ergebnis.push({
+
+          datum:
+            datum,
+
+          datumObj:
+            datumObj,
+
+          kw:
+            kw,
+
+          tag:
+            tag,
+
+          dienst:
+            'Garden Plaza – Früh',
+
+          platz:
+            'gp',
+
+          schicht:
+            'frueh',
+
+          symbol:
+            '☀️'
+
+        });
+
+      }
+
+
+      /* -----------------------------------------------
+         GARDEN PLAZA SPÄT
+         ----------------------------------------------- */
+
+      if (z.gpSpaet) {
+
+        ergebnis.push({
+
+          datum:
+            datum,
+
+          datumObj:
+            datumObj,
+
+          kw:
+            kw,
+
+          tag:
+            tag,
+
+          dienst:
+            'Garden Plaza – Spät',
+
+          platz:
+            'gp',
+
+          schicht:
+            'spaet',
+
+          symbol:
+            '🌙'
+
+        });
+
+      }
+
+
+      const wpGanztag =
+        z.wpGanztag === true ||
+        (
+          z.wpFrueh === true &&
+          z.wpSpaet === true
+        );
+
+
+      /* -----------------------------------------------
+         WATER PLAZA GANZTAG
+         ----------------------------------------------- */
+
+      if (wpGanztag) {
+
+        ergebnis.push({
+
+          datum:
+            datum,
+
+          datumObj:
+            datumObj,
+
+          kw:
+            kw,
+
+          tag:
+            tag,
+
+          dienst:
+            'Water Plaza – Ganztag',
+
+          platz:
+            'wp',
+
+          schicht:
+            'ganztag',
+
+          symbol:
+            '🔵'
+
+        });
+
+      }
+
+
+      else {
+
+
+        /* ---------------------------------------------
+           WATER PLAZA FRÜH
+           --------------------------------------------- */
+
+        if (z.wpFrueh) {
+
+          ergebnis.push({
+
+            datum:
+              datum,
+
+            datumObj:
+              datumObj,
+
+            kw:
+              kw,
+
+            tag:
+              tag,
+
+            dienst:
+              'Water Plaza – Früh',
+
+            platz:
+              'wp',
+
+            schicht:
+              'frueh',
+
+            symbol:
+              '☀️'
+
+          });
+
+        }
+
+
+        /* ---------------------------------------------
+           WATER PLAZA SPÄT
+           --------------------------------------------- */
+
+        if (z.wpSpaet) {
+
+          ergebnis.push({
+
+            datum:
+              datum,
+
+            datumObj:
+              datumObj,
+
+            kw:
+              kw,
+
+            tag:
+              tag,
+
+            dienst:
+              'Water Plaza – Spät',
+
+            platz:
+              'wp',
+
+            schicht:
+              'spaet',
+
+            symbol:
+              '🌙'
+
+          });
+
+        }
+
+      }
+
+    }
+  );
+
+
+  ergebnis.sort(
+    function(a, b) {
+
+      if (
+        a.datumObj &&
+        b.datumObj
+      ) {
+
+        const unterschied =
+          a.datumObj -
+          b.datumObj;
+
+
+        if (unterschied !== 0) {
+          return unterschied;
+        }
+
+      }
+
+
+      return a.dienst.localeCompare(
+        b.dienst,
+        'de'
+      );
+
+    }
+  );
+
+
+  return ergebnis;
+
+}
+
+
+
+/* =========================================================
+   DIENST ÄNDERN – LADEN
+   ========================================================= */
+
+async function ladeDienstAendernNeu() {
+
+  const laden =
+    document.getElementById(
+      'dienstAendernLaden'
+    );
+
+
+  const auswahl =
+    document.getElementById(
+      'dienstAendernAuswahl'
+    );
+
+
+  const vorschau =
+    document.getElementById(
+      'dienstAendernVorschau'
+    );
+
+
+  const meldung =
+    document.getElementById(
+      'dienstAendernMeldung'
+    );
+
+
+  if (
+    !laden ||
+    !auswahl
+  ) {
+    return;
+  }
+
+
+  laden.style.display =
+    'block';
+
+
+  laden.textContent =
+    'Dienste werden geladen …';
+
+
+  auswahl.style.display =
+    'none';
+
+
+  if (vorschau) {
+
+    vorschau.style.display =
+      'none';
+
+    vorschau.innerHTML =
+      '';
+
+  }
+
+
+  if (meldung) {
+
+    meldung.className =
+      '';
+
+    meldung.textContent =
+      '';
+
+  }
+
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+
+      throw new Error(
+        'Die Verbindung zur App ist noch nicht bereit.'
+      );
+
+    }
+
+
+    const result =
+      await apiPost(
+        'meinDienstplan'
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Dienste konnten nicht geladen werden.'
+      );
+
+    }
+
+
+    dienstAendernDiensteNeu =
+      sammleDienstAendernDiensteNeu(
+        result.dienstplan || []
+      );
+
+
+    auswahl.innerHTML =
+      '<option value="">Bitte Dienst auswählen</option>';
+
+
+    dienstAendernDiensteNeu.forEach(
+      function(dienst, index) {
+
+        const option =
+          document.createElement(
+            'option'
+          );
+
+
+        option.value =
+          String(index);
+
+
+        option.textContent =
+          (
+            dienst.tag
+              ? dienst.tag + ', '
+              : ''
+          ) +
+          dienst.datum +
+          ' · ' +
+          dienst.dienst;
+
+
+        auswahl.appendChild(
+          option
+        );
+
+      }
+    );
+
+
+    laden.style.display =
+      'none';
+
+
+    auswahl.style.display =
+      'block';
+
+
+    if (
+      dienstAendernDiensteNeu.length ===
+      0
+    ) {
+
+      laden.style.display =
+        'block';
+
+
+      laden.textContent =
+        'Es wurden keine änderbaren Dienste gefunden.';
+
+
+      auswahl.style.display =
+        'none';
+
+    }
+
+  }
+
+  catch (error) {
+
+    laden.style.display =
+      'block';
+
+
+    laden.textContent =
+      '❌ ' +
+      (
+        error &&
+        error.message
+          ? error.message
+          : 'Dienste konnten nicht geladen werden.'
+      );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   DIENST ÄNDERN – AUSWAHL GEÄNDERT
+   ========================================================= */
+
+function dienstAendernAuswahlGeaendertNeu() {
+
+  const auswahl =
+    document.getElementById(
+      'dienstAendernAuswahl'
+    );
+
+
+  const vorschau =
+    document.getElementById(
+      'dienstAendernVorschau'
+    );
+
+
+  if (
+    !auswahl ||
+    !vorschau
+  ) {
+    return;
+  }
+
+
+  const index =
+    Number(
+      auswahl.value
+    );
+
+
+  if (
+    auswahl.value === '' ||
+    !dienstAendernDiensteNeu[index]
+  ) {
+
+    vorschau.style.display =
+      'none';
+
+
+    vorschau.innerHTML =
+      '';
+
+
+    return;
+
+  }
+
+
+  const dienst =
+    dienstAendernDiensteNeu[index];
+
+
+  let farbSymbol =
+    dienst.platz === 'gp'
+      ? '🟢'
+      : '🔵';
+
+
+  let schichtSymbol =
+    dienst.symbol || '';
+
+
+  vorschau.innerHTML = `
+
+    <div class="aendern-vorschau-datum">
+
+      ${escapeHtmlIndexNeu(
+        dienst.tag
+      )}${dienst.tag ? ', ' : ''}${escapeHtmlIndexNeu(
+        dienst.datum
+      )}
+
+      · KW ${escapeHtmlIndexNeu(
+        dienst.kw
+      )}
+
+    </div>
+
+    <div
+      class="aendern-vorschau-dienst ${escapeHtmlIndexNeu(
+        dienst.platz
+      )}"
+    >
+
+      <span>
+        ${farbSymbol}
+      </span>
+
+      <span>
+        ${schichtSymbol}
+      </span>
+
+      <span>
+        ${escapeHtmlIndexNeu(
+          dienst.dienst
+        )}
+      </span>
+
+    </div>
+
+  `;
+
+
+  vorschau.style.display =
+    'block';
+
+}
+
+
+
+/* =========================================================
+   ZEICHENZÄHLER
+   ========================================================= */
+
+function dienstAendernZeichenNeu() {
+
+  const feld =
+    document.getElementById(
+      'dienstAendernNachricht'
+    );
+
+
+  const anzeige =
+    document.getElementById(
+      'dienstAendernZeichen'
+    );
+
+
+  if (
+    !feld ||
+    !anzeige
+  ) {
+    return;
+  }
+
+
+  anzeige.textContent =
+    String(
+      feld.value.length
+    ) +
+    ' / 500';
+
+}
+
+
+
+/* =========================================================
+   MELDUNG
+   ========================================================= */
+
+function zeigeDienstAendernMeldungNeu(
+  text,
+  typ
+) {
+
+  const meldung =
+    document.getElementById(
+      'dienstAendernMeldung'
+    );
+
+
+  if (!meldung) {
+    return;
+  }
+
+
+  meldung.className =
+    typ === 'erfolg'
+      ? 'erfolg'
+      : 'fehler';
+
+
+  meldung.textContent =
+    text;
+
+}
+
+
+
+/* =========================================================
+   DIENSTÄNDERUNG SENDEN
+   ========================================================= */
+
+async function sendeDienstAenderungNeu() {
+
+  const auswahl =
+    document.getElementById(
+      'dienstAendernAuswahl'
+    );
+
+
+  const nachrichtFeld =
+    document.getElementById(
+      'dienstAendernNachricht'
+    );
+
+
+  const sendenButton =
+    document.getElementById(
+      'dienstAendernSenden'
+    );
+
+
+  if (
+    !auswahl ||
+    !nachrichtFeld ||
+    !sendenButton
+  ) {
+    return;
+  }
+
+
+  if (
+    auswahl.value === ''
+  ) {
+
+    zeigeDienstAendernMeldungNeu(
+      'Bitte zuerst einen Dienst auswählen.',
+      'fehler'
+    );
+
+
+    return;
+
+  }
+
+
+  const index =
+    Number(
+      auswahl.value
+    );
+
+
+  const dienst =
+    dienstAendernDiensteNeu[
+      index
+    ];
+
+
+  if (!dienst) {
+
+    zeigeDienstAendernMeldungNeu(
+      'Der ausgewählte Dienst wurde nicht gefunden.',
+      'fehler'
+    );
+
+
+    return;
+
+  }
+
+
+  const nachricht =
+    String(
+      nachrichtFeld.value || ''
+    ).trim();
+
+
+  if (!nachricht) {
+
+    zeigeDienstAendernMeldungNeu(
+      'Bitte beschreibe, was du an diesem Dienst ändern möchtest.',
+      'fehler'
+    );
+
+
+    nachrichtFeld.focus();
+
+
+    return;
+
+  }
+
+
+  if (
+    nachricht.length > 500
+  ) {
+
+    zeigeDienstAendernMeldungNeu(
+      'Die Nachricht darf höchstens 500 Zeichen lang sein.',
+      'fehler'
+    );
+
+
+    return;
+
+  }
+
+
+  sendenButton.disabled =
+    true;
+
+
+  sendenButton.textContent =
+    'Anfrage wird gesendet …';
+
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+
+      throw new Error(
+        'Die Verbindung zur App ist noch nicht bereit.'
+      );
+
+    }
+
+
+    const result =
+      await apiPost(
+        'dienstAnfrageSenden',
+        {
+
+          datum:
+            dienst.datum,
+
+          kw:
+            dienst.kw,
+
+          dienst:
+            dienst.dienst,
+
+          art:
+            'Dienst ändern',
+
+          nachricht:
+            nachricht
+
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Die Anfrage konnte nicht gesendet werden.'
+      );
+
+    }
+
+
+    zeigeDienstAendernMeldungNeu(
+      '✅ Deine Änderungsanfrage wurde gesendet.',
+      'erfolg'
+    );
+
+
+    auswahl.value =
+      '';
+
+
+    nachrichtFeld.value =
+      '';
+
+
+    dienstAendernZeichenNeu();
+
+
+    const vorschau =
+      document.getElementById(
+        'dienstAendernVorschau'
+      );
+
+
+    if (vorschau) {
+
+      vorschau.style.display =
+        'none';
+
+      vorschau.innerHTML =
+        '';
+
+    }
+
+
+    /*
+      Vorhandene Anfrageansichten beim nächsten Öffnen
+      wieder frisch laden.
+    */
+
+    window.setTimeout(
+      function() {
+
+        ladeMeineDienstAnfragenIndexNeu();
+
+      },
+      300
+    );
+
+  }
+
+  catch (error) {
+
+    zeigeDienstAendernMeldungNeu(
+      '❌ ' +
+      (
+        error &&
+        error.message
+          ? error.message
+          : 'Die Anfrage konnte nicht gesendet werden.'
+      ),
+      'fehler'
+    );
+
+  }
+
+  finally {
+
+    sendenButton.disabled =
+      false;
+
+
+    sendenButton.textContent =
+      'Anfrage senden';
+
+  }
+
+}
+
+
+
+/* =========================================================
+   MEINE DIENSTÄNDERUNGSANFRAGEN
+
+   Werden zusätzlich zu den bestehenden
+   Tauschanfragen angezeigt.
+   ========================================================= */
+
+async function ladeMeineDienstAnfragenIndexNeu() {
+
+  const ansicht =
+    document.getElementById(
+      'anfragenAnsicht'
+    );
+
+
+  if (!ansicht) {
+    return;
+  }
+
+
+  let bereich =
+    document.getElementById(
+      'dienstAnfragenZusatzNeu'
+    );
+
+
+  if (!bereich) {
+
+    bereich =
+      document.createElement(
+        'div'
+      );
+
+
+    bereich.id =
+      'dienstAnfragenZusatzNeu';
+
+
+    bereich.style.marginTop =
+      '22px';
+
+
+    ansicht.appendChild(
+      bereich
+    );
+
+  }
+
+
+  bereich.innerHTML = `
+
+    <div
+      style="
+        font-size:20px;
+        font-weight:750;
+        margin-bottom:12px;
+      "
+    >
+      ✏️ Dienständerungen / Wünsche
+    </div>
+
+    <div
+      style="
+        color:#777;
+        padding:12px 0;
+      "
+    >
+      Anfragen werden geladen …
+    </div>
+
+  `;
+
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+      return;
+    }
+
+
+    const result =
+      await apiPost(
+        'meineDienstAnfragen'
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Anfragen konnten nicht geladen werden.'
+      );
+
+    }
+
+
+    const anfragen =
+      Array.isArray(
+        result.anfragen
+      )
+        ? result.anfragen
+        : [];
+
+
+    let html = `
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:750;
+          margin-bottom:12px;
+        "
+      >
+        ✏️ Dienständerungen / Wünsche
+      </div>
+
+    `;
+
+
+    if (
+      anfragen.length === 0
+    ) {
+
+      html += `
+
+        <div
+          style="
+            padding:18px;
+            border:1px solid #e2e4e7;
+            border-radius:11px;
+            color:#777;
+            background:#fafafa;
+          "
+        >
+          Du hast aktuell keine Dienständerungsanfragen.
+        </div>
+
+      `;
+
+
+      bereich.innerHTML =
+        html;
+
+
+      return;
+
+    }
+
+
+    anfragen.forEach(
+      function(a) {
+
+        const status =
+          String(
+            a.status || 'OFFEN'
+          )
+            .trim()
+            .toUpperCase();
+
+
+        let statusText =
+          '🟡 Offen';
+
+
+        let statusFarbe =
+          '#8a6500';
+
+
+        let statusHintergrund =
+          '#fff9df';
+
+
+        if (
+          status ===
+          'GENEHMIGT'
+        ) {
+
+          statusText =
+            '🟢 Genehmigt';
+
+          statusFarbe =
+            '#26743a';
+
+          statusHintergrund =
+            '#effaf1';
+
+        }
+
+
+        else if (
+          status ===
+          'ABGELEHNT'
+        ) {
+
+          statusText =
+            '🔴 Abgelehnt';
+
+          statusFarbe =
+            '#a51c2b';
+
+          statusHintergrund =
+            '#fff1f2';
+
+        }
+
+
+        html += `
+
+          <div
+            class="anfrage-card"
+            style="
+              margin-bottom:12px;
+            "
+          >
+
+            <div
+              style="
+                font-weight:750;
+                margin-bottom:6px;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.art || 'Dienst ändern'
+              )}
+            </div>
+
+            <div
+              style="
+                font-weight:700;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.dienst
+              )}
+            </div>
+
+            <div
+              style="
+                margin-top:4px;
+                color:#666;
+                font-size:14px;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.datum
+              )}
+              · KW
+              ${escapeHtmlIndexNeu(
+                a.kw
+              )}
+            </div>
+
+        `;
+
+
+        if (a.nachricht) {
+
+          html += `
+
+            <div
+              style="
+                margin-top:10px;
+                line-height:1.45;
+              "
+            >
+              💬
+              ${escapeHtmlIndexNeu(
+                a.nachricht
+              )}
+            </div>
+
+          `;
+
+        }
+
+
+        if (a.zeitstempel) {
+
+          html += `
+
+            <div
+              style="
+                margin-top:8px;
+                color:#888;
+                font-size:12px;
+              "
+            >
+              Gesendet:
+              ${escapeHtmlIndexNeu(
+                a.zeitstempel
+              )}
+            </div>
+
+          `;
+
+        }
+
+
+        html += `
+
+            <div
+              style="
+                display:inline-block;
+                margin-top:12px;
+                padding:6px 10px;
+                border-radius:999px;
+                color:${statusFarbe};
+                background:${statusHintergrund};
+                font-size:13px;
+                font-weight:750;
+              "
+            >
+              ${statusText}
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    );
+
+
+    bereich.innerHTML =
+      html;
+
+  }
+
+  catch (error) {
+
+    bereich.innerHTML = `
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:750;
+          margin-bottom:12px;
+        "
+      >
+        ✏️ Dienständerungen / Wünsche
+      </div>
+
+      <div
+        style="
+          padding:15px;
+          border-radius:10px;
+          background:#fff1f2;
+          color:#a51c2b;
+        "
+      >
+        ❌
+        ${escapeHtmlIndexNeu(
+          error &&
+          error.message
+            ? error.message
+            : 'Anfragen konnten nicht geladen werden.'
+        )}
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   ADMIN – DIENSTANFRAGEN
+   ========================================================= */
+
+async function ladeAdminDienstAnfragenIndexNeu() {
+
+  const ansicht =
+    document.getElementById(
+      'adminAnsicht'
+    );
+
+
+  if (!ansicht) {
+    return;
+  }
+
+
+  let bereich =
+    document.getElementById(
+      'adminDienstAnfragenZusatzNeu'
+    );
+
+
+  if (!bereich) {
+
+    bereich =
+      document.createElement(
+        'div'
+      );
+
+
+    bereich.id =
+      'adminDienstAnfragenZusatzNeu';
+
+
+    bereich.style.marginTop =
+      '24px';
+
+
+    ansicht.appendChild(
+      bereich
+    );
+
+  }
+
+
+  bereich.innerHTML = `
+
+    <div
+      style="
+        font-size:20px;
+        font-weight:750;
+        margin-bottom:12px;
+      "
+    >
+      ✏️ Offene Dienständerungen / Wünsche
+    </div>
+
+    <div
+      style="
+        color:#777;
+        padding:12px 0;
+      "
+    >
+      Anfragen werden geladen …
+    </div>
+
+  `;
+
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+      return;
+    }
+
+
+    const result =
+      await apiPost(
+        'adminDienstAnfragen'
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Admin-Anfragen konnten nicht geladen werden.'
+      );
+
+    }
+
+
+    const anfragen =
+      Array.isArray(
+        result.anfragen
+      )
+        ? result.anfragen
+        : [];
+
+
+    let html = `
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:750;
+          margin-bottom:6px;
+        "
+      >
+        ✏️ Offene Dienständerungen / Wünsche
+      </div>
+
+      <div
+        style="
+          color:#666;
+          font-size:13px;
+          margin-bottom:14px;
+        "
+      >
+        Eine Genehmigung ändert den Dienstplan
+        nicht automatisch.
+      </div>
+
+    `;
+
+
+    if (
+      anfragen.length === 0
+    ) {
+
+      html += `
+
+        <div
+          style="
+            padding:18px;
+            border:1px solid #e2e4e7;
+            border-radius:11px;
+            color:#777;
+            background:#fafafa;
+          "
+        >
+          Keine offenen Dienständerungsanfragen.
+        </div>
+
+      `;
+
+
+      bereich.innerHTML =
+        html;
+
+
+      return;
+
+    }
+
+
+    anfragen.forEach(
+      function(a) {
+
+        const zeile =
+          Number(
+            a.zeile
+          );
+
+
+        html += `
+
+          <div
+            class="anfrage-card"
+            style="
+              margin-bottom:14px;
+            "
+          >
+
+            <div
+              style="
+                color:#e30613;
+                font-size:17px;
+                font-weight:800;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.mitarbeiter
+              )}
+            </div>
+
+            <div
+              style="
+                margin-top:7px;
+                font-weight:750;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.art || 'Dienst ändern'
+              )}
+            </div>
+
+            <div
+              style="
+                margin-top:4px;
+                font-weight:700;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.dienst
+              )}
+            </div>
+
+            <div
+              style="
+                margin-top:4px;
+                color:#666;
+                font-size:14px;
+              "
+            >
+              ${escapeHtmlIndexNeu(
+                a.datum
+              )}
+              · KW
+              ${escapeHtmlIndexNeu(
+                a.kw
+              )}
+            </div>
+
+        `;
+
+
+        if (a.nachricht) {
+
+          html += `
+
+            <div
+              style="
+                margin-top:10px;
+                padding:11px 12px;
+                border-radius:8px;
+                background:#f6f7f8;
+                line-height:1.45;
+              "
+            >
+              💬
+              ${escapeHtmlIndexNeu(
+                a.nachricht
+              )}
+            </div>
+
+          `;
+
+        }
+
+
+        html += `
+
+            <div
+              style="
+                display:grid;
+                grid-template-columns:1fr 1fr;
+                gap:10px;
+                margin-top:13px;
+              "
+            >
+
+              <button
+                type="button"
+                onclick="bearbeiteAdminDienstAnfrageIndexNeu(${zeile}, true)"
+                style="
+                  min-height:45px;
+                  border:0;
+                  border-radius:9px;
+                  background:#21843d;
+                  color:white;
+                  font-weight:750;
+                  cursor:pointer;
+                "
+              >
+                ✓ Genehmigen
+              </button>
+
+              <button
+                type="button"
+                onclick="bearbeiteAdminDienstAnfrageIndexNeu(${zeile}, false)"
+                style="
+                  min-height:45px;
+                  border:0;
+                  border-radius:9px;
+                  background:#b32435;
+                  color:white;
+                  font-weight:750;
+                  cursor:pointer;
+                "
+              >
+                ✕ Ablehnen
+              </button>
+
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    );
+
+
+    bereich.innerHTML =
+      html;
+
+  }
+
+  catch (error) {
+
+    bereich.innerHTML = `
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:750;
+          margin-bottom:12px;
+        "
+      >
+        ✏️ Offene Dienständerungen / Wünsche
+      </div>
+
+      <div
+        style="
+          padding:15px;
+          border-radius:10px;
+          background:#fff1f2;
+          color:#a51c2b;
+        "
+      >
+        ❌
+        ${escapeHtmlIndexNeu(
+          error &&
+          error.message
+            ? error.message
+            : 'Admin-Anfragen konnten nicht geladen werden.'
+        )}
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   ADMIN – GENEHMIGEN / ABLEHNEN
+   ========================================================= */
+
+async function bearbeiteAdminDienstAnfrageIndexNeu(
+  zeile,
+  genehmigen
+) {
+
+  try {
+
+    if (
+      typeof apiPost !==
+      'function'
+    ) {
+
+      throw new Error(
+        'Die Verbindung zur App ist nicht bereit.'
+      );
+
+    }
+
+
+    const result =
+      await apiPost(
+        'adminDienstAnfrageBearbeiten',
+        {
+
+          zeile:
+            Number(
+              zeile
+            ),
+
+          genehmigen:
+            genehmigen === true
+
+        }
+      );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : 'Die Anfrage konnte nicht bearbeitet werden.'
+      );
+
+    }
+
+
+    await ladeAdminDienstAnfragenIndexNeu();
+
+  }
+
+  catch (error) {
+
+    alert(
+      '❌ ' +
+      (
+        error &&
+        error.message
+          ? error.message
+          : 'Die Anfrage konnte nicht bearbeitet werden.'
+      )
+    );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   DIENST ÄNDERN ANZEIGEN
+   ========================================================= */
+
+function zeigeDienstAendernSeiteNeu() {
+
+  document
+    .querySelectorAll(
+      '#hauptApp main.content > section'
+    )
+    .forEach(
+      function(section) {
+
+        section.style.display =
+          'none';
+
+      }
+    );
+
+
+  const ansicht =
+    document.getElementById(
+      'dienstAendernAnsicht'
+    );
+
+
+  if (ansicht) {
+
+    ansicht.style.display =
+      'block';
+
+  }
+
+
+  document
+    .querySelectorAll(
+      '.nav-item, .nav-untermenue button'
+    )
+    .forEach(
+      function(button) {
+
+        button.classList.remove(
+          'aktiv'
+        );
+
+      }
+    );
+
+
+  const gruppe =
+    document.querySelector(
+      '.nav-gruppe'
+    );
+
+
+  if (gruppe) {
+
+    gruppe.classList.add(
+      'aktiv'
+    );
+
+  }
+
+
+  const untermenue =
+    document.getElementById(
+      'tauschUntermenue'
+    );
+
+
+  if (untermenue) {
+
+    untermenue.classList.add(
+      'offen'
+    );
+
+  }
+
+
+  const button =
+    document.querySelector(
+      `[onclick="zeigeSeite('dienstAendern')"]`
+    );
+
+
+  if (button) {
+
+    button.classList.add(
+      'aktiv'
+    );
+
+  }
+
+
+  aktualisiereMobileSeitentitelNeu(
+    'dienstAendern'
+  );
+
+
+  schliesseMobileMenue();
+
+
+  ladeDienstAendernNeu();
+
+}
+
+
+
+/* =========================================================
+   VORHANDENE NAVIGATION ERWEITERN
+   ========================================================= */
+
+(function installiereNavigationNeu() {
+
+  const originaleZeigeSeite =
+    typeof window.zeigeSeite ===
+      'function'
+
+      ? window.zeigeSeite
+
+      : null;
+
+
+  window.zeigeSeite =
+    function(seite) {
+
+
+      /* -----------------------------------------------
+         UNSERE NEUE SEITE
+         ----------------------------------------------- */
+
+      if (
+        seite ===
+        'dienstAendern'
+      ) {
+
+        zeigeDienstAendernSeiteNeu();
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------
+         BEIM VERLASSEN AUSBLENDEN
+         ----------------------------------------------- */
+
+      const aendernAnsicht =
+        document.getElementById(
+          'dienstAendernAnsicht'
+        );
+
+
+      if (aendernAnsicht) {
+
+        aendernAnsicht.style.display =
+          'none';
+
+      }
+
+
+      let result;
+
+
+      if (originaleZeigeSeite) {
+
+        result =
+          originaleZeigeSeite.apply(
+            this,
+            arguments
+          );
+
+      }
+
+
+      aktualisiereMobileSeitentitelNeu(
+        seite
+      );
+
+
+      schliesseMobileMenue();
+
+
+      /* -----------------------------------------------
+         MEINE ANFRAGEN
+         ----------------------------------------------- */
+
+      if (
+        seite ===
+        'anfragen'
+      ) {
+
+        window.setTimeout(
+          ladeMeineDienstAnfragenIndexNeu,
+          100
+        );
+
+      }
+
+
+      /* -----------------------------------------------
+         ADMIN
+         ----------------------------------------------- */
+
+      if (
+        seite ===
+        'admin'
+      ) {
+
+        window.setTimeout(
+          ladeAdminDienstAnfragenIndexNeu,
+          120
+        );
+
+      }
+
+
+      return result;
+
+    };
+
+})();
+
+
+
+/* =========================================================
+   SIDEBAR NACH AUSWAHL SCHLIESSEN
+   ========================================================= */
+
+document.addEventListener(
+  'click',
+  function(event) {
+
+    const button =
+      event.target.closest(
+        '.sidebar button'
+      );
+
+
+    if (!button) {
+      return;
+    }
+
+
+    if (
+      button.classList.contains(
+        'nav-hauptpunkt'
+      )
+    ) {
+      return;
+    }
+
+
+    window.setTimeout(
+      schliesseMobileMenue,
+      40
+    );
+
+  }
+);
+
+
+
+/* =========================================================
+   AUSSERHALB DES MENÜS ANTIPPEN
+   ========================================================= */
+
+document.addEventListener(
+  'click',
+  function(event) {
+
+    const sidebar =
+      document.getElementById(
+        'sidebar'
+      );
+
+
+    const menuButton =
+      document.querySelector(
+        '.mobile-menu'
+      );
+
+
+    if (
+      !sidebar ||
+      !sidebar.classList.contains(
+        'mobile-offen'
+      )
+    ) {
+      return;
+    }
+
+
+    if (
+      sidebar.contains(
+        event.target
+      )
+    ) {
+      return;
+    }
+
+
+    if (
+      menuButton &&
+      menuButton.contains(
+        event.target
+      )
+    ) {
+      return;
+    }
+
+
+    schliesseMobileMenue();
+
+  }
+);
+
+
+
+/* =========================================================
+   ESC
+   ========================================================= */
+
+document.addEventListener(
+  'keydown',
+  function(event) {
+
+    if (
+      event.key ===
+      'Escape'
+    ) {
+
+      schliesseMobileMenue();
+
+    }
+
+  }
+);
+
+
+
+/* =========================================================
+   HANDY-LAYOUT ABSICHERN
+   ========================================================= */
+
+function sichereHandyLayoutNeu() {
+
+  const hauptApp =
+    document.getElementById(
+      'hauptApp'
+    );
+
+
+  const content =
+    document.querySelector(
+      '#hauptApp .content'
+    );
+
+
+  if (hauptApp) {
+
+    hauptApp.style.setProperty(
+      'flex-direction',
+      'column',
+      'important'
+    );
+
+
+    hauptApp.style.setProperty(
+      'width',
+      '100%',
+      'important'
+    );
+
+  }
+
+
+  if (content) {
+
+    content.style.setProperty(
+      'width',
+      '100%',
+      'important'
+    );
+
+
+    content.style.setProperty(
+      'margin-left',
+      '0',
+      'important'
+    );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  function() {
+
+    sichereHandyLayoutNeu();
+
+
+    aktualisiereMobileSeitentitelNeu(
+      'dienstplan'
+    );
+
+
+    dienstAendernZeichenNeu();
+
+
+    installiereDienstplanBeobachterNeu();
+
+
+    window.setTimeout(
+      optimiereDienstplanDarstellungNeu,
+      300
+    );
+
+
+    window.setTimeout(
+      optimiereDienstplanDarstellungNeu,
+      1000
+    );
+
+  }
+);
+
+
+window.addEventListener(
+  'resize',
+  sichereHandyLayoutNeu
+);
+
+
+window.addEventListener(
+  'orientationchange',
+  sichereHandyLayoutNeu
+);
+
+</script>
+
+
+
+<!-- ======================================================
+     SERVICE WORKER
+     ====================================================== -->
+
+<script>
+
+if (
+  'serviceWorker' in navigator
+) {
+
+  window.addEventListener(
+    'load',
+    function() {
+
+      navigator
+        .serviceWorker
+        .register(
+          './service-worker.js?v=20260821-2',
+          {
+            updateViaCache:
+              'none'
+          }
+        )
+        .then(
+          function(registration) {
+
+            registration.update();
+
+          }
+        )
+        .catch(
+          function() {
+
+            /*
+              App funktioniert auch ohne Service Worker.
             */
 
           }
