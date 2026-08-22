@@ -2129,8 +2129,467 @@ function starteDirektenTausch(
     function() {
       fuelleTauschAnsichtNeu();
     },
-    60
+    80
   );
+}
+
+
+// ==========================================================
+// TAUSCHBARE EIGENE DIENSTE SAMMELN
+// ==========================================================
+
+function sammleTauschbareEigeneDiensteNeu() {
+  const ergebnis =
+    [];
+
+  (
+    Array.isArray(
+      letzterDienstplan
+    )
+      ? letzterDienstplan
+      : []
+  ).forEach(
+    function(z) {
+      const datum =
+        String(
+          z.datum || ''
+        ).trim();
+
+      const tag =
+        String(
+          z.tag || ''
+        ).trim();
+
+      const kw =
+        String(
+          z.kw || ''
+        ).trim();
+
+      if (!datum) {
+        return;
+      }
+
+      // ------------------------------------------------------
+      // GARDEN PLAZA FRÜH
+      // ------------------------------------------------------
+
+      if (z.gpFrueh) {
+        ergebnis.push({
+          datum:
+            datum,
+
+          tag:
+            tag,
+
+          kw:
+            kw,
+
+          code:
+            'GP_FRUEH',
+
+          text:
+            'Garden Plaza – Früh',
+
+          zeit:
+            zeitFruehNeu(
+              z.tag
+            )
+        });
+      }
+
+      // ------------------------------------------------------
+      // GARDEN PLAZA SPÄT
+      // ------------------------------------------------------
+
+      if (z.gpSpaet) {
+        ergebnis.push({
+          datum:
+            datum,
+
+          tag:
+            tag,
+
+          kw:
+            kw,
+
+          code:
+            'GP_SPAET',
+
+          text:
+            'Garden Plaza – Spät',
+
+          zeit:
+            zeitSpaetNeu(
+              z.tag
+            )
+        });
+      }
+
+      // ------------------------------------------------------
+      // WATER PLAZA GANZTAG
+      // ------------------------------------------------------
+
+      if (
+        z.wpFrueh &&
+        z.wpSpaet
+      ) {
+        ergebnis.push({
+          datum:
+            datum,
+
+          tag:
+            tag,
+
+          kw:
+            kw,
+
+          code:
+            'WP_GANZTAG',
+
+          text:
+            'Water Plaza – Ganztag',
+
+          zeit:
+            '09:00 – ' +
+            zeitSpaetEndeNeu(
+              z.tag
+            )
+        });
+
+        return;
+      }
+
+      // ------------------------------------------------------
+      // WATER PLAZA FRÜH
+      // ------------------------------------------------------
+
+      if (z.wpFrueh) {
+        ergebnis.push({
+          datum:
+            datum,
+
+          tag:
+            tag,
+
+          kw:
+            kw,
+
+          code:
+            'WP_FRUEH',
+
+          text:
+            'Water Plaza – Früh',
+
+          zeit:
+            zeitFruehNeu(
+              z.tag
+            )
+        });
+      }
+
+      // ------------------------------------------------------
+      // WATER PLAZA SPÄT
+      // ------------------------------------------------------
+
+      if (z.wpSpaet) {
+        ergebnis.push({
+          datum:
+            datum,
+
+          tag:
+            tag,
+
+          kw:
+            kw,
+
+          code:
+            'WP_SPAET',
+
+          text:
+            'Water Plaza – Spät',
+
+          zeit:
+            zeitSpaetNeu(
+              z.tag
+            )
+        });
+      }
+    }
+  );
+
+  return ergebnis;
+}
+
+
+// ==========================================================
+// TAUSCHTAGE SAMMELN
+// ==========================================================
+
+function ermittleTauschTageNeu() {
+  const dienste =
+    sammleTauschbareEigeneDiensteNeu();
+
+  const tage =
+    [];
+
+  dienste.forEach(
+    function(dienst) {
+      let tag =
+        tage.find(
+          function(eintrag) {
+            return (
+              eintrag.datum ===
+              dienst.datum
+            );
+          }
+        );
+
+      if (!tag) {
+        tag = {
+          datum:
+            dienst.datum,
+
+          tag:
+            dienst.tag,
+
+          kw:
+            dienst.kw,
+
+          dienste:
+            []
+        };
+
+        tage.push(
+          tag
+        );
+      }
+
+      tag.dienste.push(
+        dienst
+      );
+    }
+  );
+
+  return tage;
+}
+
+
+// ==========================================================
+// TAUSCHANSICHT INITIALISIEREN
+// ==========================================================
+
+async function initialisiereTauschAnsichtNeu() {
+  if (
+    !Array.isArray(
+      letzterDienstplan
+    ) ||
+    letzterDienstplan.length === 0
+  ) {
+    await ladeMeinDienstplanNeu();
+  }
+
+  const tage =
+    ermittleTauschTageNeu();
+
+  if (
+    tage.length === 0
+  ) {
+    tauschDatum =
+      '';
+
+    tauschTag =
+      '';
+
+    tauschKw =
+      '';
+
+    tauschDienstCode =
+      '';
+
+    tauschDienstText =
+      '';
+
+    tauschZeit =
+      '';
+
+    fuelleTauschAnsichtNeu();
+
+    return;
+  }
+
+  const aktuellerTag =
+    tage.find(
+      function(eintrag) {
+        return (
+          eintrag.datum ===
+          tauschDatum
+        );
+      }
+    );
+
+  if (!aktuellerTag) {
+    const ersterTag =
+      tage[0];
+
+    const ersterDienst =
+      ersterTag.dienste[0];
+
+    tauschDatum =
+      ersterTag.datum;
+
+    tauschTag =
+      ersterTag.tag;
+
+    tauschKw =
+      ersterTag.kw;
+
+    tauschDienstCode =
+      ersterDienst.code;
+
+    tauschDienstText =
+      ersterDienst.text;
+
+    tauschZeit =
+      ersterDienst.zeit;
+  }
+
+  fuelleTauschAnsichtNeu();
+}
+
+
+// ==========================================================
+// TAUSCHTAG MIT PFEIL WECHSELN
+// ==========================================================
+
+function wechselTauschTagNeu(
+  richtung
+) {
+  const tage =
+    ermittleTauschTageNeu();
+
+  if (
+    tage.length === 0
+  ) {
+    return;
+  }
+
+  let index =
+    tage.findIndex(
+      function(eintrag) {
+        return (
+          eintrag.datum ===
+          tauschDatum
+        );
+      }
+    );
+
+  if (
+    index < 0
+  ) {
+    index =
+      0;
+  }
+
+  index +=
+    Number(
+      richtung || 0
+    ) < 0
+      ? -1
+      : 1;
+
+  if (
+    index < 0
+  ) {
+    index =
+      tage.length - 1;
+  }
+
+  if (
+    index >=
+    tage.length
+  ) {
+    index =
+      0;
+  }
+
+  const neuerTag =
+    tage[index];
+
+  const ersterDienst =
+    neuerTag.dienste[0];
+
+  tauschDatum =
+    neuerTag.datum;
+
+  tauschTag =
+    neuerTag.tag;
+
+  tauschKw =
+    neuerTag.kw;
+
+  tauschDienstCode =
+    ersterDienst.code;
+
+  tauschDienstText =
+    ersterDienst.text;
+
+  tauschZeit =
+    ersterDienst.zeit;
+
+  fuelleTauschAnsichtNeu();
+}
+
+
+// ==========================================================
+// DIENST AM AUSGEWÄHLTEN TAG WÄHLEN
+// ==========================================================
+
+function waehleTauschDienstNeu(
+  code
+) {
+  const tage =
+    ermittleTauschTageNeu();
+
+  const tag =
+    tage.find(
+      function(eintrag) {
+        return (
+          eintrag.datum ===
+          tauschDatum
+        );
+      }
+    );
+
+  if (!tag) {
+    return;
+  }
+
+  const dienst =
+    tag.dienste.find(
+      function(eintrag) {
+        return (
+          eintrag.code ===
+          String(
+            code || ''
+          )
+        );
+      }
+    );
+
+  if (!dienst) {
+    return;
+  }
+
+  tauschDienstCode =
+    dienst.code;
+
+  tauschDienstText =
+    dienst.text;
+
+  tauschZeit =
+    dienst.zeit;
+
+  fuelleTauschAnsichtNeu();
 }
 
 
@@ -2148,164 +2607,333 @@ function fuelleTauschAnsichtNeu() {
     return;
   }
 
+  const tage =
+    ermittleTauschTageNeu();
+
+  const aktuellerTag =
+    tage.find(
+      function(eintrag) {
+        return (
+          eintrag.datum ===
+          tauschDatum
+        );
+      }
+    );
+
+  // --------------------------------------------------------
+  // PFEILE INSTALLIEREN
+  // --------------------------------------------------------
+
+  const datumNavigation =
+    ansicht.querySelector(
+      '.datum-navigation'
+    );
+
+  if (datumNavigation) {
+    const buttons =
+      datumNavigation.querySelectorAll(
+        'button'
+      );
+
+    if (
+      buttons.length >= 3
+    ) {
+      buttons[0].onclick =
+        function() {
+          wechselTauschTagNeu(
+            -1
+          );
+        };
+
+      buttons[2].onclick =
+        function() {
+          wechselTauschTagNeu(
+            1
+          );
+        };
+    }
+  }
+
+  // --------------------------------------------------------
+  // DATUM ANZEIGEN
+  // --------------------------------------------------------
+
   const datumButton =
     ansicht.querySelector(
       '.datum-button'
     );
 
   if (datumButton) {
-    datumButton.innerHTML = `
-      <span>📅</span>
+    if (aktuellerTag) {
+      datumButton.innerHTML = `
+        <span>📅</span>
 
-      <strong>
-        ${escapeHtmlNeu(tauschDatum)}
-      </strong>
+        <strong>
+          ${escapeHtmlNeu(
+            aktuellerTag.datum
+          )}
+        </strong>
 
-      <span>
-        (${escapeHtmlNeu(tauschTag)})
-      </span>
-    `;
+        <span>
+          (${escapeHtmlNeu(
+            aktuellerTag.tag
+          )})
+        </span>
+      `;
+
+    } else {
+      datumButton.innerHTML = `
+        <span>📅</span>
+
+        <strong>
+          —
+        </strong>
+      `;
+    }
   }
+
+  // --------------------------------------------------------
+  // KEINE TAUSCHBAREN DIENSTE
+  // --------------------------------------------------------
 
   const eigeneDienste =
     ansicht.querySelector(
       '.eigene-dienste'
     );
 
-  const istGarden =
-    tauschDienstCode.startsWith(
-      'GP'
-    );
-
-  if (eigeneDienste) {
-    eigeneDienste.innerHTML = `
-      <h3>
-        Dein ausgewählter Dienst
-      </h3>
-
-      <div class="dienst-mini">
-        <div class="dienst-links">
-
-          <span
-            class="punkt ${
-              istGarden
-                ? 'gruen'
-                : 'blau'
-            }"
-          ></span>
-
-          <span>
-            ${escapeHtmlNeu(tauschDienstText)}
-          </span>
-
-        </div>
-
-        <strong
-          class="${
-            istGarden
-              ? 'gruen-text'
-              : 'blau-text'
-          }"
-        >
-          ${escapeHtmlNeu(aktuellerBenutzer)}
-        </strong>
-      </div>
-
-      ${
-        tauschDienstCode ===
-        'GP_SPAET'
-          ? `
-            <div
-              style="
-                margin-top:10px;
-                padding:10px 12px;
-                border-radius:8px;
-                background:#f6f7f8;
-                color:#666;
-                font-size:13px;
-                line-height:1.45;
-              "
-            >
-              ℹ️ Die zugehörige WP-Pausenablöse
-              gehört zum GP-Spätdienst und wird
-              beim genehmigten Tausch automatisch
-              mitgeführt.
-            </div>
-          `
-          : ''
-      }
-    `;
-  }
-
   const dienstAuswahl =
     ansicht.querySelector(
       '.dienst-auswahl'
     );
 
-  if (dienstAuswahl) {
-    let symbol =
-      '🔵';
+  if (!aktuellerTag) {
+    if (eigeneDienste) {
+      eigeneDienste.innerHTML = `
+        <h3>
+          Deine Dienste an diesem Tag
+        </h3>
 
-    if (
-      tauschDienstCode.includes(
-        'FRUEH'
-      )
-    ) {
-      symbol =
-        '☀️';
+        <div class="empty-state">
+          Du hast aktuell keine tauschbaren Dienste.
+        </div>
+      `;
     }
 
-    else if (
-      tauschDienstCode.includes(
-        'SPAET'
-      )
-    ) {
-      symbol =
-        '🌙';
+    if (dienstAuswahl) {
+      dienstAuswahl.innerHTML = `
+        <div class="empty-state">
+          Keine tauschbaren Dienste vorhanden.
+        </div>
+      `;
     }
 
-    dienstAuswahl.innerHTML = `
-      <button
-        class="dienst-option ausgewaehlt"
-        type="button"
-      >
-        <span class="radio aktiv"></span>
-
-        <div class="dienst-symbol">
-          ${symbol}
-        </div>
-
-        <div class="dienst-option-text">
-
-          <strong
-            class="${
-              istGarden
-                ? 'gruen-text'
-                : 'blau-text'
-            }"
-          >
-            ${escapeHtmlNeu(tauschDienstText)}
-          </strong>
-
-          <span>
-            Dienstzeit:
-            ${escapeHtmlNeu(tauschZeit)}
-          </span>
-
-          <small
-            class="status-chip ${
-              istGarden
-                ? 'gruen-chip'
-                : 'blau-chip'
-            }"
-          >
-            Du bist eingetragen
-          </small>
-
-        </div>
-      </button>
-    `;
+    return;
   }
+
+  // --------------------------------------------------------
+  // DIENST SICHERSTELLEN
+  // --------------------------------------------------------
+
+  let ausgewaehlterDienst =
+    aktuellerTag.dienste.find(
+      function(dienst) {
+        return (
+          dienst.code ===
+          tauschDienstCode
+        );
+      }
+    );
+
+  if (!ausgewaehlterDienst) {
+    ausgewaehlterDienst =
+      aktuellerTag.dienste[0];
+
+    tauschDienstCode =
+      ausgewaehlterDienst.code;
+
+    tauschDienstText =
+      ausgewaehlterDienst.text;
+
+    tauschZeit =
+      ausgewaehlterDienst.zeit;
+  }
+
+  // --------------------------------------------------------
+  // DEINE DIENSTE AN DIESEM TAG
+  // --------------------------------------------------------
+
+  if (eigeneDienste) {
+    let html = `
+      <h3>
+        Deine Dienste an diesem Tag
+      </h3>
+    `;
+
+    aktuellerTag.dienste.forEach(
+      function(dienst) {
+        const istGarden =
+          dienst.code.startsWith(
+            'GP'
+          );
+
+        html += `
+          <div class="dienst-mini">
+
+            <div class="dienst-links">
+
+              <span
+                class="punkt ${
+                  istGarden
+                    ? 'gruen'
+                    : 'blau'
+                }"
+              ></span>
+
+              <span>
+                ${escapeHtmlNeu(
+                  dienst.text
+                )}
+              </span>
+
+            </div>
+
+            <strong
+              class="${
+                istGarden
+                  ? 'gruen-text'
+                  : 'blau-text'
+              }"
+            >
+              ${escapeHtmlNeu(
+                aktuellerBenutzer
+              )}
+            </strong>
+
+          </div>
+        `;
+      }
+    );
+
+    eigeneDienste.innerHTML =
+      html;
+  }
+
+  // --------------------------------------------------------
+  // SCHRITT 2 – DIENST AUSWÄHLEN
+  // --------------------------------------------------------
+
+  if (dienstAuswahl) {
+    let html =
+      '';
+
+    aktuellerTag.dienste.forEach(
+      function(dienst) {
+        const istGarden =
+          dienst.code.startsWith(
+            'GP'
+          );
+
+        const ausgewaehlt =
+          dienst.code ===
+          tauschDienstCode;
+
+        let symbol =
+          '🔵';
+
+        if (
+          dienst.code.includes(
+            'FRUEH'
+          )
+        ) {
+          symbol =
+            '☀️';
+        }
+
+        else if (
+          dienst.code.includes(
+            'SPAET'
+          )
+        ) {
+          symbol =
+            '🌙';
+        }
+
+        html += `
+          <button
+            class="dienst-option ${
+              ausgewaehlt
+                ? 'ausgewaehlt'
+                : ''
+            }"
+            type="button"
+            onclick="waehleTauschDienstNeu('${escapeHtmlNeu(
+              dienst.code
+            )}')"
+          >
+
+            <span
+              class="radio ${
+                ausgewaehlt
+                  ? 'aktiv'
+                  : ''
+              }"
+            ></span>
+
+            <div class="dienst-symbol">
+              ${symbol}
+            </div>
+
+            <div class="dienst-option-text">
+
+              <strong
+                class="${
+                  istGarden
+                    ? 'gruen-text'
+                    : 'blau-text'
+                }"
+              >
+                ${escapeHtmlNeu(
+                  dienst.text
+                )}
+              </strong>
+
+              <span>
+                Dienstzeit:
+                ${escapeHtmlNeu(
+                  dienst.zeit
+                )}
+              </span>
+
+              ${
+                ausgewaehlt
+                  ? `
+                    <small
+                      class="status-chip ${
+                        istGarden
+                          ? 'gruen-chip'
+                          : 'blau-chip'
+                      }"
+                    >
+                      Ausgewählt
+                    </small>
+                  `
+                  : ''
+              }
+
+            </div>
+
+          </button>
+        `;
+      }
+    );
+
+    dienstAuswahl.innerHTML =
+      html;
+  }
+
+  // --------------------------------------------------------
+  // WEITER-BUTTON
+  // --------------------------------------------------------
 
   const weiterButton =
     ansicht.querySelector(
@@ -2316,6 +2944,10 @@ function fuelleTauschAnsichtNeu() {
     weiterButton.onclick =
       ladeEchteTauschpartner;
   }
+
+  // --------------------------------------------------------
+  // SCHRITT 3 ZURÜCKSETZEN
+  // --------------------------------------------------------
 
   const kollegenBereich =
     document.getElementById(
@@ -7198,6 +7830,15 @@ function installiereNavigationErweiterungNeu() {
         seite ===
         'dienstTauschen'
       ) {
+        if (
+          !Array.isArray(
+            letzterDienstplan
+          ) ||
+          letzterDienstplan.length === 0
+        ) {
+          await ladeMeinDienstplanNeu();
+        }
+
         versteckeAlleHauptAnsichtenNeu();
 
         const ansicht =
@@ -7210,6 +7851,8 @@ function installiereNavigationErweiterungNeu() {
             'block';
         }
 
+        await initialisiereTauschAnsichtNeu();
+
         schliesseNavigationNeu();
 
         window.scrollTo({
@@ -7219,8 +7862,7 @@ function installiereNavigationErweiterungNeu() {
 
         return;
       }
-
-
+      
       // ======================================================
       // ABWESENHEITEN
       // ======================================================
