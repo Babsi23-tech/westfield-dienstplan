@@ -1,121 +1,81 @@
 const API_URL =
   'https://script.google.com/macros/s/AKfycbxL-vdBIT5xLORL2k8xdNJXC4bRWt97X-QcvWQ5_bB1xXz083yntxCwimdaiqkoPMKBbg/exec';
 
-const SESSION_KEY =
-  'scs_team_session';
+const SESSION_KEY = 'scs_team_session';
 
-let aktuellerBenutzer =
-  '';
+let aktuellerBenutzer = '';
+let aktuellerAdmin = false;
 
-let aktuellerAdmin =
-  false;
+let letzterDienstplan = [];
+let letzteAbwesenheiten = [];
 
-let letzterDienstplan =
-  [];
+let aktuelleKwNeu = 1;
+let dienstplanInitialisiert = false;
 
-let letzteAbwesenheiten =
-  [];
-
-let aktuelleKwNeu =
-  1;
-
-let dienstplanInitialisiert =
-  false;
-
-let tauschDatum =
-  '';
-
-let tauschTag =
-  '';
-
-let tauschKw =
-  '';
-
-let tauschDienstCode =
-  '';
-
-let tauschDienstText =
-  '';
-
-let tauschZeit =
-  '';
+// Daten für den direkten Diensttausch
+let tauschDatum = '';
+let tauschTag = '';
+let tauschKw = '';
+let tauschDienstCode = '';
+let tauschDienstText = '';
+let tauschZeit = '';
 
 
 // ==========================================================
 // API
 // ==========================================================
 
-async function apiPost(
-  action,
-  daten = {}
-) {
-  const response =
-    await fetch(
-      API_URL,
-      {
-        method: 'POST',
+async function apiPost(action, daten = {}) {
+  const response = await fetch(
+    API_URL,
+    {
+      method: 'POST',
 
-        headers: {
-          'Content-Type':
-            'text/plain;charset=utf-8'
-        },
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
 
-        body:
-          JSON.stringify({
-            action:
-              action,
-            ...daten
-          }),
+      body: JSON.stringify({
+        action: action,
+        ...daten
+      }),
 
-        redirect:
-          'follow',
+      redirect: 'follow',
+      cache: 'no-store'
+    }
+  );
 
-        cache:
-          'no-store'
-      }
-    );
+  const text = await response.text();
 
-  const text =
-    await response.text();
-
-  if (
-    !response.ok
-  ) {
+  if (!response.ok) {
     throw new Error(
       'HTTP ' +
       response.status +
       ': ' +
-      text.substring(
-        0,
-        300
-      )
+      text.substring(0, 300)
     );
   }
 
   try {
-    return JSON.parse(
-      text
-    );
+    return JSON.parse(text);
 
   } catch (error) {
     throw new Error(
       'Server hat kein gültiges JSON zurückgegeben: ' +
-      text.substring(
-        0,
-        300
-      )
+      text.substring(0, 300)
     );
   }
 }
 
 
 // ==========================================================
-// START
+// APP START
 // ==========================================================
 
 document.addEventListener(
   'DOMContentLoaded',
   async function() {
+
     installiereDynamischeAnsichtenNeu();
 
     installiereNavigationErweiterungNeu();
@@ -129,6 +89,10 @@ document.addEventListener(
 );
 
 
+// ==========================================================
+// SESSION / START
+// ==========================================================
+
 async function starteApp() {
   const token =
     localStorage.getItem(
@@ -141,8 +105,7 @@ async function starteApp() {
         await apiPost(
           'session',
           {
-            token:
-              token
+            token: token
           }
         );
 
@@ -210,13 +173,11 @@ function zeigeLogin() {
     );
 
   if (login) {
-    login.style.display =
-      'flex';
+    login.style.display = 'flex';
   }
 
   if (app) {
-    app.style.display =
-      'none';
+    app.style.display = 'none';
   }
 }
 
@@ -235,8 +196,7 @@ async function ladeMitarbeiter() {
     return;
   }
 
-  select.disabled =
-    true;
+  select.disabled = true;
 
   select.innerHTML =
     '<option value="">Mitarbeiter werden geladen …</option>';
@@ -274,11 +234,8 @@ async function ladeMitarbeiter() {
             'option'
           );
 
-        option.value =
-          name;
-
-        option.textContent =
-          name;
+        option.value = name;
+        option.textContent = name;
 
         select.appendChild(
           option
@@ -286,8 +243,7 @@ async function ladeMitarbeiter() {
       }
     );
 
-    select.disabled =
-      false;
+    select.disabled = false;
 
     if (
       mitarbeiter.length === 0
@@ -299,9 +255,7 @@ async function ladeMitarbeiter() {
     }
 
   } catch (error) {
-    console.error(
-      error
-    );
+    console.error(error);
 
     select.innerHTML =
       '<option value="">Mitarbeiter konnten nicht geladen werden</option>';
@@ -357,9 +311,7 @@ async function loginAusfuehren() {
   }
 
   if (
-    !/^\d{4}$/.test(
-      pin
-    )
+    !/^\d{4}$/.test(pin)
   ) {
     zeigeLoginMeldung(
       'Bitte gib deinen 4-stelligen PIN ein.',
@@ -372,8 +324,7 @@ async function loginAusfuehren() {
   }
 
   if (button) {
-    button.disabled =
-      true;
+    button.disabled = true;
 
     button.textContent =
       'Anmeldung läuft …';
@@ -384,20 +335,14 @@ async function loginAusfuehren() {
       await apiPost(
         'login',
         {
-          name:
-            name,
-
-          pin:
-            pin
+          name: name,
+          pin: pin
         }
       );
 
     /*
-      Wenn Babsi den PIN-Reset genehmigt hat,
-      ist der alte PIN gelöscht.
-
-      Das Backend meldet dann pinFehlt=true.
-      In diesem Fall darf der Mitarbeiter
+      Wurde der alte PIN nach einem genehmigten
+      PIN-Reset gelöscht, darf der Mitarbeiter
       direkt einen neuen PIN festlegen.
     */
     if (
@@ -405,8 +350,7 @@ async function loginAusfuehren() {
       result.pinFehlt === true
     ) {
       if (pinElement) {
-        pinElement.value =
-          '';
+        pinElement.value = '';
       }
 
       zeigePinFestlegenDialogNeu(
@@ -437,18 +381,15 @@ async function loginAusfuehren() {
     );
 
     aktuellerBenutzer =
-      result.name ||
-      name;
+      result.name || name;
 
     aktuellerAdmin =
       result.admin === true;
 
-    dienstplanInitialisiert =
-      false;
+    dienstplanInitialisiert = false;
 
     if (pinElement) {
-      pinElement.value =
-        '';
+      pinElement.value = '';
     }
 
     zeigeHauptApp(
@@ -469,9 +410,7 @@ async function loginAusfuehren() {
     }
 
   } catch (error) {
-    console.error(
-      error
-    );
+    console.error(error);
 
     zeigeLoginMeldung(
       'Serverfehler: ' +
@@ -481,8 +420,7 @@ async function loginAusfuehren() {
 
   } finally {
     if (button) {
-      button.disabled =
-        false;
+      button.disabled = false;
 
       button.textContent =
         '🔐 Anmelden';
@@ -521,15 +459,10 @@ async function pinVergessenNeu() {
       await apiPost(
         'pinVergessen',
         {
-          name:
-            name
+          name: name
         }
       );
 
-    /*
-      Der PIN wurde bereits von Babsi gelöscht.
-      Mitarbeiter darf direkt einen neuen setzen.
-    */
     if (
       result &&
       result.pinFehlt === true
@@ -543,11 +476,6 @@ async function pinVergessenNeu() {
       return;
     }
 
-    /*
-      Sonderfall Babsi:
-      Sie kann ihren eigenen Reset nicht
-      selbst im Admin-Bereich genehmigen.
-    */
     if (
       result &&
       result.adminReset === true
@@ -594,6 +522,172 @@ async function pinVergessenNeu() {
   }
 }
 
+
+// ==========================================================
+// LOGIN-MELDUNGEN
+// ==========================================================
+
+function zeigeLoginMeldung(
+  text,
+  typ
+) {
+  const element =
+    document.getElementById(
+      'loginMeldung'
+    );
+
+  if (!element) {
+    return;
+  }
+
+  element.textContent =
+    text || '';
+
+  element.className =
+    'login-meldung';
+
+  if (
+    typ === 'erfolg'
+  ) {
+    element.classList.add(
+      'erfolg'
+    );
+
+  } else if (
+    typ === 'fehler'
+  ) {
+    element.classList.add(
+      'fehler'
+    );
+  }
+}
+
+
+function loescheLoginMeldung() {
+  const element =
+    document.getElementById(
+      'loginMeldung'
+    );
+
+  if (element) {
+    element.textContent = '';
+
+    element.className =
+      'login-meldung';
+  }
+}
+
+
+// ==========================================================
+// HAUPT-APP ANZEIGEN
+// ==========================================================
+
+function zeigeHauptApp(
+  name,
+  admin
+) {
+  const login =
+    document.getElementById(
+      'loginAnsicht'
+    );
+
+  const app =
+    document.getElementById(
+      'hauptApp'
+    );
+
+  if (login) {
+    login.style.display = 'none';
+  }
+
+  if (app) {
+    app.style.display = 'block';
+  }
+
+  aktualisiereSidebarNeu(
+    name,
+    admin
+  );
+}
+
+
+// ==========================================================
+// LOGOUT
+// ==========================================================
+
+async function logoutNeu() {
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  localStorage.removeItem(
+    SESSION_KEY
+  );
+
+  aktuellerBenutzer = '';
+  aktuellerAdmin = false;
+
+  letzterDienstplan = [];
+  letzteAbwesenheiten = [];
+
+  dienstplanInitialisiert = false;
+
+  tauschDatum = '';
+  tauschTag = '';
+  tauschKw = '';
+  tauschDienstCode = '';
+  tauschDienstText = '';
+  tauschZeit = '';
+
+  try {
+    if (token) {
+      await apiPost(
+        'logout',
+        {
+          token: token
+        }
+      );
+    }
+
+  } catch (error) {
+    console.error(
+      'Logout:',
+      error
+    );
+  }
+
+  zeigeLogin();
+
+  await ladeMitarbeiter();
+}
+
+
+// ==========================================================
+// SESSION ABGELAUFEN
+// ==========================================================
+
+async function sessionAbgelaufenNeu() {
+  localStorage.removeItem(
+    SESSION_KEY
+  );
+
+  aktuellerBenutzer = '';
+  aktuellerAdmin = false;
+
+  letzterDienstplan = [];
+  letzteAbwesenheiten = [];
+
+  dienstplanInitialisiert = false;
+
+  window.alert(
+    'Deine Anmeldung ist abgelaufen. Bitte melde dich erneut an.'
+  );
+
+  zeigeLogin();
+
+  await ladeMitarbeiter();
+}
 
 // ==========================================================
 // NEUEN PIN FESTLEGEN – DIALOG INSTALLIEREN
@@ -793,12 +887,12 @@ function installierePinFestlegenDialogNeu() {
 
 
 // ==========================================================
-// PIN-FESTLEGEN-DIALOG ANZEIGEN
+// PIN-DIALOG ANZEIGEN
 // ==========================================================
 
 function zeigePinFestlegenDialogNeu(
   name,
-  info
+  infoText
 ) {
   installierePinFestlegenDialogNeu();
 
@@ -812,7 +906,7 @@ function zeigePinFestlegenDialogNeu(
       'pinFestlegenNameNeu'
     );
 
-  const infoElement =
+  const info =
     document.getElementById(
       'pinFestlegenInfoNeu'
     );
@@ -834,28 +928,27 @@ function zeigePinFestlegenDialogNeu(
 
   if (nameElement) {
     nameElement.value =
-      name || '';
+      String(
+        name || ''
+      );
   }
 
-  if (infoElement) {
-    infoElement.textContent =
-      info ||
+  if (info) {
+    info.textContent =
+      infoText ||
       'Bitte lege deinen neuen 4-stelligen PIN fest.';
   }
 
   if (pin1) {
-    pin1.value =
-      '';
+    pin1.value = '';
   }
 
   if (pin2) {
-    pin2.value =
-      '';
+    pin2.value = '';
   }
 
   if (meldung) {
-    meldung.textContent =
-      '';
+    meldung.textContent = '';
   }
 
   if (overlay) {
@@ -867,13 +960,13 @@ function zeigePinFestlegenDialogNeu(
     function() {
       pin1?.focus();
     },
-    100
+    80
   );
 }
 
 
 // ==========================================================
-// PIN-FESTLEGEN-DIALOG SCHLIESSEN
+// PIN-DIALOG SCHLIESSEN
 // ==========================================================
 
 function schliessePinFestlegenDialogNeu() {
@@ -932,16 +1025,14 @@ async function speichereNeuenPinNeu() {
     );
 
   if (
-    !/^\d{4}$/.test(
-      pin1
-    )
+    !/^\d{4}$/.test(pin1)
   ) {
     if (meldung) {
       meldung.style.color =
         '#b00020';
 
       meldung.textContent =
-        'Der neue PIN muss genau aus 4 Ziffern bestehen.';
+        'Der PIN muss genau 4 Zahlen haben.';
     }
 
     return;
@@ -961,24 +1052,15 @@ async function speichereNeuenPinNeu() {
     return;
   }
 
-  if (!name) {
-    if (meldung) {
-      meldung.style.color =
-        '#b00020';
-
-      meldung.textContent =
-        'Mitarbeiter konnte nicht bestimmt werden.';
-    }
-
-    return;
-  }
-
   if (button) {
-    button.disabled =
-      true;
+    button.disabled = true;
 
     button.textContent =
       'PIN wird gespeichert …';
+  }
+
+  if (meldung) {
+    meldung.textContent = '';
   }
 
   try {
@@ -986,14 +1068,9 @@ async function speichereNeuenPinNeu() {
       await apiPost(
         'pinFestlegen',
         {
-          name:
-            name,
-
-          pin1:
-            pin1,
-
-          pin2:
-            pin2
+          name: name,
+          pin1: pin1,
+          pin2: pin2
         }
       );
 
@@ -1003,7 +1080,7 @@ async function speichereNeuenPinNeu() {
     ) {
       throw new Error(
         result?.message ||
-        'PIN konnte nicht gespeichert werden.'
+        'Der PIN konnte nicht gespeichert werden.'
       );
     }
 
@@ -1013,8 +1090,7 @@ async function speichereNeuenPinNeu() {
     );
 
     aktuellerBenutzer =
-      result.name ||
-      name;
+      result.name || name;
 
     aktuellerAdmin =
       result.admin === true;
@@ -1022,34 +1098,24 @@ async function speichereNeuenPinNeu() {
     dienstplanInitialisiert =
       false;
 
-    if (meldung) {
-      meldung.style.color =
-        '#14943b';
+    schliessePinFestlegenDialogNeu();
 
-      meldung.textContent =
-        '✅ Neuer PIN wurde gespeichert.';
-    }
-
-    setTimeout(
-      function() {
-        schliessePinFestlegenDialogNeu();
-
-        zeigeHauptApp(
-          aktuellerBenutzer,
-          aktuellerAdmin
-        );
-
-        if (
-          typeof window.zeigeSeite ===
-          'function'
-        ) {
-          window.zeigeSeite(
-            'dienstplan'
-          );
-        }
-      },
-      500
+    zeigeHauptApp(
+      aktuellerBenutzer,
+      aktuellerAdmin
     );
+
+    if (
+      typeof window.zeigeSeite ===
+      'function'
+    ) {
+      await window.zeigeSeite(
+        'dienstplan'
+      );
+
+    } else {
+      await ladeMeinDienstplanNeu();
+    }
 
   } catch (error) {
     console.error(
@@ -1068,8 +1134,7 @@ async function speichereNeuenPinNeu() {
 
   } finally {
     if (button) {
-      button.disabled =
-        false;
+      button.disabled = false;
 
       button.textContent =
         '🔐 Neuen PIN speichern';
@@ -1079,72 +1144,7 @@ async function speichereNeuenPinNeu() {
 
 
 // ==========================================================
-// HAUPT-APP ANZEIGEN
-// ==========================================================
-
-function zeigeHauptApp(
-  name,
-  admin
-) {
-  const login =
-    document.getElementById(
-      'loginAnsicht'
-    );
-
-  const app =
-    document.getElementById(
-      'hauptApp'
-    );
-
-  const profilName =
-    document.getElementById(
-      'profilNameAnzeige'
-    );
-
-  const adminNav =
-    document.getElementById(
-      'adminNav'
-    );
-
-  const adminTitel =
-    document.getElementById(
-      'adminTitel'
-    );
-
-  if (login) {
-    login.style.display =
-      'none';
-  }
-
-  if (app) {
-    app.style.display =
-      'flex';
-  }
-
-  if (profilName) {
-    profilName.textContent =
-      name ||
-      'Mitarbeiter';
-  }
-
-  if (adminNav) {
-    adminNav.style.display =
-      admin
-        ? 'flex'
-        : 'none';
-  }
-
-  if (adminTitel) {
-    adminTitel.style.display =
-      admin
-        ? 'block'
-        : 'none';
-  }
-}
-
-
-// ==========================================================
-// DIENSTPLAN LADEN
+// MEIN DIENSTPLAN LADEN
 // ==========================================================
 
 async function ladeMeinDienstplanNeu() {
@@ -1154,32 +1154,25 @@ async function ladeMeinDienstplanNeu() {
     );
 
   if (!token) {
-    await logoutAusfuehren();
+    await sessionAbgelaufenNeu();
 
     return;
   }
-
-  const laden =
-    document.getElementById(
-      'dienstplanLaden'
-    );
 
   const liste =
     document.getElementById(
       'dienstplanListe'
     );
 
-  const sollstundenElement =
-    document.getElementById(
-      'dienstplanSollstunden'
-    );
-
-  if (laden) {
-    laden.style.display =
-      'block';
-
-    laden.textContent =
-      'Dienstplan wird geladen …';
+  if (
+    liste &&
+    !dienstplanInitialisiert
+  ) {
+    liste.innerHTML = `
+      <div class="empty-state">
+        Dienstplan wird geladen …
+      </div>
+    `;
   }
 
   try {
@@ -1187,24 +1180,23 @@ async function ladeMeinDienstplanNeu() {
       await apiPost(
         'meinDienstplan',
         {
-          token:
-            token
+          token: token
         }
       );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
 
     if (
       !result ||
       !result.ok
     ) {
-      if (
-        result &&
-        result.sessionExpired
-      ) {
-        await sessionAbgelaufenNeu();
-
-        return;
-      }
-
       throw new Error(
         result?.message ||
         'Dienstplan konnte nicht geladen werden.'
@@ -1232,250 +1224,312 @@ async function ladeMeinDienstplanNeu() {
         ? result.abwesenheiten
         : [];
 
-    zeigeHauptApp(
+    aktualisiereSidebarNeu(
       aktuellerBenutzer,
       aktuellerAdmin
+    );
+
+    aktualisiereWochenstundenNeu(
+      result.sollstunden
     );
 
     if (
       !dienstplanInitialisiert
     ) {
-      aktuelleKwNeu =
-        ermittleStartKwNeu(
-          letzterDienstplan
-        );
+      setzeAktuelleKwNeu();
 
       dienstplanInitialisiert =
         true;
     }
 
-    if (sollstundenElement) {
-      const soll =
-        Number(
-          result.sollstunden || 0
-        );
-
-      sollstundenElement.textContent =
-        soll
-          .toFixed(1)
-          .replace(
-            '.',
-            ','
-          ) +
-        ' Std.';
-    }
-
-    aktualisiereKwAnzeigeNeu();
-
-    rendereDienstplan(
-      letzterDienstplan
-    );
-
-    rendereAbwesenheiten(
-      letzteAbwesenheiten
-    );
-
-    if (laden) {
-      laden.style.display =
-        'none';
-    }
+    rendereDienstplanNeu();
 
   } catch (error) {
     console.error(
+      'Dienstplan:',
       error
     );
 
-    if (laden) {
-      laden.style.display =
-        'block';
-
-      laden.textContent =
-        'Fehler beim Laden: ' +
-        error.message;
-    }
-
     if (liste) {
-      liste.innerHTML =
-        '<div class="empty-state">Dienstplan konnte nicht geladen werden.</div>';
+      liste.innerHTML = `
+        <div
+          class="empty-state"
+          style="color:#b00020;"
+        >
+          ❌ ${escapeHtmlNeu(
+            error.message
+          )}
+        </div>
+      `;
     }
   }
 }
 
 
 // ==========================================================
-// START-KW
+// SIDEBAR AKTUALISIEREN
 // ==========================================================
 
-function ermittleStartKwNeu(
-  plan
+function aktualisiereSidebarNeu(
+  name,
+  admin
 ) {
-  const kws =
-    ermittleVerfuegbareKwsNeu(
-      plan
+  const nameElement =
+    document.getElementById(
+      'sidebarName'
     );
 
-  if (
-    !kws.length
-  ) {
-    return 1;
+  if (nameElement) {
+    nameElement.textContent =
+      name || '';
   }
 
+  const rolleElement =
+    document.getElementById(
+      'sidebarRolle'
+    );
+
+  if (rolleElement) {
+    rolleElement.textContent =
+      admin
+        ? 'Admin'
+        : 'Mitarbeiter';
+  }
+
+  const adminButton =
+    document.getElementById(
+      'adminNavigationButton'
+    );
+
+  if (adminButton) {
+    adminButton.style.display =
+      admin
+        ? ''
+        : 'none';
+  }
+
+  const adminNav =
+    document.getElementById(
+      'adminNav'
+    );
+
+  if (adminNav) {
+    adminNav.style.display =
+      admin
+        ? ''
+        : 'none';
+  }
+}
+
+
+// ==========================================================
+// WOCHENSTUNDEN
+// ==========================================================
+
+function aktualisiereWochenstundenNeu(
+  sollstunden
+) {
+  const element =
+    document.getElementById(
+      'sidebarWochenstunden'
+    );
+
+  if (!element) {
+    return;
+  }
+
+  const zahl =
+    Number(
+      sollstunden || 0
+    );
+
+  element.textContent =
+    Number.isFinite(zahl)
+      ? zahl.toLocaleString(
+          'de-DE',
+          {
+            maximumFractionDigits: 2
+          }
+        ) +
+        ' Std./Woche'
+      : '';
+}
+
+
+// ==========================================================
+// AKTUELLE KW ERMITTELN
+// ==========================================================
+
+function setzeAktuelleKwNeu() {
   const heute =
     new Date();
 
-  const heutigesDatum =
-    String(
-      heute.getDate()
-    ).padStart(
-      2,
-      '0'
-    ) +
-    '.' +
-    String(
-      heute.getMonth() + 1
-    ).padStart(
-      2,
-      '0'
-    ) +
-    '.' +
-    heute.getFullYear();
-
-  const heuteEintrag =
-    (plan || []).find(
-      function(z) {
-        return String(
-          z.datum || ''
-        ) ===
-          heutigesDatum;
-      }
+  const datum =
+    new Date(
+      Date.UTC(
+        heute.getFullYear(),
+        heute.getMonth(),
+        heute.getDate()
+      )
     );
 
-  if (
-    heuteEintrag &&
-    Number(
-      heuteEintrag.kw
-    )
-  ) {
-    return Number(
-      heuteEintrag.kw
-    );
-  }
+  const tagNummer =
+    datum.getUTCDay() || 7;
 
-  return kws[0];
-}
-
-
-// ==========================================================
-// VERFÜGBARE KW
-// ==========================================================
-
-function ermittleVerfuegbareKwsNeu(
-  plan
-) {
-  return Array.from(
-    new Set(
-      (plan || [])
-        .map(
-          function(z) {
-            return Number(
-              z.kw || 0
-            );
-          }
-        )
-        .filter(
-          function(kw) {
-            return (
-              Number.isFinite(
-                kw
-              ) &&
-              kw > 0
-            );
-          }
-        )
-    )
-  ).sort(
-    function(a, b) {
-      return a - b;
-    }
+  datum.setUTCDate(
+    datum.getUTCDate() +
+    4 -
+    tagNummer
   );
-}
 
-
-// ==========================================================
-// WOCHE WECHSELN
-// ==========================================================
-
-function wechselWoche(
-  richtung
-) {
-  const kws =
-    ermittleVerfuegbareKwsNeu(
-      letzterDienstplan
+  const jahresStart =
+    new Date(
+      Date.UTC(
+        datum.getUTCFullYear(),
+        0,
+        1
+      )
     );
 
+  const kw =
+    Math.ceil(
+      (
+        (
+          datum -
+          jahresStart
+        ) /
+        86400000 +
+        1
+      ) /
+      7
+    );
+
+  aktuelleKwNeu = kw;
+
+  const vorhandeneKws =
+    Array.from(
+      new Set(
+        letzterDienstplan
+          .map(
+            function(eintrag) {
+              return Number(
+                eintrag.kw
+              );
+            }
+          )
+          .filter(
+            function(kwNummer) {
+              return Number.isFinite(
+                kwNummer
+              );
+            }
+          )
+      )
+    )
+      .sort(
+        function(a, b) {
+          return a - b;
+        }
+      );
+
   if (
-    !kws.length
+    vorhandeneKws.length > 0 &&
+    !vorhandeneKws.includes(
+      aktuelleKwNeu
+    )
   ) {
     aktuelleKwNeu =
-      Math.max(
-        1,
-        aktuelleKwNeu +
-        Number(
-          richtung || 0
-        )
-      );
-
-  } else {
-    let index =
-      kws.indexOf(
-        Number(
-          aktuelleKwNeu
-        )
-      );
-
-    if (
-      index < 0
-    ) {
-      index =
-        0;
-    }
-
-    index +=
-      Number(
-        richtung || 0
-      ) < 0
-        ? -1
-        : 1;
-
-    if (
-      index < 0
-    ) {
-      index =
-        kws.length - 1;
-    }
-
-    if (
-      index >=
-      kws.length
-    ) {
-      index =
-        0;
-    }
-
-    aktuelleKwNeu =
-      kws[index];
+      vorhandeneKws[0];
   }
 
   aktualisiereKwAnzeigeNeu();
-
-  rendereDienstplan(
-    letzterDienstplan
-  );
 }
 
 
 // ==========================================================
-// KW ANZEIGE
+// KW WECHSELN
+// ==========================================================
+
+function wechselKwNeu(
+  richtung
+) {
+  const kws =
+    Array.from(
+      new Set(
+        letzterDienstplan
+          .map(
+            function(eintrag) {
+              return Number(
+                eintrag.kw
+              );
+            }
+          )
+          .filter(
+            function(kwNummer) {
+              return Number.isFinite(
+                kwNummer
+              );
+            }
+          )
+      )
+    )
+      .sort(
+        function(a, b) {
+          return a - b;
+        }
+      );
+
+  if (
+    kws.length === 0
+  ) {
+    return;
+  }
+
+  let index =
+    kws.indexOf(
+      Number(
+        aktuelleKwNeu
+      )
+    );
+
+  if (
+    index < 0
+  ) {
+    index = 0;
+  }
+
+  index +=
+    Number(
+      richtung || 0
+    ) < 0
+      ? -1
+      : 1;
+
+  if (
+    index < 0
+  ) {
+    index =
+      kws.length - 1;
+  }
+
+  if (
+    index >=
+    kws.length
+  ) {
+    index = 0;
+  }
+
+  aktuelleKwNeu =
+    kws[index];
+
+  aktualisiereKwAnzeigeNeu();
+
+  rendereDienstplanNeu();
+}
+
+
+// ==========================================================
+// KW-ANZEIGE
 // ==========================================================
 
 function aktualisiereKwAnzeigeNeu() {
@@ -1495,6 +1549,16 @@ function aktualisiereKwAnzeigeNeu() {
     );
 }
 
+
+// ==========================================================
+// DIENSTPLAN-RENDERER AUFRUF
+// ==========================================================
+
+function rendereDienstplanNeu() {
+  rendereDienstplan(
+    letzterDienstplan
+  );
+}
 
 // ==========================================================
 // DIENSTPLAN RENDERN
@@ -1537,7 +1601,9 @@ function rendereDienstplan(
           text-align:center;
         "
       >
-        Für KW ${escapeHtmlNeu(aktuelleKwNeu)}
+        Für KW ${escapeHtmlNeu(
+          aktuelleKwNeu
+        )}
         wurden keine Dienste gefunden.
       </div>
     `;
@@ -1570,7 +1636,9 @@ function rendereDienstplan(
           text-align:center;
         "
       >
-        In KW ${escapeHtmlNeu(aktuelleKwNeu)}
+        In KW ${escapeHtmlNeu(
+          aktuelleKwNeu
+        )}
         hast du keine eingetragenen Dienste.
       </div>
     `;
@@ -1578,16 +1646,14 @@ function rendereDienstplan(
     return;
   }
 
-  let html =
-    '';
+  let html = '';
 
   relevanteTage.forEach(
     function(z) {
-      const dienste =
-        [];
+      const dienste = [];
 
       // ------------------------------------------------------
-      // GARDEN PLAZA FRÜH
+      // GARDEN PLAZA – FRÜH
       // ------------------------------------------------------
 
       if (
@@ -1620,15 +1686,19 @@ function rendereDienstplan(
       }
 
       // ------------------------------------------------------
-      // GARDEN PLAZA SPÄT
+      // GARDEN PLAZA – SPÄT
       // ------------------------------------------------------
 
       if (
         z.gpSpaet
       ) {
-        let zusatz =
-          '';
+        let zusatz = '';
 
+        /*
+          Wenn beim GP-Spätdienst gleichzeitig
+          eine WP-Pausenablöse eingetragen ist,
+          gehört sie zu diesem Dienst.
+        */
         if (
           z.wpAbloese
         ) {
@@ -1701,6 +1771,11 @@ function rendereDienstplan(
         });
 
       } else {
+
+        // ----------------------------------------------------
+        // WATER PLAZA – FRÜH
+        // ----------------------------------------------------
+
         if (
           z.wpFrueh
         ) {
@@ -1729,6 +1804,10 @@ function rendereDienstplan(
               ''
           });
         }
+
+        // ----------------------------------------------------
+        // WATER PLAZA – SPÄT
+        // ----------------------------------------------------
 
         if (
           z.wpSpaet
@@ -1761,7 +1840,7 @@ function rendereDienstplan(
       }
 
       // ------------------------------------------------------
-      // GP PAUSENABLÖSE
+      // GARDEN PLAZA – PAUSENABLÖSE
       // ------------------------------------------------------
 
       if (
@@ -1793,8 +1872,10 @@ function rendereDienstplan(
       }
 
       // ------------------------------------------------------
-      // WP PAUSENABLÖSE
-      // Nur separat anzeigen, wenn kein GP Spät vorhanden ist.
+      // WATER PLAZA – PAUSENABLÖSE
+      // ------------------------------------------------------
+      // Wenn GP-Spät vorhanden ist, wird WP-Pausenablöse
+      // bereits beim GP-Spätdienst angezeigt.
       // ------------------------------------------------------
 
       if (
@@ -1827,7 +1908,7 @@ function rendereDienstplan(
       }
 
       // ------------------------------------------------------
-      // TAG-KARTE
+      // TAGESKARTE
       // ------------------------------------------------------
 
       html += `
@@ -1836,7 +1917,6 @@ function rendereDienstplan(
           style="
             background:#ffffff;
             border:1px solid #dfe3e8;
-            border-left:1px solid #dfe3e8;
             border-radius:13px;
             padding:17px;
             margin-bottom:13px;
@@ -1858,8 +1938,12 @@ function rendereDienstplan(
                 line-height:1.35;
               "
             >
-              ${escapeHtmlNeu(z.tag || '')},
-              ${escapeHtmlNeu(z.datum || '')}
+              ${escapeHtmlNeu(
+                z.tag || ''
+              )},
+              ${escapeHtmlNeu(
+                z.datum || ''
+              )}
             </strong>
           </div>
       `;
@@ -1879,6 +1963,7 @@ function rendereDienstplan(
           let zusatzFarbe =
             '#777777';
 
+          // Garden Plaza = GRÜN
           if (
             dienst.klasse ===
             'garden'
@@ -1893,6 +1978,7 @@ function rendereDienstplan(
               '#8a5b00';
           }
 
+          // Water Plaza = BLAU
           else if (
             dienst.klasse ===
             'water'
@@ -1904,6 +1990,7 @@ function rendereDienstplan(
               '#f5f8ff';
           }
 
+          // Pausenablöse = ORANGE/BRAUN
           else if (
             dienst.klasse ===
             'abloese'
@@ -1913,6 +2000,9 @@ function rendereDienstplan(
 
             hintergrund =
               '#fffaf3';
+
+            zusatzFarbe =
+              '#8a5b00';
           }
 
           const onclick =
@@ -1947,7 +2037,9 @@ function rendereDienstplan(
           html += `
             <div
               class="scs-dienst-karte"
-              data-plaza="${escapeHtmlNeu(dienst.klasse)}"
+              data-plaza="${escapeHtmlNeu(
+                dienst.klasse
+              )}"
               style="
                 background:${hintergrund};
                 border:1px solid #e1e4e8;
@@ -1981,8 +2073,12 @@ function rendereDienstplan(
                       line-height:1.35;
                     "
                   >
-                    ${escapeHtmlNeu(dienst.symbol)}
-                    ${escapeHtmlNeu(dienst.name)}
+                    ${escapeHtmlNeu(
+                      dienst.symbol
+                    )}
+                    ${escapeHtmlNeu(
+                      dienst.name
+                    )}
                   </div>
 
                   ${
@@ -1995,7 +2091,9 @@ function rendereDienstplan(
                             line-height:1.35;
                           "
                         >
-                          🕒 ${escapeHtmlNeu(dienst.zeit)}
+                          🕒 ${escapeHtmlNeu(
+                            dienst.zeit
+                          )}
                         </div>
                       `
                       : ''
@@ -2013,7 +2111,9 @@ function rendereDienstplan(
                             font-weight:500;
                           "
                         >
-                          ☕ ${escapeHtmlNeu(dienst.zusatz)}
+                          ☕ ${escapeHtmlNeu(
+                            dienst.zusatz
+                          )}
                         </div>
                       `
                       : ''
@@ -2048,6 +2148,10 @@ function rendereDienstplan(
         }
       );
 
+      // ------------------------------------------------------
+      // NOTIZ
+      // ------------------------------------------------------
+
       if (
         z.notiz
       ) {
@@ -2059,7 +2163,9 @@ function rendereDienstplan(
               font-size:14px;
             "
           >
-            📝 ${escapeHtmlNeu(z.notiz)}
+            📝 ${escapeHtmlNeu(
+              z.notiz
+            )}
           </div>
         `;
       }
@@ -2139,8 +2245,7 @@ function starteDirektenTausch(
 // ==========================================================
 
 function sammleTauschbareEigeneDiensteNeu() {
-  const ergebnis =
-    [];
+  const ergebnis = [];
 
   (
     Array.isArray(
@@ -2169,27 +2274,15 @@ function sammleTauschbareEigeneDiensteNeu() {
         return;
       }
 
-      // ------------------------------------------------------
-      // GARDEN PLAZA FRÜH
-      // ------------------------------------------------------
-
-      if (z.gpFrueh) {
+      if (
+        z.gpFrueh
+      ) {
         ergebnis.push({
-          datum:
-            datum,
-
-          tag:
-            tag,
-
-          kw:
-            kw,
-
-          code:
-            'GP_FRUEH',
-
-          text:
-            'Garden Plaza – Früh',
-
+          datum: datum,
+          tag: tag,
+          kw: kw,
+          code: 'GP_FRUEH',
+          text: 'Garden Plaza – Früh',
           zeit:
             zeitFruehNeu(
               z.tag
@@ -2197,27 +2290,15 @@ function sammleTauschbareEigeneDiensteNeu() {
         });
       }
 
-      // ------------------------------------------------------
-      // GARDEN PLAZA SPÄT
-      // ------------------------------------------------------
-
-      if (z.gpSpaet) {
+      if (
+        z.gpSpaet
+      ) {
         ergebnis.push({
-          datum:
-            datum,
-
-          tag:
-            tag,
-
-          kw:
-            kw,
-
-          code:
-            'GP_SPAET',
-
-          text:
-            'Garden Plaza – Spät',
-
+          datum: datum,
+          tag: tag,
+          kw: kw,
+          code: 'GP_SPAET',
+          text: 'Garden Plaza – Spät',
           zeit:
             zeitSpaetNeu(
               z.tag
@@ -2225,30 +2306,20 @@ function sammleTauschbareEigeneDiensteNeu() {
         });
       }
 
-      // ------------------------------------------------------
-      // WATER PLAZA GANZTAG
-      // ------------------------------------------------------
-
+      /*
+        Water Plaza Früh + Spät am selben Tag
+        wird als ein Ganztagsdienst behandelt.
+      */
       if (
         z.wpFrueh &&
         z.wpSpaet
       ) {
         ergebnis.push({
-          datum:
-            datum,
-
-          tag:
-            tag,
-
-          kw:
-            kw,
-
-          code:
-            'WP_GANZTAG',
-
-          text:
-            'Water Plaza – Ganztag',
-
+          datum: datum,
+          tag: tag,
+          kw: kw,
+          code: 'WP_GANZTAG',
+          text: 'Water Plaza – Ganztag',
           zeit:
             '09:00 – ' +
             zeitSpaetEndeNeu(
@@ -2259,27 +2330,15 @@ function sammleTauschbareEigeneDiensteNeu() {
         return;
       }
 
-      // ------------------------------------------------------
-      // WATER PLAZA FRÜH
-      // ------------------------------------------------------
-
-      if (z.wpFrueh) {
+      if (
+        z.wpFrueh
+      ) {
         ergebnis.push({
-          datum:
-            datum,
-
-          tag:
-            tag,
-
-          kw:
-            kw,
-
-          code:
-            'WP_FRUEH',
-
-          text:
-            'Water Plaza – Früh',
-
+          datum: datum,
+          tag: tag,
+          kw: kw,
+          code: 'WP_FRUEH',
+          text: 'Water Plaza – Früh',
           zeit:
             zeitFruehNeu(
               z.tag
@@ -2287,27 +2346,15 @@ function sammleTauschbareEigeneDiensteNeu() {
         });
       }
 
-      // ------------------------------------------------------
-      // WATER PLAZA SPÄT
-      // ------------------------------------------------------
-
-      if (z.wpSpaet) {
+      if (
+        z.wpSpaet
+      ) {
         ergebnis.push({
-          datum:
-            datum,
-
-          tag:
-            tag,
-
-          kw:
-            kw,
-
-          code:
-            'WP_SPAET',
-
-          text:
-            'Water Plaza – Spät',
-
+          datum: datum,
+          tag: tag,
+          kw: kw,
+          code: 'WP_SPAET',
+          text: 'Water Plaza – Spät',
           zeit:
             zeitSpaetNeu(
               z.tag
@@ -2329,8 +2376,7 @@ function ermittleTauschTageNeu() {
   const dienste =
     sammleTauschbareEigeneDiensteNeu();
 
-  const tage =
-    [];
+  const tage = [];
 
   dienste.forEach(
     function(dienst) {
@@ -2394,23 +2440,12 @@ async function initialisiereTauschAnsichtNeu() {
   if (
     tage.length === 0
   ) {
-    tauschDatum =
-      '';
-
-    tauschTag =
-      '';
-
-    tauschKw =
-      '';
-
-    tauschDienstCode =
-      '';
-
-    tauschDienstText =
-      '';
-
-    tauschZeit =
-      '';
+    tauschDatum = '';
+    tauschTag = '';
+    tauschKw = '';
+    tauschDienstCode = '';
+    tauschDienstText = '';
+    tauschZeit = '';
 
     fuelleTauschAnsichtNeu();
 
@@ -2458,7 +2493,7 @@ async function initialisiereTauschAnsichtNeu() {
 
 
 // ==========================================================
-// TAUSCHTAG MIT PFEIL WECHSELN
+// TAUSCHTAG MIT ← / → WECHSELN
 // ==========================================================
 
 function wechselTauschTagNeu(
@@ -2486,8 +2521,7 @@ function wechselTauschTagNeu(
   if (
     index < 0
   ) {
-    index =
-      0;
+    index = 0;
   }
 
   index +=
@@ -2508,8 +2542,7 @@ function wechselTauschTagNeu(
     index >=
     tage.length
   ) {
-    index =
-      0;
+    index = 0;
   }
 
   const neuerTag =
@@ -2592,7 +2625,6 @@ function waehleTauschDienstNeu(
   fuelleTauschAnsichtNeu();
 }
 
-
 // ==========================================================
 // TAUSCHANSICHT FÜLLEN
 // ==========================================================
@@ -2621,7 +2653,7 @@ function fuelleTauschAnsichtNeu() {
     );
 
   // --------------------------------------------------------
-  // PFEILE INSTALLIEREN
+  // PFEILE ← / →
   // --------------------------------------------------------
 
   const datumNavigation =
@@ -2692,10 +2724,6 @@ function fuelleTauschAnsichtNeu() {
     }
   }
 
-  // --------------------------------------------------------
-  // KEINE TAUSCHBAREN DIENSTE
-  // --------------------------------------------------------
-
   const eigeneDienste =
     ansicht.querySelector(
       '.eigene-dienste'
@@ -2705,6 +2733,10 @@ function fuelleTauschAnsichtNeu() {
     ansicht.querySelector(
       '.dienst-auswahl'
     );
+
+  // --------------------------------------------------------
+  // KEINE TAUSCHBAREN DIENSTE
+  // --------------------------------------------------------
 
   if (!aktuellerTag) {
     if (eigeneDienste) {
@@ -2727,11 +2759,22 @@ function fuelleTauschAnsichtNeu() {
       `;
     }
 
+    const kollegenBereich =
+      document.getElementById(
+        'kollegenBereich'
+      );
+
+    if (kollegenBereich) {
+      kollegenBereich.classList.add(
+        'versteckt'
+      );
+    }
+
     return;
   }
 
   // --------------------------------------------------------
-  // DIENST SICHERSTELLEN
+  // AUSGEWÄHLTEN DIENST SICHERSTELLEN
   // --------------------------------------------------------
 
   let ausgewaehlterDienst =
@@ -2823,8 +2866,7 @@ function fuelleTauschAnsichtNeu() {
   // --------------------------------------------------------
 
   if (dienstAuswahl) {
-    let html =
-      '';
+    let html = '';
 
     aktuellerTag.dienste.forEach(
       function(dienst) {
@@ -2994,6 +3036,17 @@ async function ladeEchteTauschpartner() {
     return;
   }
 
+  if (
+    !tauschDatum ||
+    !tauschDienstCode
+  ) {
+    window.alert(
+      'Bitte zuerst einen Tag und Dienst auswählen.'
+    );
+
+    return;
+  }
+
   bereich.classList.remove(
     'versteckt'
   );
@@ -3005,14 +3058,19 @@ async function ladeEchteTauschpartner() {
 
     <p class="beschreibung">
       Echte Dienste für
-      ${escapeHtmlNeu(tauschDatum)}
+      ${escapeHtmlNeu(
+        tauschDatum
+      )}
       werden geladen …
     </p>
   `;
 
   bereich.scrollIntoView({
-    behavior: 'smooth',
-    block: 'start'
+    behavior:
+      'smooth',
+
+    block:
+      'start'
   });
 
   try {
@@ -3020,6 +3078,12 @@ async function ladeEchteTauschpartner() {
       localStorage.getItem(
         SESSION_KEY
       );
+
+    if (!token) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
 
     const result =
       await apiPost(
@@ -3059,9 +3123,35 @@ async function ladeEchteTauschpartner() {
         ? result.kandidaten.slice()
         : [];
 
+    /*
+      Falls eine Person bei Water Plaza
+      sowohl Früh als auch Spät hat,
+      wird daraus ein Ganztagsdienst.
+    */
     kandidaten =
       kombiniereWpGanztagKandidaten(
         kandidaten
+      );
+
+    /*
+      Den eigenen Mitarbeiter aus der Liste entfernen.
+    */
+    kandidaten =
+      kandidaten.filter(
+        function(k) {
+          return (
+            String(
+              k.mitarbeiter || ''
+            )
+              .trim()
+              .toLowerCase() !==
+            String(
+              aktuellerBenutzer || ''
+            )
+              .trim()
+              .toLowerCase()
+          );
+        }
       );
 
     if (
@@ -3084,33 +3174,42 @@ async function ladeEchteTauschpartner() {
     const frueh =
       kandidaten.filter(
         function(k) {
-          return String(
-            k.schicht || ''
-          )
-            .toLowerCase() ===
-            'früh';
+          return (
+            String(
+              k.schicht || ''
+            )
+              .trim()
+              .toLowerCase() ===
+            'früh'
+          );
         }
       );
 
     const spaet =
       kandidaten.filter(
         function(k) {
-          return String(
-            k.schicht || ''
-          )
-            .toLowerCase() ===
-            'spät';
+          return (
+            String(
+              k.schicht || ''
+            )
+              .trim()
+              .toLowerCase() ===
+            'spät'
+          );
         }
       );
 
     const ganz =
       kandidaten.filter(
         function(k) {
-          return String(
-            k.schicht || ''
-          )
-            .toLowerCase() ===
-            'ganztag';
+          return (
+            String(
+              k.schicht || ''
+            )
+              .trim()
+              .toLowerCase() ===
+            'ganztag'
+          );
         }
       );
 
@@ -3229,7 +3328,7 @@ async function ladeEchteTauschpartner() {
             margin-top:14px;
             border:0;
             background:#e30613;
-            color:#fff;
+            color:#ffffff;
             border-radius:8px;
             padding:11px 16px;
             font-weight:700;
@@ -3254,6 +3353,7 @@ async function ladeEchteTauschpartner() {
 
   } catch (error) {
     console.error(
+      'Tauschpartner:',
       error
     );
 
@@ -3266,7 +3366,9 @@ async function ladeEchteTauschpartner() {
         class="beschreibung"
         style="color:#b00020;"
       >
-        ❌ ${escapeHtmlNeu(error.message)}
+        ❌ ${escapeHtmlNeu(
+          error.message
+        )}
       </p>
     `;
   }
@@ -3274,7 +3376,7 @@ async function ladeEchteTauschpartner() {
 
 
 // ==========================================================
-// WP FRÜH + SPÄT BEI GLEICHER PERSON = GANZTAG
+// WATER PLAZA FRÜH + SPÄT = GANZTAG
 // ==========================================================
 
 function kombiniereWpGanztagKandidaten(
@@ -3305,7 +3407,9 @@ function kombiniereWpGanztagKandidaten(
             function(x, i) {
               return (
                 i !== index &&
-                !benutzt.has(i) &&
+                !benutzt.has(
+                  i
+                ) &&
                 x.code ===
                   'WP_SPAET' &&
                 String(
@@ -3371,7 +3475,11 @@ function baueKollegenBox(
   kandidaten
 ) {
   let html = `
-    <div class="kollegen-box ${escapeHtmlNeu(klasse)}">
+    <div
+      class="kollegen-box ${escapeHtmlNeu(
+        klasse
+      )}"
+    >
 
       <h3>
         ${titel}
@@ -3396,8 +3504,12 @@ function baueKollegenBox(
           <input
             type="radio"
             name="kollege"
-            value="${escapeHtmlNeu(code)}"
-            data-name="${escapeHtmlNeu(k.mitarbeiter || '')}"
+            value="${escapeHtmlNeu(
+              code
+            )}"
+            data-name="${escapeHtmlNeu(
+              k.mitarbeiter || ''
+            )}"
             data-dienst="${escapeHtmlNeu(
               entferneDienstSymbol(
                 k.dienst || ''
@@ -3415,7 +3527,9 @@ function baueKollegenBox(
           ></span>
 
           <span>
-            ${escapeHtmlNeu(k.mitarbeiter || '')}
+            ${escapeHtmlNeu(
+              k.mitarbeiter || ''
+            )}
           </span>
 
           <strong>
@@ -3498,7 +3612,9 @@ function aktualisiereTauschSchritt4() {
   if (zusammenfassung) {
     zusammenfassung.innerHTML = `
       <strong>
-        ${escapeHtmlNeu(tauschDienstText)}
+        ${escapeHtmlNeu(
+          tauschDienstText
+        )}
       </strong>
 
       <span
@@ -3511,9 +3627,13 @@ function aktualisiereTauschSchritt4() {
       </span>
 
       <strong>
-        ${escapeHtmlNeu(partnerName)}
+        ${escapeHtmlNeu(
+          partnerName
+        )}
         –
-        ${escapeHtmlNeu(partnerDienst)}
+        ${escapeHtmlNeu(
+          partnerDienst
+        )}
       </strong>
     `;
   }
@@ -3693,6 +3813,10 @@ async function sendeTauschAnfrageNeu() {
         '✅ Anfrage gesendet';
     }
 
+    /*
+      Badge / Meine Anfragen aktualisieren,
+      ohne auf die Seite zu springen.
+    */
     await ladeMeineAnfragenNeu(
       false
     );
@@ -3742,7 +3866,6 @@ function entferneDienstSymbol(
     )
     .trim();
 }
-
 
 // ==========================================================
 // MEINE ANFRAGEN – ANSICHT
@@ -3823,7 +3946,7 @@ function installiereAnfragenAnsichtNeu() {
           onclick="ladeMeineAnfragenNeu(true)"
           style="
             border:1px solid #d7dce1;
-            background:#fff;
+            background:#ffffff;
             border-radius:8px;
             padding:8px 12px;
             cursor:pointer;
@@ -4034,28 +4157,30 @@ async function ladeMeineAnfragenNeu(
       error
     );
 
-    const fehlerHtml = `
+    const html = `
       <div
         class="empty-state"
         style="color:#b00020;"
       >
-        ❌ ${escapeHtmlNeu(error.message)}
+        ❌ ${escapeHtmlNeu(
+          error.message
+        )}
       </div>
     `;
 
     if (erhaltenListe) {
       erhaltenListe.innerHTML =
-        fehlerHtml;
+        html;
     }
 
     if (gesendetListe) {
       gesendetListe.innerHTML =
-        fehlerHtml;
+        html;
     }
 
     if (dienstListe) {
       dienstListe.innerHTML =
-        fehlerHtml;
+        html;
     }
   }
 }
@@ -4077,49 +4202,42 @@ function rendereErhalteneTauschAnfragenNeu(
     return;
   }
 
+  const offen =
+    (
+      Array.isArray(
+        anfragen
+      )
+        ? anfragen
+        : []
+    ).filter(
+      function(a) {
+        return (
+          String(
+            a.status || 'OFFEN'
+          )
+            .trim()
+            .toUpperCase() ===
+          'OFFEN'
+        );
+      }
+    );
+
   if (
-    !anfragen ||
-    anfragen.length === 0
+    offen.length === 0
   ) {
     liste.innerHTML = `
       <div class="empty-state">
-        Aktuell gibt es keine Tauschanfragen an dich.
+        Keine offenen Tauschanfragen an dich.
       </div>
     `;
 
     return;
   }
 
-  let html =
-    '';
+  let html = '';
 
-  anfragen.forEach(
+  offen.forEach(
     function(a) {
-      const mitarbeiterStatus =
-        String(
-          a.mitarbeiterStatus || ''
-        )
-          .trim()
-          .toUpperCase();
-
-      const gesamtstatus =
-        String(
-          a.gesamtstatus || ''
-        )
-          .trim()
-          .toUpperCase();
-
-      const istOffen =
-        mitarbeiterStatus ===
-          'OFFEN' &&
-        gesamtstatus ===
-          'WARTET_AUF_KOLLEGEN';
-
-      const statusText =
-        statusTextTauschNeu(
-          a
-        );
-
       html += `
         <div
           style="
@@ -4127,7 +4245,7 @@ function rendereErhalteneTauschAnfragenNeu(
             border-radius:11px;
             padding:15px;
             margin-bottom:12px;
-            background:#fff;
+            background:#ffffff;
           "
         >
           <strong
@@ -4136,67 +4254,51 @@ function rendereErhalteneTauschAnfragenNeu(
               font-size:16px;
             "
           >
-            ${escapeHtmlNeu(a.anfragender || '')}
-            möchte mit dir tauschen
+            ${escapeHtmlNeu(
+              a.anfragender || ''
+            )}
           </strong>
 
           <div
             style="
-              margin-top:5px;
+              margin-top:6px;
               color:#666;
             "
           >
-            📅 ${escapeHtmlNeu(a.datum || '')}
-            · KW ${escapeHtmlNeu(a.kw || '')}
+            📅 ${escapeHtmlNeu(
+              a.datum || ''
+            )}
           </div>
 
           <div
             style="
-              margin-top:12px;
+              margin-top:10px;
               padding:11px;
               background:#f7f8f9;
               border-radius:8px;
             "
           >
-            <div
+            <strong>
+              ${escapeHtmlNeu(
+                entferneDienstSymbol(
+                  a.eigenerDienst || ''
+                )
+              )}
+            </strong>
+
+            <span
               style="
-                color:#666;
-                font-size:13px;
+                display:inline-block;
+                margin:0 7px;
               "
             >
-              Du gibst:
-            </div>
+              ↔
+            </span>
 
             <strong>
               ${escapeHtmlNeu(
                 entferneDienstSymbol(
                   a.partnerDienst || ''
-                )
-              )}
-            </strong>
-
-            <div
-              style="
-                margin:8px 0;
-                color:#999;
-              "
-            >
-              ↕
-            </div>
-
-            <div
-              style="
-                color:#666;
-                font-size:13px;
-              "
-            >
-              Du bekommst:
-            </div>
-
-            <strong>
-              ${escapeHtmlNeu(
-                entferneDienstSymbol(
-                  a.eigenerDienst || ''
                 )
               )}
             </strong>
@@ -4207,11 +4309,14 @@ function rendereErhalteneTauschAnfragenNeu(
               ? `
                 <div
                   style="
-                    margin-top:9px;
+                    margin-top:10px;
                     color:#555;
+                    white-space:pre-wrap;
                   "
                 >
-                  💬 ${escapeHtmlNeu(a.nachricht)}
+                  💬 ${escapeHtmlNeu(
+                    a.nachricht
+                  )}
                 </div>
               `
               : ''
@@ -4219,60 +4324,53 @@ function rendereErhalteneTauschAnfragenNeu(
 
           <div
             style="
-              margin-top:11px;
+              display:grid;
+              grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+              gap:10px;
+              margin-top:14px;
             "
           >
-            <strong>
-              ${escapeHtmlNeu(statusText)}
-            </strong>
+            <button
+              type="button"
+              onclick="bearbeiteTauschAnfrageMitarbeiterNeu(${Number(
+                a.zeile
+              )}, false)"
+              style="
+                width:100%;
+                min-height:44px;
+                border:1px solid #c9cdd2;
+                background:#ffffff;
+                color:#b00020;
+                border-radius:8px;
+                padding:9px 12px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ❌ Ablehnen
+            </button>
+
+            <button
+              type="button"
+              onclick="bearbeiteTauschAnfrageMitarbeiterNeu(${Number(
+                a.zeile
+              )}, true)"
+              style="
+                width:100%;
+                min-height:44px;
+                border:0;
+                background:#14943b;
+                color:#ffffff;
+                border-radius:8px;
+                padding:9px 12px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ✅ Annehmen
+            </button>
           </div>
-
-          ${
-            istOffen
-              ? `
-                <div
-                  style="
-                    display:flex;
-                    gap:10px;
-                    flex-wrap:wrap;
-                    margin-top:14px;
-                  "
-                >
-                  <button
-                    type="button"
-                    onclick="bearbeiteErhalteneTauschAnfrageNeu(${Number(a.zeile)}, true)"
-                    style="
-                      border:0;
-                      background:#14943b;
-                      color:#fff;
-                      border-radius:8px;
-                      padding:9px 14px;
-                      font-weight:700;
-                      cursor:pointer;
-                    "
-                  >
-                    ✅ Tausch annehmen
-                  </button>
-
-                  <button
-                    type="button"
-                    onclick="bearbeiteErhalteneTauschAnfrageNeu(${Number(a.zeile)}, false)"
-                    style="
-                      border:1px solid #c9cdd2;
-                      background:#fff;
-                      color:#b00020;
-                      border-radius:8px;
-                      padding:9px 14px;
-                      font-weight:700;
-                      cursor:pointer;
-                    "
-                  >
-                    ❌ Ablehnen
-                  </button>
-                </div>
-              `
-              : ''
-          }
         </div>
       `;
     }
@@ -4300,27 +4398,79 @@ function rendereGesendeteTauschAnfragenNeu(
   }
 
   if (
-    !anfragen ||
+    !Array.isArray(anfragen) ||
     anfragen.length === 0
   ) {
     liste.innerHTML = `
       <div class="empty-state">
-        Du hast noch keine Tauschanfragen gesendet.
+        Keine gesendeten Tauschanfragen.
       </div>
     `;
 
     return;
   }
 
-  let html =
-    '';
+  let html = '';
 
   anfragen.forEach(
     function(a) {
-      const statusText =
-        statusTextTauschNeu(
-          a
-        );
+      const status =
+        String(
+          a.status || 'OFFEN'
+        )
+          .trim()
+          .toUpperCase();
+
+      let statusText =
+        '🟡 Offen';
+
+      let statusFarbe =
+        '#8a6500';
+
+      let statusHintergrund =
+        '#fff5cf';
+
+      if (
+        status ===
+        'GENEHMIGT'
+      ) {
+        statusText =
+          '✅ Genehmigt';
+
+        statusFarbe =
+          '#176b2c';
+
+        statusHintergrund =
+          '#e7f6ec';
+      }
+
+      else if (
+        status ===
+        'ABGELEHNT'
+      ) {
+        statusText =
+          '❌ Abgelehnt';
+
+        statusFarbe =
+          '#b00020';
+
+        statusHintergrund =
+          '#fdecec';
+      }
+
+      else if (
+        status ===
+        'WARTET_ADMIN'
+      ) {
+        statusText =
+          '🟠 Wartet auf Admin';
+
+        statusFarbe =
+          '#8a5200';
+
+        statusHintergrund =
+          '#fff0dc';
+      }
 
       html += `
         <div
@@ -4329,32 +4479,63 @@ function rendereGesendeteTauschAnfragenNeu(
             border-radius:11px;
             padding:15px;
             margin-bottom:12px;
-            background:#fff;
+            background:#ffffff;
           "
         >
-          <strong
-            style="
-              display:block;
-              font-size:16px;
-            "
-          >
-            Tausch mit
-            ${escapeHtmlNeu(a.partner || '')}
-          </strong>
-
           <div
             style="
-              margin-top:5px;
-              color:#666;
+              display:flex;
+              justify-content:space-between;
+              gap:12px;
+              align-items:flex-start;
+              flex-wrap:wrap;
             "
           >
-            📅 ${escapeHtmlNeu(a.datum || '')}
-            · KW ${escapeHtmlNeu(a.kw || '')}
+            <div>
+              <strong
+                style="
+                  display:block;
+                  font-size:16px;
+                "
+              >
+                Tausch mit
+                ${escapeHtmlNeu(
+                  a.partner || ''
+                )}
+              </strong>
+
+              <div
+                style="
+                  margin-top:6px;
+                  color:#666;
+                "
+              >
+                📅 ${escapeHtmlNeu(
+                  a.datum || ''
+                )}
+              </div>
+            </div>
+
+            <span
+              style="
+                padding:6px 9px;
+                border-radius:999px;
+                background:${statusHintergrund};
+                color:${statusFarbe};
+                font-size:12px;
+                font-weight:700;
+              "
+            >
+              ${statusText}
+            </span>
           </div>
 
           <div
             style="
-              margin-top:11px;
+              margin-top:10px;
+              padding:11px;
+              background:#f7f8f9;
+              border-radius:8px;
             "
           >
             ${escapeHtmlNeu(
@@ -4363,7 +4544,13 @@ function rendereGesendeteTauschAnfragenNeu(
               )
             )}
 
-            ↔
+            <span
+              style="
+                margin:0 7px;
+              "
+            >
+              ↔
+            </span>
 
             ${escapeHtmlNeu(
               entferneDienstSymbol(
@@ -4377,24 +4564,18 @@ function rendereGesendeteTauschAnfragenNeu(
               ? `
                 <div
                   style="
-                    margin-top:8px;
+                    margin-top:10px;
                     color:#555;
+                    white-space:pre-wrap;
                   "
                 >
-                  💬 ${escapeHtmlNeu(a.nachricht)}
+                  💬 ${escapeHtmlNeu(
+                    a.nachricht
+                  )}
                 </div>
               `
               : ''
           }
-
-          <div
-            style="
-              margin-top:10px;
-              font-weight:700;
-            "
-          >
-            ${escapeHtmlNeu(statusText)}
-          </div>
         </div>
       `;
     }
@@ -4406,89 +4587,240 @@ function rendereGesendeteTauschAnfragenNeu(
 
 
 // ==========================================================
-// TAUSCHSTATUS ALS TEXT
+// MEINE SONSTIGEN WÜNSCHE
 // ==========================================================
 
-function statusTextTauschNeu(
-  anfrage
+function rendereMeineDienstAnfragenNeu(
+  anfragen
 ) {
-  const gesamtstatus =
-    String(
-      anfrage?.gesamtstatus || ''
-    )
-      .trim()
-      .toUpperCase();
+  const liste =
+    document.getElementById(
+      'meineDienstAnfragenListe'
+    );
 
-  const mitarbeiterStatus =
-    String(
-      anfrage?.mitarbeiterStatus || ''
-    )
-      .trim()
-      .toUpperCase();
-
-  const adminStatus =
-    String(
-      anfrage?.adminStatus || ''
-    )
-      .trim()
-      .toUpperCase();
-
-  if (
-    gesamtstatus ===
-    'GENEHMIGT'
-  ) {
-    return '✅ Genehmigt';
+  if (!liste) {
+    return;
   }
 
   if (
-    gesamtstatus ===
-    'ABGELEHNT'
+    !Array.isArray(anfragen) ||
+    anfragen.length === 0
   ) {
-    return '❌ Abgelehnt';
+    liste.innerHTML = `
+      <div class="empty-state">
+        Du hast aktuell keine sonstigen Wünsche.
+      </div>
+    `;
+
+    return;
   }
 
-  if (
-    gesamtstatus ===
-    'WARTET_AUF_ADMIN'
-  ) {
-    return '🟡 Wartet auf Babsi';
-  }
+  let html = '';
 
-  if (
-    gesamtstatus ===
-    'WARTET_AUF_KOLLEGEN'
-  ) {
-    return '🟡 Wartet auf Kollegen';
-  }
+  anfragen.forEach(
+    function(a) {
+      const status =
+        String(
+          a.status || 'OFFEN'
+        )
+          .trim()
+          .toUpperCase();
 
-  if (
-    mitarbeiterStatus ===
-      'ZUGESTIMMT' &&
-    adminStatus ===
-      'OFFEN'
-  ) {
-    return '🟡 Wartet auf Babsi';
-  }
+      let statusText =
+        '🟡 Offen';
 
-  if (
-    mitarbeiterStatus ===
-    'ABGELEHNT'
-  ) {
-    return '❌ Abgelehnt';
-  }
+      let statusFarbe =
+        '#8a6500';
 
-  return '🟡 Offen';
+      let statusHintergrund =
+        '#fff5cf';
+
+      if (
+        status ===
+        'GENEHMIGT'
+      ) {
+        statusText =
+          '✅ Genehmigt';
+
+        statusFarbe =
+          '#176b2c';
+
+        statusHintergrund =
+          '#e7f6ec';
+      }
+
+      else if (
+        status ===
+        'ABGELEHNT'
+      ) {
+        statusText =
+          '❌ Abgelehnt';
+
+        statusFarbe =
+          '#b00020';
+
+        statusHintergrund =
+          '#fdecec';
+      }
+
+      const teile = [];
+
+      if (
+        a.datum
+      ) {
+        teile.push(
+          escapeHtmlNeu(
+            a.datum
+          )
+        );
+      }
+
+      if (
+        a.dienst
+      ) {
+        teile.push(
+          escapeHtmlNeu(
+            entferneDienstSymbol(
+              a.dienst
+            )
+          )
+        );
+      }
+
+      html += `
+        <div
+          style="
+            border:1px solid #dde1e5;
+            border-radius:11px;
+            padding:15px;
+            margin-bottom:12px;
+            background:#ffffff;
+          "
+        >
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              gap:12px;
+              align-items:flex-start;
+              flex-wrap:wrap;
+            "
+          >
+            <strong
+              style="
+                font-size:16px;
+              "
+            >
+              ${
+                teile.length
+                  ? '💬 Wunsch mit Dienstbezug'
+                  : '💬 Allgemeiner Wunsch'
+              }
+            </strong>
+
+            <span
+              style="
+                padding:6px 9px;
+                border-radius:999px;
+                background:${statusHintergrund};
+                color:${statusFarbe};
+                font-size:12px;
+                font-weight:700;
+              "
+            >
+              ${statusText}
+            </span>
+          </div>
+
+          ${
+            teile.length
+              ? `
+                <div
+                  style="
+                    margin-top:9px;
+                    color:#555;
+                    line-height:1.5;
+                  "
+                >
+                  📅 ${teile.join(
+                    ' · '
+                  )}
+                </div>
+              `
+              : ''
+          }
+
+          ${
+            a.nachricht
+              ? `
+                <div
+                  style="
+                    margin-top:10px;
+                    padding:11px;
+                    border-radius:8px;
+                    background:#f7f8f9;
+                    white-space:pre-wrap;
+                    color:#444;
+                    line-height:1.5;
+                  "
+                >
+                  ${escapeHtmlNeu(
+                    a.nachricht
+                  )}
+                </div>
+              `
+              : ''
+          }
+
+          ${
+            a.zeitstempel
+              ? `
+                <div
+                  style="
+                    margin-top:8px;
+                    font-size:12px;
+                    color:#888;
+                  "
+                >
+                  Gesendet:
+                  ${escapeHtmlNeu(
+                    a.zeitstempel
+                  )}
+                </div>
+              `
+              : ''
+          }
+        </div>
+      `;
+    }
+  );
+
+  liste.innerHTML =
+    html;
 }
 
 
 // ==========================================================
-// ERHALTENE TAUSCHANFRAGE BEARBEITEN
+// TAUSCHANFRAGE ALS MITARBEITER BEARBEITEN
 // ==========================================================
 
-async function bearbeiteErhalteneTauschAnfrageNeu(
+async function bearbeiteTauschAnfrageMitarbeiterNeu(
   zeile,
   genehmigen
 ) {
+  const frage =
+    genehmigen
+      ? 'Diesen Diensttausch annehmen?'
+      : 'Diesen Diensttausch ablehnen?';
+
+  if (
+    !window.confirm(
+      frage
+    )
+  ) {
+    return;
+  }
+
   const token =
     localStorage.getItem(
       SESSION_KEY
@@ -4497,19 +4829,6 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
   if (!token) {
     await sessionAbgelaufenNeu();
 
-    return;
-  }
-
-  const frage =
-    genehmigen
-      ? 'Möchtest du diesem Diensttausch zustimmen?'
-      : 'Möchtest du diese Tauschanfrage wirklich ablehnen?';
-
-  if (
-    !window.confirm(
-      frage
-    )
-  ) {
     return;
   }
 
@@ -4561,6 +4880,7 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
 
   } catch (error) {
     console.error(
+      'Tauschanfrage bearbeiten:',
       error
     );
 
@@ -4569,163 +4889,6 @@ async function bearbeiteErhalteneTauschAnfrageNeu(
       error.message
     );
   }
-}
-
-
-// ==========================================================
-// SONSTIGE WÜNSCHE – EIGENE ANZEIGE
-// ==========================================================
-
-function rendereMeineDienstAnfragenNeu(
-  anfragen
-) {
-  const liste =
-    document.getElementById(
-      'meineDienstAnfragenListe'
-    );
-
-  if (!liste) {
-    return;
-  }
-
-  if (
-    !anfragen ||
-    anfragen.length === 0
-  ) {
-    liste.innerHTML = `
-      <div class="empty-state">
-        Du hast aktuell keine sonstigen Wünsche.
-      </div>
-    `;
-
-    return;
-  }
-
-  let html =
-    '';
-
-  anfragen.forEach(
-    function(a) {
-      const status =
-        String(
-          a.status || 'OFFEN'
-        )
-          .trim()
-          .toUpperCase();
-
-      let statusText =
-        '🟡 Offen';
-
-      if (
-        status ===
-        'GENEHMIGT'
-      ) {
-        statusText =
-          '✅ Genehmigt';
-      }
-
-      else if (
-        status ===
-        'ABGELEHNT'
-      ) {
-        statusText =
-          '❌ Abgelehnt';
-      }
-
-      html += `
-        <div
-          style="
-            border:1px solid #dde1e5;
-            border-radius:11px;
-            padding:15px;
-            margin-bottom:12px;
-            background:#fff;
-          "
-        >
-          <strong
-            style="
-              display:block;
-              font-size:16px;
-            "
-          >
-            ${escapeHtmlNeu(
-              a.art ||
-              'Sonstiger Wunsch'
-            )}
-          </strong>
-
-          ${
-            a.datum
-              ? `
-                <div
-                  style="
-                    margin-top:5px;
-                    color:#666;
-                  "
-                >
-                  📅 ${escapeHtmlNeu(a.datum)}
-
-                  ${
-                    a.kw
-                      ? ' · KW ' +
-                        escapeHtmlNeu(a.kw)
-                      : ''
-                  }
-                </div>
-              `
-              : ''
-          }
-
-          ${
-            a.dienst
-              ? `
-                <div
-                  style="
-                    margin-top:10px;
-                    font-weight:700;
-                  "
-                >
-                  ${escapeHtmlNeu(
-                    entferneDienstSymbol(
-                      a.dienst
-                    )
-                  )}
-                </div>
-              `
-              : ''
-          }
-
-          ${
-            a.nachricht
-              ? `
-                <div
-                  style="
-                    margin-top:8px;
-                    color:#555;
-                    white-space:pre-wrap;
-                  "
-                >
-                  💬 ${escapeHtmlNeu(a.nachricht)}
-                </div>
-              `
-              : ''
-          }
-
-          <div
-            style="
-              margin-top:10px;
-              font-weight:700;
-            "
-          >
-            ${statusText}
-          </div>
-        </div>
-      `;
-    }
-  );
-
-  liste.innerHTML =
-    html;
 }
 
 
@@ -4746,37 +4909,44 @@ function aktualisiereAnfragenBadgeNeu(
   }
 
   const anzahl =
-    (erhalten || []).filter(
+    (
+      Array.isArray(
+        erhalten
+      )
+        ? erhalten
+        : []
+    ).filter(
       function(a) {
         return (
           String(
-            a.mitarbeiterStatus || ''
+            a.status || 'OFFEN'
           )
             .trim()
             .toUpperCase() ===
-            'OFFEN' &&
-
-          String(
-            a.gesamtstatus || ''
-          )
-            .trim()
-            .toUpperCase() ===
-            'WARTET_AUF_KOLLEGEN'
+          'OFFEN'
         );
       }
     ).length;
 
-  badge.textContent =
-    String(
-      anzahl
-    );
-
-  badge.style.display =
+  if (
     anzahl > 0
-      ? 'inline-flex'
-      : 'none';
-}
+  ) {
+    badge.textContent =
+      String(
+        anzahl
+      );
 
+    badge.style.display =
+      'inline-flex';
+
+  } else {
+    badge.textContent =
+      '';
+
+    badge.style.display =
+      'none';
+  }
+}
 
 // ==========================================================
 // ABWESENHEITEN – ANSICHT
@@ -4844,7 +5014,7 @@ function installiereAbwesenheitenAnsichtNeu() {
           onclick="ladeMeineAbwesenheitenNeu()"
           style="
             border:1px solid #d7dce1;
-            background:#fff;
+            background:#ffffff;
             border-radius:8px;
             padding:8px 12px;
             cursor:pointer;
@@ -4905,18 +5075,18 @@ async function ladeMeineAbwesenheitenNeu() {
       );
 
     if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
       !result ||
       !result.ok
     ) {
-      if (
-        result &&
-        result.sessionExpired
-      ) {
-        await sessionAbgelaufenNeu();
-
-        return;
-      }
-
       throw new Error(
         result?.message ||
         'Abwesenheiten konnten nicht geladen werden.'
@@ -4930,12 +5100,13 @@ async function ladeMeineAbwesenheitenNeu() {
         ? result.abwesenheiten
         : [];
 
-    rendereAbwesenheiten(
+    rendereAbwesenheitenNeu(
       letzteAbwesenheiten
     );
 
   } catch (error) {
     console.error(
+      'Abwesenheiten:',
       error
     );
 
@@ -4945,7 +5116,9 @@ async function ladeMeineAbwesenheitenNeu() {
           class="empty-state"
           style="color:#b00020;"
         >
-          ❌ ${escapeHtmlNeu(error.message)}
+          ❌ ${escapeHtmlNeu(
+            error.message
+          )}
         </div>
       `;
     }
@@ -4957,56 +5130,52 @@ async function ladeMeineAbwesenheitenNeu() {
 // ABWESENHEITEN RENDERN
 // ==========================================================
 
-function rendereAbwesenheiten(
+function rendereAbwesenheitenNeu(
   abwesenheiten
 ) {
-  const listen =
-    [
-      document.getElementById(
-        'abwesenheitenListe'
-      ),
-
-      document.getElementById(
-        'abwesenheitenListeNeu'
-      )
-    ].filter(
-      function(element) {
-        return !!element;
-      }
+  const liste =
+    document.getElementById(
+      'abwesenheitenListeNeu'
     );
 
-  if (
-    listen.length === 0
-  ) {
+  if (!liste) {
     return;
   }
 
   if (
-    !abwesenheiten ||
+    !Array.isArray(
+      abwesenheiten
+    ) ||
     abwesenheiten.length === 0
   ) {
-    listen.forEach(
-      function(liste) {
-        liste.innerHTML = `
-          <div class="empty-state">
-            Keine Abwesenheiten vorhanden.
-          </div>
-        `;
-      }
-    );
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine Abwesenheiten vorhanden.
+      </div>
+    `;
 
     return;
   }
 
-  let html =
-    '';
+  let html = '';
 
   abwesenheiten.forEach(
     function(a) {
-      const status =
+      const titel =
         String(
+          a.art ||
           a.status ||
           'Abwesenheit'
+        ).trim();
+
+      const von =
+        String(
+          a.von || ''
+        ).trim();
+
+      const bis =
+        String(
+          a.bis || ''
         ).trim();
 
       html += `
@@ -5016,7 +5185,7 @@ function rendereAbwesenheiten(
             border-radius:10px;
             padding:14px;
             margin-bottom:11px;
-            background:#fff;
+            background:#ffffff;
           "
         >
           <strong
@@ -5025,37 +5194,56 @@ function rendereAbwesenheiten(
               font-size:16px;
             "
           >
-            📌 ${escapeHtmlNeu(status)}
+            🏖️ ${escapeHtmlNeu(
+              titel
+            )}
           </strong>
 
           <div
             style="
-              margin-top:6px;
-              color:#666;
+              margin-top:7px;
+              color:#555;
             "
           >
-            ${escapeHtmlNeu(a.von || '')}
+            📅 ${escapeHtmlNeu(
+              von
+            )}
 
             ${
-              a.bis
+              bis &&
+              bis !== von
                 ? ' – ' +
                   escapeHtmlNeu(
-                    a.bis
+                    bis
                   )
                 : ''
             }
           </div>
+
+          ${
+            a.notiz
+              ? `
+                <div
+                  style="
+                    margin-top:9px;
+                    color:#666;
+                    white-space:pre-wrap;
+                  "
+                >
+                  📝 ${escapeHtmlNeu(
+                    a.notiz
+                  )}
+                </div>
+              `
+              : ''
+          }
         </div>
       `;
     }
   );
 
-  listen.forEach(
-    function(liste) {
-      liste.innerHTML =
-        html;
-    }
-  );
+  liste.innerHTML =
+    html;
 }
 
 
@@ -5108,7 +5296,7 @@ function installierePinAnsichtNeu() {
     <div
       class="panel"
       style="
-        max-width:650px;
+        max-width:620px;
         margin-left:auto;
         margin-right:auto;
       "
@@ -5117,12 +5305,22 @@ function installierePinAnsichtNeu() {
         🔐 PIN ändern
       </h2>
 
+      <p
+        style="
+          color:#666;
+          line-height:1.5;
+          margin-bottom:20px;
+        "
+      >
+        Dein PIN besteht aus genau 4 Zahlen.
+      </p>
+
       <label
         for="alterPinNeu"
         style="
           display:block;
           font-weight:700;
-          margin-bottom:6px;
+          margin-bottom:7px;
         "
       >
         Aktueller PIN
@@ -5134,13 +5332,16 @@ function installierePinAnsichtNeu() {
         inputmode="numeric"
         maxlength="4"
         autocomplete="current-password"
+        placeholder="••••"
         style="
           width:100%;
           box-sizing:border-box;
           border:1px solid #d7dce1;
           border-radius:9px;
-          padding:11px 12px;
+          padding:12px;
           margin-bottom:16px;
+          font-size:18px;
+          letter-spacing:4px;
         "
       >
 
@@ -5149,7 +5350,7 @@ function installierePinAnsichtNeu() {
         style="
           display:block;
           font-weight:700;
-          margin-bottom:6px;
+          margin-bottom:7px;
         "
       >
         Neuer PIN
@@ -5161,13 +5362,16 @@ function installierePinAnsichtNeu() {
         inputmode="numeric"
         maxlength="4"
         autocomplete="new-password"
+        placeholder="••••"
         style="
           width:100%;
           box-sizing:border-box;
           border:1px solid #d7dce1;
           border-radius:9px;
-          padding:11px 12px;
+          padding:12px;
           margin-bottom:16px;
+          font-size:18px;
+          letter-spacing:4px;
         "
       >
 
@@ -5176,7 +5380,7 @@ function installierePinAnsichtNeu() {
         style="
           display:block;
           font-weight:700;
-          margin-bottom:6px;
+          margin-bottom:7px;
         "
       >
         Neuen PIN wiederholen
@@ -5188,13 +5392,16 @@ function installierePinAnsichtNeu() {
         inputmode="numeric"
         maxlength="4"
         autocomplete="new-password"
+        placeholder="••••"
         style="
           width:100%;
           box-sizing:border-box;
           border:1px solid #d7dce1;
           border-radius:9px;
-          padding:11px 12px;
+          padding:12px;
           margin-bottom:18px;
+          font-size:18px;
+          letter-spacing:4px;
         "
       >
 
@@ -5205,9 +5412,9 @@ function installierePinAnsichtNeu() {
         style="
           border:0;
           background:#e30613;
-          color:#fff;
+          color:#ffffff;
           border-radius:9px;
-          padding:11px 16px;
+          padding:11px 17px;
           font-weight:700;
           cursor:pointer;
         "
@@ -5216,7 +5423,7 @@ function installierePinAnsichtNeu() {
       </button>
 
       <div
-        id="pinMeldungNeu"
+        id="pinAendernMeldungNeu"
         style="
           margin-top:14px;
           min-height:22px;
@@ -5236,31 +5443,44 @@ function installierePinAnsichtNeu() {
 // ==========================================================
 
 async function aenderePinNeu() {
+  const alterPinElement =
+    document.getElementById(
+      'alterPinNeu'
+    );
+
+  const neuerPin1Element =
+    document.getElementById(
+      'neuerPin1Neu'
+    );
+
+  const neuerPin2Element =
+    document.getElementById(
+      'neuerPin2Neu'
+    );
+
+  const button =
+    document.getElementById(
+      'pinAendernButtonNeu'
+    );
+
+  const meldung =
+    document.getElementById(
+      'pinAendernMeldungNeu'
+    );
+
   const alterPin =
     String(
-      document
-        .getElementById(
-          'alterPinNeu'
-        )
-        ?.value || ''
+      alterPinElement?.value || ''
     ).trim();
 
   const neuerPin1 =
     String(
-      document
-        .getElementById(
-          'neuerPin1Neu'
-        )
-        ?.value || ''
+      neuerPin1Element?.value || ''
     ).trim();
 
   const neuerPin2 =
     String(
-      document
-        .getElementById(
-          'neuerPin2Neu'
-        )
-        ?.value || ''
+      neuerPin2Element?.value || ''
     ).trim();
 
   if (
@@ -5268,10 +5488,13 @@ async function aenderePinNeu() {
       alterPin
     )
   ) {
-    zeigePinMeldungNeu(
-      'Bitte gib deinen aktuellen 4-stelligen PIN ein.',
-      false
-    );
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        'Bitte gib deinen aktuellen 4-stelligen PIN ein.';
+    }
 
     return;
   }
@@ -5281,10 +5504,13 @@ async function aenderePinNeu() {
       neuerPin1
     )
   ) {
-    zeigePinMeldungNeu(
-      'Der neue PIN muss genau aus 4 Ziffern bestehen.',
-      false
-    );
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        'Der neue PIN muss genau 4 Zahlen haben.';
+    }
 
     return;
   }
@@ -5293,10 +5519,13 @@ async function aenderePinNeu() {
     neuerPin1 !==
     neuerPin2
   ) {
-    zeigePinMeldungNeu(
-      'Die beiden neuen PINs stimmen nicht überein.',
-      false
-    );
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        'Die neuen PINs stimmen nicht überein.';
+    }
 
     return;
   }
@@ -5312,17 +5541,17 @@ async function aenderePinNeu() {
     return;
   }
 
-  const button =
-    document.getElementById(
-      'pinAendernButtonNeu'
-    );
-
   if (button) {
     button.disabled =
       true;
 
     button.textContent =
       'PIN wird geändert …';
+  }
+
+  if (meldung) {
+    meldung.textContent =
+      '';
   }
 
   try {
@@ -5345,57 +5574,65 @@ async function aenderePinNeu() {
       );
 
     if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
       !result ||
       !result.ok
     ) {
-      if (
-        result &&
-        result.sessionExpired
-      ) {
-        await sessionAbgelaufenNeu();
-
-        return;
-      }
-
       throw new Error(
         result?.message ||
-        'PIN konnte nicht geändert werden.'
+        'Der PIN konnte nicht geändert werden.'
       );
     }
 
-    [
-      'alterPinNeu',
-      'neuerPin1Neu',
-      'neuerPin2Neu'
-    ].forEach(
-      function(id) {
-        const feld =
-          document.getElementById(
-            id
-          );
+    if (alterPinElement) {
+      alterPinElement.value =
+        '';
+    }
 
-        if (feld) {
-          feld.value =
-            '';
-        }
-      }
-    );
+    if (neuerPin1Element) {
+      neuerPin1Element.value =
+        '';
+    }
 
-    zeigePinMeldungNeu(
-      '✅ ' +
-      (
-        result.message ||
-        'PIN wurde erfolgreich geändert.'
-      ),
-      true
-    );
+    if (neuerPin2Element) {
+      neuerPin2Element.value =
+        '';
+    }
+
+    if (meldung) {
+      meldung.style.color =
+        '#14943b';
+
+      meldung.textContent =
+        '✅ ' +
+        (
+          result.message ||
+          'PIN wurde geändert.'
+        );
+    }
 
   } catch (error) {
-    zeigePinMeldungNeu(
-      '❌ ' +
-      error.message,
-      false
+    console.error(
+      'PIN ändern:',
+      error
     );
+
+    if (meldung) {
+      meldung.style.color =
+        '#b00020';
+
+      meldung.textContent =
+        '❌ ' +
+        error.message;
+    }
 
   } finally {
     if (button) {
@@ -5405,1511 +5642,6 @@ async function aenderePinNeu() {
       button.textContent =
         '🔐 PIN ändern';
     }
-  }
-}
-
-
-// ==========================================================
-// PIN-MELDUNG
-// ==========================================================
-
-function zeigePinMeldungNeu(
-  text,
-  erfolgreich
-) {
-  const element =
-    document.getElementById(
-      'pinMeldungNeu'
-    );
-
-  if (!element) {
-    return;
-  }
-
-  element.textContent =
-    text || '';
-
-  element.style.color =
-    erfolgreich
-      ? '#14943b'
-      : '#b00020';
-}
-
-
-// ==========================================================
-// ADMIN-BEREICH – ANSICHT
-// ==========================================================
-
-function installiereAdminAnsichtNeu() {
-  if (
-    document.getElementById(
-      'adminAnsicht'
-    )
-  ) {
-    return;
-  }
-
-  const main =
-    document.querySelector(
-      '#hauptApp .content'
-    );
-
-  if (!main) {
-    return;
-  }
-
-  const section =
-    document.createElement(
-      'section'
-    );
-
-  section.id =
-    'adminAnsicht';
-
-  section.style.display =
-    'none';
-
-  section.innerHTML = `
-    <div class="content-header">
-      <div>
-        <h1>
-          Admin-Bereich
-        </h1>
-
-        <p>
-          Hier kannst du offene Anfragen bearbeiten.
-        </p>
-      </div>
-    </div>
-
-    <div
-      style="
-        display:flex;
-        justify-content:flex-end;
-        margin-bottom:14px;
-      "
-    >
-      <button
-        type="button"
-        onclick="ladeAdminAnfragenNeu()"
-        style="
-          border:1px solid #d7dce1;
-          background:#ffffff;
-          border-radius:8px;
-          padding:8px 12px;
-          cursor:pointer;
-        "
-      >
-        ↻ Aktualisieren
-      </button>
-    </div>
-
-    <div
-      class="panel"
-      style="
-        margin-bottom:18px;
-      "
-    >
-      <h2 style="margin-top:0;">
-        🔄 Diensttausch
-      </h2>
-
-      <p style="color:#666;">
-        Hier erscheinen Tauschanfragen,
-        denen der Tauschpartner bereits zugestimmt hat.
-      </p>
-
-      <div id="adminTauschAnfragenListe">
-        <div class="empty-state">
-          Anfragen werden geladen …
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="panel"
-      style="
-        margin-bottom:18px;
-      "
-    >
-      <h2 style="margin-top:0;">
-        💬 Sonstige Wünsche
-      </h2>
-
-      <p style="color:#666;">
-        Das Genehmigen oder Ablehnen verändert
-        den Dienstplan nicht automatisch.
-      </p>
-
-      <div id="adminDienstAnfragenListe">
-        <div class="empty-state">
-          Wünsche werden geladen …
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2 style="margin-top:0;">
-        🔐 PIN-Reset
-      </h2>
-
-      <p style="color:#666;">
-        Hier kannst du PIN-Reset-Anfragen
-        von Mitarbeitern genehmigen oder ablehnen.
-      </p>
-
-      <div
-        style="
-          margin:12px 0 16px;
-          padding:11px 12px;
-          border-radius:8px;
-          background:#fff8e8;
-          color:#6d5500;
-          font-size:13px;
-          line-height:1.45;
-        "
-      >
-        ℹ️ Bei einer Genehmigung wird der bisherige PIN gelöscht.
-        Der Mitarbeiter kann anschließend selbst
-        einen neuen 4-stelligen PIN festlegen.
-      </div>
-
-      <div id="adminPinResetListe">
-        <div class="empty-state">
-          PIN-Anfragen werden geladen …
-        </div>
-      </div>
-    </div>
-  `;
-
-  main.appendChild(
-    section
-  );
-}
-
-
-// ==========================================================
-// ADMIN-ANFRAGEN LADEN
-// ==========================================================
-
-async function ladeAdminAnfragenNeu() {
-  installiereAdminAnsichtNeu();
-
-  const tauschListe =
-    document.getElementById(
-      'adminTauschAnfragenListe'
-    );
-
-  const dienstListe =
-    document.getElementById(
-      'adminDienstAnfragenListe'
-    );
-
-  const pinListe =
-    document.getElementById(
-      'adminPinResetListe'
-    );
-
-  if (
-    !aktuellerAdmin
-  ) {
-    const html = `
-      <div
-        class="empty-state"
-        style="color:#b00020;"
-      >
-        Keine Admin-Berechtigung.
-      </div>
-    `;
-
-    if (tauschListe) {
-      tauschListe.innerHTML =
-        html;
-    }
-
-    if (dienstListe) {
-      dienstListe.innerHTML =
-        html;
-    }
-
-    if (pinListe) {
-      pinListe.innerHTML =
-        html;
-    }
-
-    return;
-  }
-
-  const token =
-    localStorage.getItem(
-      SESSION_KEY
-    );
-
-  if (!token) {
-    await sessionAbgelaufenNeu();
-
-    return;
-  }
-
-  if (tauschListe) {
-    tauschListe.innerHTML =
-      '<div class="empty-state">Tauschanfragen werden geladen …</div>';
-  }
-
-  if (dienstListe) {
-    dienstListe.innerHTML =
-      '<div class="empty-state">Wünsche werden geladen …</div>';
-  }
-
-  if (pinListe) {
-    pinListe.innerHTML =
-      '<div class="empty-state">PIN-Anfragen werden geladen …</div>';
-  }
-
-  try {
-    const ergebnisse =
-      await Promise.all([
-        apiPost(
-          'adminTauschAnfragen',
-          {
-            token:
-              token
-          }
-        ),
-
-        apiPost(
-          'adminDienstAnfragen',
-          {
-            token:
-              token
-          }
-        ),
-
-        apiPost(
-          'adminPinResets',
-          {
-            token:
-              token
-          }
-        )
-      ]);
-
-    const tauschResult =
-      ergebnisse[0];
-
-    const dienstResult =
-      ergebnisse[1];
-
-    const pinResult =
-      ergebnisse[2];
-
-    if (
-      tauschResult &&
-      tauschResult.sessionExpired
-    ) {
-      await sessionAbgelaufenNeu();
-
-      return;
-    }
-
-    if (
-      dienstResult &&
-      dienstResult.sessionExpired
-    ) {
-      await sessionAbgelaufenNeu();
-
-      return;
-    }
-
-    if (
-      pinResult &&
-      pinResult.sessionExpired
-    ) {
-      await sessionAbgelaufenNeu();
-
-      return;
-    }
-
-    if (
-      !tauschResult ||
-      !tauschResult.ok
-    ) {
-      throw new Error(
-        tauschResult?.message ||
-        'Admin-Tauschanfragen konnten nicht geladen werden.'
-      );
-    }
-
-    if (
-      !dienstResult ||
-      !dienstResult.ok
-    ) {
-      throw new Error(
-        dienstResult?.message ||
-        'Sonstige Wünsche konnten nicht geladen werden.'
-      );
-    }
-
-    if (
-      !pinResult ||
-      !pinResult.ok
-    ) {
-      throw new Error(
-        pinResult?.message ||
-        'PIN-Reset-Anfragen konnten nicht geladen werden.'
-      );
-    }
-
-    const tauschAnfragen =
-      Array.isArray(
-        tauschResult.anfragen
-      )
-        ? tauschResult.anfragen
-        : [];
-
-    const dienstAnfragen =
-      Array.isArray(
-        dienstResult.anfragen
-      )
-        ? dienstResult.anfragen
-        : [];
-
-    const pinAnfragen =
-      Array.isArray(
-        pinResult.anfragen
-      )
-        ? pinResult.anfragen
-        : [];
-
-    rendereAdminTauschAnfragenNeu(
-      tauschAnfragen
-    );
-
-    rendereAdminDienstAnfragenNeu(
-      dienstAnfragen
-    );
-
-    rendereAdminPinResetsNeu(
-      pinAnfragen
-    );
-
-  } catch (error) {
-    console.error(
-      'Admin-Anfragen:',
-      error
-    );
-
-    const html = `
-      <div
-        class="empty-state"
-        style="color:#b00020;"
-      >
-        ❌ ${escapeHtmlNeu(error.message)}
-      </div>
-    `;
-
-    if (tauschListe) {
-      tauschListe.innerHTML =
-        html;
-    }
-
-    if (dienstListe) {
-      dienstListe.innerHTML =
-        html;
-    }
-
-    if (pinListe) {
-      pinListe.innerHTML =
-        html;
-    }
-  }
-}
-
-
-// ==========================================================
-// ADMIN – TAUSCHANFRAGEN
-// ==========================================================
-
-function rendereAdminTauschAnfragenNeu(
-  anfragen
-) {
-  const liste =
-    document.getElementById(
-      'adminTauschAnfragenListe'
-    );
-
-  if (!liste) {
-    return;
-  }
-
-  if (
-    !anfragen ||
-    anfragen.length === 0
-  ) {
-    liste.innerHTML = `
-      <div class="empty-state">
-        Keine offenen Tauschanfragen.
-      </div>
-    `;
-
-    return;
-  }
-
-  let html =
-    '';
-
-  anfragen.forEach(
-    function(a) {
-      html += `
-        <div
-          style="
-            border:1px solid #dde1e5;
-            border-radius:11px;
-            padding:15px;
-            margin-bottom:12px;
-            background:#ffffff;
-          "
-        >
-          <strong
-            style="
-              display:block;
-              font-size:16px;
-            "
-          >
-            ${escapeHtmlNeu(a.anfragender || '')}
-            ↔
-            ${escapeHtmlNeu(a.partner || '')}
-          </strong>
-
-          <div
-            style="
-              margin-top:5px;
-              color:#666;
-            "
-          >
-            📅 ${escapeHtmlNeu(a.datum || '')}
-            · KW ${escapeHtmlNeu(a.kw || '')}
-          </div>
-
-          <div
-            style="
-              margin-top:12px;
-              padding:11px;
-              background:#f7f8f9;
-              border-radius:8px;
-            "
-          >
-            <strong>
-              ${escapeHtmlNeu(
-                entferneDienstSymbol(
-                  a.eigenerDienst || ''
-                )
-              )}
-            </strong>
-
-            <span style="margin:0 7px;">
-              ↔
-            </span>
-
-            <strong>
-              ${escapeHtmlNeu(
-                entferneDienstSymbol(
-                  a.partnerDienst || ''
-                )
-              )}
-            </strong>
-          </div>
-
-          ${
-            a.nachricht
-              ? `
-                <div
-                  style="
-                    margin-top:9px;
-                    color:#555;
-                    white-space:pre-wrap;
-                  "
-                >
-                  💬 ${escapeHtmlNeu(a.nachricht)}
-                </div>
-              `
-              : ''
-          }
-
-          <div
-            style="
-              display:flex;
-              gap:10px;
-              flex-wrap:wrap;
-              margin-top:14px;
-            "
-          >
-            <button
-              type="button"
-              onclick="bearbeiteAdminTauschAnfrageNeu(${Number(a.zeile)}, true)"
-              style="
-                border:0;
-                background:#14943b;
-                color:#ffffff;
-                border-radius:8px;
-                padding:9px 14px;
-                font-weight:700;
-                cursor:pointer;
-              "
-            >
-              ✅ Genehmigen
-            </button>
-
-            <button
-              type="button"
-              onclick="bearbeiteAdminTauschAnfrageNeu(${Number(a.zeile)}, false)"
-              style="
-                border:1px solid #c9cdd2;
-                background:#ffffff;
-                color:#b00020;
-                border-radius:8px;
-                padding:9px 14px;
-                font-weight:700;
-                cursor:pointer;
-              "
-            >
-              ❌ Ablehnen
-            </button>
-          </div>
-        </div>
-      `;
-    }
-  );
-
-  liste.innerHTML =
-    html;
-}
-
-
-// ==========================================================
-// ADMIN – TAUSCH BEARBEITEN
-// ==========================================================
-
-async function bearbeiteAdminTauschAnfrageNeu(
-  zeile,
-  genehmigen
-) {
-  const frage =
-    genehmigen
-      ? 'Diensttausch genehmigen und im Dienstplan durchführen?'
-      : 'Diensttausch wirklich ablehnen?';
-
-  if (
-    !window.confirm(
-      frage
-    )
-  ) {
-    return;
-  }
-
-  const token =
-    localStorage.getItem(
-      SESSION_KEY
-    );
-
-  if (!token) {
-    await sessionAbgelaufenNeu();
-
-    return;
-  }
-
-  try {
-    const result =
-      await apiPost(
-        'adminTauschAnfrageBearbeiten',
-        {
-          token:
-            token,
-
-          zeile:
-            Number(
-              zeile
-            ),
-
-          genehmigen:
-            genehmigen === true
-        }
-      );
-
-    if (
-      !result ||
-      !result.ok
-    ) {
-      if (
-        result &&
-        result.sessionExpired
-      ) {
-        await sessionAbgelaufenNeu();
-
-        return;
-      }
-
-      throw new Error(
-        result?.message ||
-        'Tauschanfrage konnte nicht bearbeitet werden.'
-      );
-    }
-
-    window.alert(
-      result.message ||
-      'Anfrage wurde bearbeitet.'
-    );
-
-    await ladeAdminAnfragenNeu();
-
-    if (
-      genehmigen === true
-    ) {
-      dienstplanInitialisiert =
-        false;
-
-      await ladeMeinDienstplanNeu();
-    }
-
-  } catch (error) {
-    console.error(
-      error
-    );
-
-    window.alert(
-      'Fehler: ' +
-      error.message
-    );
-  }
-}
-
-
-// ==========================================================
-// ADMIN – SONSTIGE WÜNSCHE
-// ==========================================================
-
-function rendereAdminDienstAnfragenNeu(
-  anfragen
-) {
-  const liste =
-    document.getElementById(
-      'adminDienstAnfragenListe'
-    );
-
-  if (!liste) {
-    return;
-  }
-
-  if (
-    !Array.isArray(anfragen) ||
-    anfragen.length === 0
-  ) {
-    liste.innerHTML = `
-      <div class="empty-state">
-        Keine offenen sonstigen Wünsche.
-      </div>
-    `;
-
-    return;
-  }
-
-  let html =
-    '';
-
-  anfragen.forEach(
-    function(a) {
-      const mitarbeiter =
-        String(
-          a.mitarbeiter || ''
-        ).trim();
-
-      const datum =
-        String(
-          a.datum || ''
-        ).trim();
-
-      const dienst =
-        String(
-          a.dienst || ''
-        ).trim();
-
-      const nachricht =
-        String(
-          a.nachricht || ''
-        ).trim();
-
-      const zeile =
-        Number(
-          a.zeile || 0
-        );
-
-      // ------------------------------------------------------
-      // WOCHENTAG AUS DATUM ERMITTELN
-      // ------------------------------------------------------
-
-      let wochentag =
-        '';
-
-      if (
-        /^\d{1,2}\.\d{1,2}\.\d{4}$/.test(
-          datum
-        )
-      ) {
-        const teile =
-          datum.split('.');
-
-        const datumObjekt =
-          new Date(
-            Number(teile[2]),
-            Number(teile[1]) - 1,
-            Number(teile[0]),
-            12,
-            0,
-            0
-          );
-
-        if (
-          !isNaN(
-            datumObjekt.getTime()
-          )
-        ) {
-          const tage =
-            [
-              'So',
-              'Mo',
-              'Di',
-              'Mi',
-              'Do',
-              'Fr',
-              'Sa'
-            ];
-
-          wochentag =
-            tage[
-              datumObjekt.getDay()
-            ] || '';
-        }
-      }
-
-      // ------------------------------------------------------
-      // DIENST FÜR ADMIN-DARSTELLUNG AUFBEREITEN
-      // ------------------------------------------------------
-
-      let plaza =
-        '';
-
-      let schicht =
-        '';
-
-      let schichtSymbol =
-        '';
-
-      if (dienst) {
-        if (
-          /Garden Plaza/i.test(
-            dienst
-          )
-        ) {
-          plaza =
-            'Garden Plaza';
-        }
-
-        else if (
-          /Water Plaza/i.test(
-            dienst
-          )
-        ) {
-          plaza =
-            'Water Plaza';
-        }
-
-        if (
-          /\bFrüh\b/i.test(
-            dienst
-          )
-        ) {
-          schicht =
-            'Früh';
-
-          schichtSymbol =
-            '☀️';
-        }
-
-        else if (
-          /\bSpät\b/i.test(
-            dienst
-          )
-        ) {
-          schicht =
-            'Spät';
-
-          schichtSymbol =
-            '🌙';
-        }
-
-        else if (
-          /\bGanztag\b/i.test(
-            dienst
-          )
-        ) {
-          schicht =
-            'Ganztag';
-
-          schichtSymbol =
-            '🔵';
-        }
-
-        else if (
-          /Pausenablöse/i.test(
-            dienst
-          )
-        ) {
-          schicht =
-            'Pausenablöse';
-
-          schichtSymbol =
-            '☕';
-        }
-      }
-
-      // ------------------------------------------------------
-      // BEZUG ZUM DIENST
-      // ------------------------------------------------------
-
-      let dienstBezugHtml =
-        '';
-
-      if (
-        datum ||
-        dienst
-      ) {
-        const teile =
-          [];
-
-        if (datum) {
-          let datumText =
-            datum;
-
-          if (wochentag) {
-            datumText =
-              wochentag +
-              ', ' +
-              datum;
-          }
-
-          teile.push(
-            escapeHtmlNeu(
-              datumText
-            )
-          );
-        }
-
-        if (plaza) {
-          teile.push(
-            escapeHtmlNeu(
-              plaza
-            )
-          );
-        }
-
-        if (schicht) {
-          teile.push(
-            escapeHtmlNeu(
-              (
-                schichtSymbol
-                  ? schichtSymbol + ' '
-                  : ''
-              ) +
-              schicht
-            )
-          );
-        }
-
-        else if (dienst) {
-          teile.push(
-            escapeHtmlNeu(
-              entferneDienstSymbol(
-                dienst
-              )
-            )
-          );
-        }
-
-        dienstBezugHtml = `
-          <div
-            style="
-              margin-top:10px;
-              padding:11px 13px;
-              border-radius:9px;
-              background:#f7f8fa;
-              color:#444444;
-              font-size:14px;
-              line-height:1.5;
-            "
-          >
-            📅 ${teile.join(' · ')}
-          </div>
-        `;
-
-      } else {
-        dienstBezugHtml = `
-          <div
-            style="
-              margin-top:10px;
-              color:#555555;
-              font-size:14px;
-              font-weight:700;
-            "
-          >
-            💬 Allgemeiner Wunsch
-          </div>
-        `;
-      }
-
-      // ------------------------------------------------------
-      // WUNSCHKARTE
-      // ------------------------------------------------------
-
-      html += `
-        <div
-          style="
-            border:1px solid #dde1e5;
-            border-radius:13px;
-            padding:17px;
-            margin-bottom:14px;
-            background:#ffffff;
-            box-shadow:
-              0 3px 12px
-              rgba(0,0,0,0.035);
-          "
-        >
-
-          <div
-            style="
-              display:flex;
-              align-items:center;
-              gap:11px;
-            "
-          >
-
-            <div
-              style="
-                width:42px;
-                height:42px;
-                flex:0 0 auto;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                border-radius:50%;
-                background:#fff1f2;
-                font-size:20px;
-              "
-            >
-              👤
-            </div>
-
-            <div
-              style="
-                min-width:0;
-                flex:1;
-              "
-            >
-
-              <strong
-                style="
-                  display:block;
-                  color:#171717;
-                  font-size:17px;
-                  line-height:1.35;
-                  overflow-wrap:anywhere;
-                "
-              >
-                ${escapeHtmlNeu(
-                  mitarbeiter ||
-                  'Mitarbeiter'
-                )}
-              </strong>
-
-              <span
-                style="
-                  display:block;
-                  margin-top:2px;
-                  color:#777777;
-                  font-size:12px;
-                "
-              >
-                Sonstiger Wunsch
-              </span>
-
-            </div>
-
-          </div>
-
-
-          ${dienstBezugHtml}
-
-
-          ${
-            nachricht
-              ? `
-                <div
-                  style="
-                    margin-top:12px;
-                    padding:13px 14px;
-                    border-left:4px solid #e30613;
-                    border-radius:8px;
-                    background:#fffafa;
-                    color:#333333;
-                    font-size:15px;
-                    line-height:1.55;
-                    white-space:pre-wrap;
-                    overflow-wrap:anywhere;
-                  "
-                >
-                  💬 „${escapeHtmlNeu(
-                    nachricht
-                  )}“
-                </div>
-              `
-              : `
-                <div
-                  style="
-                    margin-top:12px;
-                    color:#777777;
-                    font-size:14px;
-                  "
-                >
-                  Kein Wunschtext vorhanden.
-                </div>
-              `
-          }
-
-
-          <div
-            style="
-              margin-top:14px;
-              padding:10px 12px;
-              border-radius:8px;
-              background:#fff8e8;
-              color:#6d5500;
-              font-size:12px;
-              line-height:1.45;
-            "
-          >
-            ℹ️ Die Entscheidung verändert den Dienstplan
-            nicht automatisch.
-          </div>
-
-
-          <div
-            style="
-              display:grid;
-              grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-              gap:10px;
-              margin-top:15px;
-            "
-          >
-
-            <button
-              type="button"
-              onclick="bearbeiteAdminDienstAnfrageNeu(${zeile}, false)"
-              style="
-                width:100%;
-                min-height:46px;
-                border:1px solid #d5d8dc;
-                background:#ffffff;
-                color:#b00020;
-                border-radius:9px;
-                padding:10px 12px;
-                font-weight:700;
-                font-size:14px;
-                cursor:pointer;
-              "
-            >
-              ❌ Ablehnen
-            </button>
-
-
-            <button
-              type="button"
-              onclick="bearbeiteAdminDienstAnfrageNeu(${zeile}, true)"
-              style="
-                width:100%;
-                min-height:46px;
-                border:0;
-                background:#14943b;
-                color:#ffffff;
-                border-radius:9px;
-                padding:10px 12px;
-                font-weight:700;
-                font-size:14px;
-                cursor:pointer;
-              "
-            >
-              ✅ Genehmigen
-            </button>
-
-          </div>
-
-        </div>
-      `;
-    }
-  );
-
-  liste.innerHTML =
-    html;
-}
-
-
-// ==========================================================
-// ADMIN – SONSTIGEN WUNSCH BEARBEITEN
-// ==========================================================
-
-async function bearbeiteAdminDienstAnfrageNeu(
-  zeile,
-  genehmigen
-) {
-  const frage =
-    genehmigen
-      ? 'Diesen Wunsch genehmigen?'
-      : 'Diesen Wunsch ablehnen?';
-
-  if (
-    !window.confirm(
-      frage
-    )
-  ) {
-    return;
-  }
-
-  const token =
-    localStorage.getItem(
-      SESSION_KEY
-    );
-
-  if (!token) {
-    await sessionAbgelaufenNeu();
-
-    return;
-  }
-
-  try {
-    const result =
-      await apiPost(
-        'adminDienstAnfrageBearbeiten',
-        {
-          token:
-            token,
-
-          zeile:
-            Number(
-              zeile
-            ),
-
-          genehmigen:
-            genehmigen === true
-        }
-      );
-
-    if (
-      !result ||
-      !result.ok
-    ) {
-      if (
-        result &&
-        result.sessionExpired
-      ) {
-        await sessionAbgelaufenNeu();
-
-        return;
-      }
-
-      throw new Error(
-        result?.message ||
-        'Wunsch konnte nicht bearbeitet werden.'
-      );
-    }
-
-    window.alert(
-      result.message ||
-      'Wunsch wurde bearbeitet.'
-    );
-
-    await ladeAdminAnfragenNeu();
-
-  } catch (error) {
-    console.error(
-      error
-    );
-
-    window.alert(
-      'Fehler: ' +
-      error.message
-    );
-  }
-}
-
-// ==========================================================
-// ADMIN – PIN-RESET-ANFRAGEN
-// ==========================================================
-
-function rendereAdminPinResetsNeu(
-  anfragen
-) {
-  const liste =
-    document.getElementById(
-      'adminPinResetListe'
-    );
-
-  if (!liste) {
-    return;
-  }
-
-  if (
-    !anfragen ||
-    anfragen.length === 0
-  ) {
-    liste.innerHTML = `
-      <div class="empty-state">
-        Keine offenen PIN-Reset-Anfragen.
-      </div>
-    `;
-
-    return;
-  }
-
-  let html =
-    '';
-
-  anfragen.forEach(
-    function(a) {
-      html += `
-        <div
-          style="
-            border:1px solid #dde1e5;
-            border-radius:11px;
-            padding:15px;
-            margin-bottom:12px;
-            background:#ffffff;
-          "
-        >
-          <div
-            style="
-              display:flex;
-              align-items:flex-start;
-              gap:12px;
-            "
-          >
-            <div
-              style="
-                width:42px;
-                height:42px;
-                border-radius:50%;
-                background:#f4f5f6;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                font-size:21px;
-                flex:0 0 auto;
-              "
-            >
-              🔐
-            </div>
-
-            <div
-              style="
-                flex:1;
-                min-width:0;
-              "
-            >
-              <strong
-                style="
-                  display:block;
-                  font-size:16px;
-                "
-              >
-                ${escapeHtmlNeu(a.mitarbeiter || '')}
-              </strong>
-
-              <div
-                style="
-                  margin-top:4px;
-                  color:#666;
-                "
-              >
-                Möchte den persönlichen PIN zurücksetzen.
-              </div>
-
-              ${
-                a.zeitstempel
-                  ? `
-                    <div
-                      style="
-                        margin-top:6px;
-                        color:#888;
-                        font-size:13px;
-                      "
-                    >
-                      🕒 ${escapeHtmlNeu(a.zeitstempel)}
-                    </div>
-                  `
-                  : ''
-              }
-            </div>
-          </div>
-
-          <div
-            style="
-              margin-top:12px;
-              padding:10px 11px;
-              border-radius:8px;
-              background:#fff8e8;
-              color:#6d5500;
-              font-size:13px;
-              line-height:1.45;
-            "
-          >
-            Bei Genehmigung wird nur der bisherige PIN gelöscht.
-            Der Mitarbeiter legt danach selbst einen neuen PIN fest.
-          </div>
-
-          <div
-            style="
-              display:flex;
-              gap:10px;
-              flex-wrap:wrap;
-              margin-top:14px;
-            "
-          >
-            <button
-              type="button"
-              onclick="bearbeiteAdminPinResetNeu(${Number(a.zeile)}, true)"
-              style="
-                border:0;
-                background:#14943b;
-                color:#ffffff;
-                border-radius:8px;
-                padding:9px 14px;
-                font-weight:700;
-                cursor:pointer;
-              "
-            >
-              ✅ Reset genehmigen
-            </button>
-
-            <button
-              type="button"
-              onclick="bearbeiteAdminPinResetNeu(${Number(a.zeile)}, false)"
-              style="
-                border:1px solid #c9cdd2;
-                background:#ffffff;
-                color:#b00020;
-                border-radius:8px;
-                padding:9px 14px;
-                font-weight:700;
-                cursor:pointer;
-              "
-            >
-              ❌ Ablehnen
-            </button>
-          </div>
-        </div>
-      `;
-    }
-  );
-
-  liste.innerHTML =
-    html;
-}
-
-
-// ==========================================================
-// ADMIN – PIN RESET BEARBEITEN
-// ==========================================================
-
-async function bearbeiteAdminPinResetNeu(
-  zeile,
-  genehmigen
-) {
-  const frage =
-    genehmigen
-      ? 'PIN-Reset wirklich genehmigen? Der bisherige PIN des Mitarbeiters wird gelöscht.'
-      : 'PIN-Reset-Anfrage wirklich ablehnen?';
-
-  if (
-    !window.confirm(
-      frage
-    )
-  ) {
-    return;
-  }
-
-  const token =
-    localStorage.getItem(
-      SESSION_KEY
-    );
-
-  if (!token) {
-    await sessionAbgelaufenNeu();
-
-    return;
-  }
-
-  try {
-    const result =
-      await apiPost(
-        'adminPinResetBearbeiten',
-        {
-          token:
-            token,
-
-          zeile:
-            Number(
-              zeile
-            ),
-
-          genehmigen:
-            genehmigen === true
-        }
-      );
-
-    if (
-      !result ||
-      !result.ok
-    ) {
-      if (
-        result &&
-        result.sessionExpired
-      ) {
-        await sessionAbgelaufenNeu();
-
-        return;
-      }
-
-      throw new Error(
-        result?.message ||
-        'PIN-Reset konnte nicht bearbeitet werden.'
-      );
-    }
-
-    window.alert(
-      result.message ||
-      'PIN-Anfrage wurde bearbeitet.'
-    );
-
-    await ladeAdminAnfragenNeu();
-
-  } catch (error) {
-    console.error(
-      'PIN Reset Admin:',
-      error
-    );
-
-    window.alert(
-      'Fehler: ' +
-      error.message
-    );
   }
 }
 
@@ -7110,7 +5842,7 @@ function installiereSonstigerWunschAnsichtNeu() {
 
 
 // ==========================================================
-// DIENSTE FÜR SONSTIGEN WUNSCH
+// DIENSTE FÜR SONSTIGEN WUNSCH LADEN
 // ==========================================================
 
 function ladeSonstigerWunschDiensteNeu() {
@@ -7165,16 +5897,21 @@ function ladeSonstigerWunschDiensteNeu() {
 
 
 // ==========================================================
-// EIGENE DIENSTE ZUSAMMENFASSEN
+// EIGENE DIENSTE FÜR WUNSCH ZUSAMMENFASSEN
 // ==========================================================
 
 function baueEigeneDienstOptionenNeu(
   plan
 ) {
-  const ergebnis =
-    [];
+  const ergebnis = [];
 
-  (plan || []).forEach(
+  (
+    Array.isArray(
+      plan
+    )
+      ? plan
+      : []
+  ).forEach(
     function(z) {
       const datum =
         String(
@@ -7350,8 +6087,7 @@ async function sendeSonstigenWunschNeu() {
   }
 
   if (
-    nachricht.length >
-    500
+    nachricht.length > 500
   ) {
     if (meldung) {
       meldung.style.color =
@@ -7375,14 +6111,9 @@ async function sendeSonstigenWunschNeu() {
     return;
   }
 
-  let datum =
-    '';
-
-  let kw =
-    '';
-
-  let dienst =
-    '';
+  let datum = '';
+  let kw = '';
+  let dienst = '';
 
   const auswahl =
     String(
@@ -7416,6 +6147,16 @@ async function sendeSonstigenWunschNeu() {
         'Dienst-Auswahl:',
         error
       );
+
+      if (meldung) {
+        meldung.style.color =
+          '#b00020';
+
+        meldung.textContent =
+          'Der ausgewählte Dienst konnte nicht verarbeitet werden.';
+      }
+
+      return;
     }
   }
 
@@ -7461,18 +6202,18 @@ async function sendeSonstigenWunschNeu() {
       );
 
     if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
       !result ||
       !result.ok
     ) {
-      if (
-        result &&
-        result.sessionExpired
-      ) {
-        await sessionAbgelaufenNeu();
-
-        return;
-      }
-
       throw new Error(
         result?.message ||
         'Der Wunsch konnte nicht gesendet werden.'
@@ -7532,6 +6273,1847 @@ async function sendeSonstigenWunschNeu() {
 }
 
 // ==========================================================
+// ADMIN-BEREICH – ANSICHT
+// ==========================================================
+
+function installiereAdminAnsichtNeu() {
+  if (
+    document.getElementById(
+      'adminAnsicht'
+    )
+  ) {
+    return;
+  }
+
+  const main =
+    document.querySelector(
+      '#hauptApp .content'
+    );
+
+  if (!main) {
+    return;
+  }
+
+  const section =
+    document.createElement(
+      'section'
+    );
+
+  section.id =
+    'adminAnsicht';
+
+  section.style.display =
+    'none';
+
+  section.innerHTML = `
+    <div class="content-header">
+      <div>
+        <h1>
+          Admin-Bereich
+        </h1>
+
+        <p>
+          Hier kannst du offene Anfragen bearbeiten
+          und erledigte Wünsche verwalten.
+        </p>
+      </div>
+    </div>
+
+    <div
+      style="
+        display:flex;
+        justify-content:flex-end;
+        margin-bottom:14px;
+      "
+    >
+      <button
+        type="button"
+        onclick="ladeAdminAnfragenNeu()"
+        style="
+          border:1px solid #d7dce1;
+          background:#ffffff;
+          border-radius:8px;
+          padding:8px 12px;
+          cursor:pointer;
+        "
+      >
+        ↻ Aktualisieren
+      </button>
+    </div>
+
+    <div
+      class="panel"
+      style="
+        margin-bottom:18px;
+      "
+    >
+      <h2 style="margin-top:0;">
+        🔄 Diensttausch
+      </h2>
+
+      <p style="color:#666;">
+        Hier erscheinen Tauschanfragen,
+        denen der Tauschpartner bereits zugestimmt hat.
+      </p>
+
+      <div id="adminTauschAnfragenListe">
+        <div class="empty-state">
+          Anfragen werden geladen …
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="panel"
+      style="
+        margin-bottom:18px;
+      "
+    >
+      <h2 style="margin-top:0;">
+        💬 Sonstige Wünsche
+      </h2>
+
+      <p style="color:#666;">
+        Das Genehmigen oder Ablehnen verändert
+        den Dienstplan nicht automatisch.
+      </p>
+
+      <div id="adminDienstAnfragenListe">
+        <div class="empty-state">
+          Wünsche werden geladen …
+        </div>
+      </div>
+
+      <div
+        style="
+          margin-top:28px;
+          padding-top:22px;
+          border-top:1px solid #e1e4e8;
+        "
+      >
+        <h3
+          style="
+            margin:0 0 7px;
+            font-size:18px;
+          "
+        >
+          🗂️ Bearbeitete Wünsche
+        </h3>
+
+        <p
+          style="
+            margin:0 0 14px;
+            color:#666666;
+            font-size:14px;
+            line-height:1.5;
+          "
+        >
+          Genehmigte und abgelehnte Wünsche können
+          hier endgültig gelöscht werden.
+        </p>
+
+        <div id="adminBearbeiteteDienstAnfragenListe">
+          <div class="empty-state">
+            Bearbeitete Wünsche werden geladen …
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 style="margin-top:0;">
+        🔐 PIN-Reset
+      </h2>
+
+      <p style="color:#666;">
+        Hier kannst du PIN-Reset-Anfragen
+        von Mitarbeitern genehmigen oder ablehnen.
+      </p>
+
+      <div
+        style="
+          margin:12px 0 16px;
+          padding:11px 12px;
+          border-radius:8px;
+          background:#fff8e8;
+          color:#6d5500;
+          font-size:13px;
+          line-height:1.45;
+        "
+      >
+        ℹ️ Bei einer Genehmigung wird der bisherige PIN gelöscht.
+        Der Mitarbeiter kann anschließend selbst
+        einen neuen 4-stelligen PIN festlegen.
+      </div>
+
+      <div id="adminPinResetListe">
+        <div class="empty-state">
+          PIN-Anfragen werden geladen …
+        </div>
+      </div>
+    </div>
+  `;
+
+  main.appendChild(
+    section
+  );
+}
+
+
+// ==========================================================
+// ADMIN-ANFRAGEN LADEN
+// ==========================================================
+
+async function ladeAdminAnfragenNeu() {
+  installiereAdminAnsichtNeu();
+
+  const tauschListe =
+    document.getElementById(
+      'adminTauschAnfragenListe'
+    );
+
+  const dienstListe =
+    document.getElementById(
+      'adminDienstAnfragenListe'
+    );
+
+  const bearbeiteteListe =
+    document.getElementById(
+      'adminBearbeiteteDienstAnfragenListe'
+    );
+
+  const pinListe =
+    document.getElementById(
+      'adminPinResetListe'
+    );
+
+  if (
+    !aktuellerAdmin
+  ) {
+    const html = `
+      <div
+        class="empty-state"
+        style="color:#b00020;"
+      >
+        Keine Admin-Berechtigung.
+      </div>
+    `;
+
+    if (tauschListe) {
+      tauschListe.innerHTML =
+        html;
+    }
+
+    if (dienstListe) {
+      dienstListe.innerHTML =
+        html;
+    }
+
+    if (bearbeiteteListe) {
+      bearbeiteteListe.innerHTML =
+        html;
+    }
+
+    if (pinListe) {
+      pinListe.innerHTML =
+        html;
+    }
+
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+
+    return;
+  }
+
+  if (tauschListe) {
+    tauschListe.innerHTML =
+      '<div class="empty-state">Tauschanfragen werden geladen …</div>';
+  }
+
+  if (dienstListe) {
+    dienstListe.innerHTML =
+      '<div class="empty-state">Wünsche werden geladen …</div>';
+  }
+
+  if (bearbeiteteListe) {
+    bearbeiteteListe.innerHTML =
+      '<div class="empty-state">Bearbeitete Wünsche werden geladen …</div>';
+  }
+
+  if (pinListe) {
+    pinListe.innerHTML =
+      '<div class="empty-state">PIN-Anfragen werden geladen …</div>';
+  }
+
+  try {
+    const ergebnisse =
+      await Promise.all([
+        apiPost(
+          'adminTauschAnfragen',
+          {
+            token:
+              token
+          }
+        ),
+
+        apiPost(
+          'adminDienstAnfragen',
+          {
+            token:
+              token
+          }
+        ),
+
+        apiPost(
+          'adminBearbeiteteDienstAnfragen',
+          {
+            token:
+              token
+          }
+        ),
+
+        apiPost(
+          'adminPinResets',
+          {
+            token:
+              token
+          }
+        )
+      ]);
+
+    const tauschResult =
+      ergebnisse[0];
+
+    const dienstResult =
+      ergebnisse[1];
+
+    const bearbeitetResult =
+      ergebnisse[2];
+
+    const pinResult =
+      ergebnisse[3];
+
+    const alleResultate = [
+      tauschResult,
+      dienstResult,
+      bearbeitetResult,
+      pinResult
+    ];
+
+    for (
+      let i = 0;
+      i < alleResultate.length;
+      i++
+    ) {
+      if (
+        alleResultate[i] &&
+        alleResultate[i].sessionExpired
+      ) {
+        await sessionAbgelaufenNeu();
+
+        return;
+      }
+    }
+
+    if (
+      !tauschResult ||
+      !tauschResult.ok
+    ) {
+      throw new Error(
+        tauschResult?.message ||
+        'Admin-Tauschanfragen konnten nicht geladen werden.'
+      );
+    }
+
+    if (
+      !dienstResult ||
+      !dienstResult.ok
+    ) {
+      throw new Error(
+        dienstResult?.message ||
+        'Sonstige Wünsche konnten nicht geladen werden.'
+      );
+    }
+
+    if (
+      !bearbeitetResult ||
+      !bearbeitetResult.ok
+    ) {
+      throw new Error(
+        bearbeitetResult?.message ||
+        'Bearbeitete Wünsche konnten nicht geladen werden.'
+      );
+    }
+
+    if (
+      !pinResult ||
+      !pinResult.ok
+    ) {
+      throw new Error(
+        pinResult?.message ||
+        'PIN-Reset-Anfragen konnten nicht geladen werden.'
+      );
+    }
+
+    rendereAdminTauschAnfragenNeu(
+      Array.isArray(
+        tauschResult.anfragen
+      )
+        ? tauschResult.anfragen
+        : []
+    );
+
+    rendereAdminDienstAnfragenNeu(
+      Array.isArray(
+        dienstResult.anfragen
+      )
+        ? dienstResult.anfragen
+        : []
+    );
+
+    rendereAdminBearbeiteteDienstAnfragenNeu(
+      Array.isArray(
+        bearbeitetResult.anfragen
+      )
+        ? bearbeitetResult.anfragen
+        : []
+    );
+
+    rendereAdminPinResetsNeu(
+      Array.isArray(
+        pinResult.anfragen
+      )
+        ? pinResult.anfragen
+        : []
+    );
+
+  } catch (error) {
+    console.error(
+      'Admin-Anfragen:',
+      error
+    );
+
+    const html = `
+      <div
+        class="empty-state"
+        style="color:#b00020;"
+      >
+        ❌ ${escapeHtmlNeu(
+          error.message
+        )}
+      </div>
+    `;
+
+    if (tauschListe) {
+      tauschListe.innerHTML =
+        html;
+    }
+
+    if (dienstListe) {
+      dienstListe.innerHTML =
+        html;
+    }
+
+    if (bearbeiteteListe) {
+      bearbeiteteListe.innerHTML =
+        html;
+    }
+
+    if (pinListe) {
+      pinListe.innerHTML =
+        html;
+    }
+  }
+}
+
+
+// ==========================================================
+// ADMIN – TAUSCHANFRAGEN
+// ==========================================================
+
+function rendereAdminTauschAnfragenNeu(
+  anfragen
+) {
+  const liste =
+    document.getElementById(
+      'adminTauschAnfragenListe'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (
+    !Array.isArray(anfragen) ||
+    anfragen.length === 0
+  ) {
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine offenen Tauschanfragen.
+      </div>
+    `;
+
+    return;
+  }
+
+  let html = '';
+
+  anfragen.forEach(
+    function(a) {
+      html += `
+        <div
+          style="
+            border:1px solid #dde1e5;
+            border-radius:11px;
+            padding:15px;
+            margin-bottom:12px;
+            background:#ffffff;
+          "
+        >
+          <strong
+            style="
+              display:block;
+              font-size:16px;
+            "
+          >
+            ${escapeHtmlNeu(
+              a.anfragender || ''
+            )}
+            ↔
+            ${escapeHtmlNeu(
+              a.partner || ''
+            )}
+          </strong>
+
+          <div
+            style="
+              margin-top:5px;
+              color:#666;
+            "
+          >
+            📅 ${escapeHtmlNeu(
+              a.datum || ''
+            )}
+
+            ${
+              a.kw
+                ? ' · KW ' +
+                  escapeHtmlNeu(
+                    a.kw
+                  )
+                : ''
+            }
+          </div>
+
+          <div
+            style="
+              margin-top:12px;
+              padding:11px;
+              background:#f7f8f9;
+              border-radius:8px;
+            "
+          >
+            <strong>
+              ${escapeHtmlNeu(
+                entferneDienstSymbol(
+                  a.eigenerDienst || ''
+                )
+              )}
+            </strong>
+
+            <span
+              style="
+                margin:0 7px;
+              "
+            >
+              ↔
+            </span>
+
+            <strong>
+              ${escapeHtmlNeu(
+                entferneDienstSymbol(
+                  a.partnerDienst || ''
+                )
+              )}
+            </strong>
+          </div>
+
+          ${
+            a.nachricht
+              ? `
+                <div
+                  style="
+                    margin-top:9px;
+                    color:#555;
+                    white-space:pre-wrap;
+                  "
+                >
+                  💬 ${escapeHtmlNeu(
+                    a.nachricht
+                  )}
+                </div>
+              `
+              : ''
+          }
+
+          <div
+            style="
+              display:grid;
+              grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+              gap:10px;
+              margin-top:14px;
+            "
+          >
+            <button
+              type="button"
+              onclick="bearbeiteAdminTauschAnfrageNeu(${Number(
+                a.zeile
+              )}, false)"
+              style="
+                width:100%;
+                min-height:44px;
+                border:1px solid #c9cdd2;
+                background:#ffffff;
+                color:#b00020;
+                border-radius:8px;
+                padding:9px 12px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ❌ Ablehnen
+            </button>
+
+            <button
+              type="button"
+              onclick="bearbeiteAdminTauschAnfrageNeu(${Number(
+                a.zeile
+              )}, true)"
+              style="
+                width:100%;
+                min-height:44px;
+                border:0;
+                background:#14943b;
+                color:#ffffff;
+                border-radius:8px;
+                padding:9px 12px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ✅ Genehmigen
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  );
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// ADMIN – TAUSCHANFRAGE BEARBEITEN
+// ==========================================================
+
+async function bearbeiteAdminTauschAnfrageNeu(
+  zeile,
+  genehmigen
+) {
+  const frage =
+    genehmigen
+      ? 'Diensttausch genehmigen und im Dienstplan durchführen?'
+      : 'Diensttausch wirklich ablehnen?';
+
+  if (
+    !window.confirm(
+      frage
+    )
+  ) {
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+
+    return;
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'adminTauschAnfrageBearbeiten',
+        {
+          token:
+            token,
+
+          zeile:
+            Number(
+              zeile
+            ),
+
+          genehmigen:
+            genehmigen === true
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'Tauschanfrage konnte nicht bearbeitet werden.'
+      );
+    }
+
+    window.alert(
+      result.message ||
+      'Anfrage wurde bearbeitet.'
+    );
+
+    await ladeAdminAnfragenNeu();
+
+    if (
+      genehmigen === true
+    ) {
+      dienstplanInitialisiert =
+        false;
+
+      await ladeMeinDienstplanNeu();
+    }
+
+  } catch (error) {
+    console.error(
+      'Admin-Tausch:',
+      error
+    );
+
+    window.alert(
+      'Fehler: ' +
+      error.message
+    );
+  }
+}
+
+
+// ==========================================================
+// ADMIN – OFFENE SONSTIGE WÜNSCHE
+// ==========================================================
+
+function rendereAdminDienstAnfragenNeu(
+  anfragen
+) {
+  const liste =
+    document.getElementById(
+      'adminDienstAnfragenListe'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (
+    !Array.isArray(anfragen) ||
+    anfragen.length === 0
+  ) {
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine offenen sonstigen Wünsche.
+      </div>
+    `;
+
+    return;
+  }
+
+  let html = '';
+
+  anfragen.forEach(
+    function(a) {
+      const mitarbeiter =
+        String(
+          a.mitarbeiter || ''
+        ).trim();
+
+      const datum =
+        String(
+          a.datum || ''
+        ).trim();
+
+      const dienst =
+        String(
+          a.dienst || ''
+        ).trim();
+
+      const nachricht =
+        String(
+          a.nachricht || ''
+        ).trim();
+
+      const zeile =
+        Number(
+          a.zeile || 0
+        );
+
+      const dienstBezug =
+        baueWunschDienstBezugNeu(
+          datum,
+          dienst
+        );
+
+      html += `
+        <div
+          style="
+            border:1px solid #dde1e5;
+            border-radius:13px;
+            padding:17px;
+            margin-bottom:14px;
+            background:#ffffff;
+            box-shadow:
+              0 3px 12px
+              rgba(0,0,0,0.035);
+          "
+        >
+          <div
+            style="
+              display:flex;
+              align-items:center;
+              gap:11px;
+            "
+          >
+            <div
+              style="
+                width:42px;
+                height:42px;
+                flex:0 0 auto;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                border-radius:50%;
+                background:#fff1f2;
+                font-size:20px;
+              "
+            >
+              👤
+            </div>
+
+            <div
+              style="
+                min-width:0;
+                flex:1;
+              "
+            >
+              <strong
+                style="
+                  display:block;
+                  color:#171717;
+                  font-size:17px;
+                  line-height:1.35;
+                  overflow-wrap:anywhere;
+                "
+              >
+                ${escapeHtmlNeu(
+                  mitarbeiter ||
+                  'Mitarbeiter'
+                )}
+              </strong>
+
+              <span
+                style="
+                  display:block;
+                  margin-top:2px;
+                  color:#777777;
+                  font-size:12px;
+                "
+              >
+                Sonstiger Wunsch
+              </span>
+            </div>
+          </div>
+
+          ${dienstBezug}
+
+          ${
+            nachricht
+              ? `
+                <div
+                  style="
+                    margin-top:12px;
+                    padding:13px 14px;
+                    border-left:4px solid #e30613;
+                    border-radius:8px;
+                    background:#fffafa;
+                    color:#333333;
+                    font-size:15px;
+                    line-height:1.55;
+                    white-space:pre-wrap;
+                    overflow-wrap:anywhere;
+                  "
+                >
+                  💬 „${escapeHtmlNeu(
+                    nachricht
+                  )}“
+                </div>
+              `
+              : ''
+          }
+
+          <div
+            style="
+              margin-top:14px;
+              padding:10px 12px;
+              border-radius:8px;
+              background:#fff8e8;
+              color:#6d5500;
+              font-size:12px;
+              line-height:1.45;
+            "
+          >
+            ℹ️ Die Entscheidung verändert den Dienstplan
+            nicht automatisch.
+          </div>
+
+          <div
+            style="
+              display:grid;
+              grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+              gap:10px;
+              margin-top:15px;
+            "
+          >
+            <button
+              type="button"
+              onclick="bearbeiteAdminDienstAnfrageNeu(${zeile}, false)"
+              style="
+                width:100%;
+                min-height:46px;
+                border:1px solid #d5d8dc;
+                background:#ffffff;
+                color:#b00020;
+                border-radius:9px;
+                padding:10px 12px;
+                font-weight:700;
+                font-size:14px;
+                cursor:pointer;
+              "
+            >
+              ❌ Ablehnen
+            </button>
+
+            <button
+              type="button"
+              onclick="bearbeiteAdminDienstAnfrageNeu(${zeile}, true)"
+              style="
+                width:100%;
+                min-height:46px;
+                border:0;
+                background:#14943b;
+                color:#ffffff;
+                border-radius:9px;
+                padding:10px 12px;
+                font-weight:700;
+                font-size:14px;
+                cursor:pointer;
+              "
+            >
+              ✅ Genehmigen
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  );
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// WUNSCH-DIENSTBEZUG DARSTELLEN
+// ==========================================================
+
+function baueWunschDienstBezugNeu(
+  datum,
+  dienst
+) {
+  datum =
+    String(
+      datum || ''
+    ).trim();
+
+  dienst =
+    String(
+      dienst || ''
+    ).trim();
+
+  if (
+    !datum &&
+    !dienst
+  ) {
+    return `
+      <div
+        style="
+          margin-top:10px;
+          color:#555555;
+          font-size:14px;
+          font-weight:700;
+        "
+      >
+        💬 Allgemeiner Wunsch
+      </div>
+    `;
+  }
+
+  let wochentag = '';
+
+  if (
+    /^\d{1,2}\.\d{1,2}\.\d{4}$/.test(
+      datum
+    )
+  ) {
+    const teile =
+      datum.split('.');
+
+    const datumObjekt =
+      new Date(
+        Number(
+          teile[2]
+        ),
+        Number(
+          teile[1]
+        ) - 1,
+        Number(
+          teile[0]
+        ),
+        12,
+        0,
+        0
+      );
+
+    if (
+      !isNaN(
+        datumObjekt.getTime()
+      )
+    ) {
+      const tage = [
+        'So',
+        'Mo',
+        'Di',
+        'Mi',
+        'Do',
+        'Fr',
+        'Sa'
+      ];
+
+      wochentag =
+        tage[
+          datumObjekt.getDay()
+        ] || '';
+    }
+  }
+
+  let plaza = '';
+  let schicht = '';
+  let schichtSymbol = '';
+
+  if (
+    /Garden Plaza/i.test(
+      dienst
+    )
+  ) {
+    plaza =
+      'Garden Plaza';
+  }
+
+  else if (
+    /Water Plaza/i.test(
+      dienst
+    )
+  ) {
+    plaza =
+      'Water Plaza';
+  }
+
+  if (
+    /\bFrüh\b/i.test(
+      dienst
+    )
+  ) {
+    schicht =
+      'Früh';
+
+    schichtSymbol =
+      '☀️';
+  }
+
+  else if (
+    /\bSpät\b/i.test(
+      dienst
+    )
+  ) {
+    schicht =
+      'Spät';
+
+    schichtSymbol =
+      '🌙';
+  }
+
+  else if (
+    /\bGanztag\b/i.test(
+      dienst
+    )
+  ) {
+    schicht =
+      'Ganztag';
+
+    schichtSymbol =
+      '🔵';
+  }
+
+  else if (
+    /Pausenablöse/i.test(
+      dienst
+    )
+  ) {
+    schicht =
+      'Pausenablöse';
+
+    schichtSymbol =
+      '☕';
+  }
+
+  const teile = [];
+
+  if (datum) {
+    teile.push(
+      escapeHtmlNeu(
+        wochentag
+          ? wochentag +
+            ', ' +
+            datum
+          : datum
+      )
+    );
+  }
+
+  if (plaza) {
+    teile.push(
+      escapeHtmlNeu(
+        plaza
+      )
+    );
+  }
+
+  if (schicht) {
+    teile.push(
+      escapeHtmlNeu(
+        (
+          schichtSymbol
+            ? schichtSymbol + ' '
+            : ''
+        ) +
+        schicht
+      )
+    );
+
+  } else if (dienst) {
+    teile.push(
+      escapeHtmlNeu(
+        entferneDienstSymbol(
+          dienst
+        )
+      )
+    );
+  }
+
+  return `
+    <div
+      style="
+        margin-top:10px;
+        padding:11px 13px;
+        border-radius:9px;
+        background:#f7f8fa;
+        color:#444444;
+        font-size:14px;
+        line-height:1.5;
+      "
+    >
+      📅 ${teile.join(' · ')}
+    </div>
+  `;
+}
+
+
+// ==========================================================
+// ADMIN – SONSTIGEN WUNSCH BEARBEITEN
+// ==========================================================
+
+async function bearbeiteAdminDienstAnfrageNeu(
+  zeile,
+  genehmigen
+) {
+  const frage =
+    genehmigen
+      ? 'Diesen Wunsch genehmigen?'
+      : 'Diesen Wunsch ablehnen?';
+
+  if (
+    !window.confirm(
+      frage
+    )
+  ) {
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+
+    return;
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'adminDienstAnfrageBearbeiten',
+        {
+          token:
+            token,
+
+          zeile:
+            Number(
+              zeile
+            ),
+
+          genehmigen:
+            genehmigen === true
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'Wunsch konnte nicht bearbeitet werden.'
+      );
+    }
+
+    window.alert(
+      result.message ||
+      'Wunsch wurde bearbeitet.'
+    );
+
+    await ladeAdminAnfragenNeu();
+
+  } catch (error) {
+    console.error(
+      'Wunsch bearbeiten:',
+      error
+    );
+
+    window.alert(
+      'Fehler: ' +
+      error.message
+    );
+  }
+}
+
+
+// ==========================================================
+// ADMIN – BEARBEITETE WÜNSCHE
+// ==========================================================
+
+function rendereAdminBearbeiteteDienstAnfragenNeu(
+  anfragen
+) {
+  const liste =
+    document.getElementById(
+      'adminBearbeiteteDienstAnfragenListe'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (
+    !Array.isArray(anfragen) ||
+    anfragen.length === 0
+  ) {
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine bearbeiteten Wünsche vorhanden.
+      </div>
+    `;
+
+    return;
+  }
+
+  let html = '';
+
+  anfragen.forEach(
+    function(a) {
+      const status =
+        String(
+          a.status || ''
+        )
+          .trim()
+          .toUpperCase();
+
+      const genehmigt =
+        status ===
+        'GENEHMIGT';
+
+      const statusText =
+        genehmigt
+          ? '✅ Genehmigt'
+          : '❌ Abgelehnt';
+
+      const statusFarbe =
+        genehmigt
+          ? '#176b2c'
+          : '#b00020';
+
+      const statusHintergrund =
+        genehmigt
+          ? '#e7f6ec'
+          : '#fdecec';
+
+      html += `
+        <div
+          style="
+            border:1px solid #dde1e5;
+            border-radius:11px;
+            padding:14px;
+            margin-bottom:11px;
+            background:#fafafa;
+          "
+        >
+          <div
+            style="
+              display:flex;
+              align-items:flex-start;
+              justify-content:space-between;
+              gap:12px;
+              flex-wrap:wrap;
+            "
+          >
+            <div
+              style="
+                min-width:0;
+                flex:1;
+              "
+            >
+              <strong
+                style="
+                  display:block;
+                  font-size:16px;
+                  overflow-wrap:anywhere;
+                "
+              >
+                ${escapeHtmlNeu(
+                  a.mitarbeiter || ''
+                )}
+              </strong>
+
+              ${baueWunschDienstBezugNeu(
+                a.datum || '',
+                a.dienst || ''
+              )}
+
+              ${
+                a.nachricht
+                  ? `
+                    <div
+                      style="
+                        margin-top:10px;
+                        padding:10px 11px;
+                        border-radius:8px;
+                        background:#ffffff;
+                        color:#444444;
+                        line-height:1.5;
+                        white-space:pre-wrap;
+                        overflow-wrap:anywhere;
+                      "
+                    >
+                      💬 ${escapeHtmlNeu(
+                        a.nachricht
+                      )}
+                    </div>
+                  `
+                  : ''
+              }
+            </div>
+
+            <div
+              style="
+                flex:0 0 auto;
+                padding:6px 9px;
+                border-radius:999px;
+                background:${statusHintergrund};
+                color:${statusFarbe};
+                font-size:12px;
+                font-weight:700;
+              "
+            >
+              ${statusText}
+            </div>
+          </div>
+
+          ${
+            a.bearbeitetAm
+              ? `
+                <div
+                  style="
+                    margin-top:9px;
+                    color:#777777;
+                    font-size:12px;
+                  "
+                >
+                  Bearbeitet:
+                  ${escapeHtmlNeu(
+                    a.bearbeitetAm
+                  )}
+                </div>
+              `
+              : ''
+          }
+
+          <div
+            style="
+              margin-top:12px;
+              display:flex;
+              justify-content:flex-end;
+            "
+          >
+            <button
+              type="button"
+              onclick="loescheAdminDienstAnfrageNeu(${Number(
+                a.zeile
+              )})"
+              style="
+                min-height:42px;
+                border:1px solid #d5d8dc;
+                background:#ffffff;
+                color:#b00020;
+                border-radius:8px;
+                padding:9px 13px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              🗑️ Löschen
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  );
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// ADMIN – BEARBEITETEN WUNSCH LÖSCHEN
+// ==========================================================
+
+async function loescheAdminDienstAnfrageNeu(
+  zeile
+) {
+  const bestaetigt =
+    window.confirm(
+      'Diesen bearbeiteten Wunsch endgültig löschen?\n\nDer Eintrag wird auch aus „Meine Anfragen“ des Mitarbeiters entfernt.'
+    );
+
+  if (!bestaetigt) {
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+
+    return;
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'adminDienstAnfrageLoeschen',
+        {
+          token:
+            token,
+
+          zeile:
+            Number(
+              zeile
+            )
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'Der Wunsch konnte nicht gelöscht werden.'
+      );
+    }
+
+    window.alert(
+      result.message ||
+      'Der Wunsch wurde gelöscht.'
+    );
+
+    await ladeAdminAnfragenNeu();
+
+  } catch (error) {
+    console.error(
+      'Wunsch löschen:',
+      error
+    );
+
+    window.alert(
+      'Fehler: ' +
+      error.message
+    );
+  }
+}
+
+
+// ==========================================================
+// ADMIN – PIN-RESET-ANFRAGEN
+// ==========================================================
+
+function rendereAdminPinResetsNeu(
+  anfragen
+) {
+  const liste =
+    document.getElementById(
+      'adminPinResetListe'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (
+    !Array.isArray(anfragen) ||
+    anfragen.length === 0
+  ) {
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine offenen PIN-Reset-Anfragen.
+      </div>
+    `;
+
+    return;
+  }
+
+  let html = '';
+
+  anfragen.forEach(
+    function(a) {
+      html += `
+        <div
+          style="
+            border:1px solid #dde1e5;
+            border-radius:11px;
+            padding:15px;
+            margin-bottom:12px;
+            background:#ffffff;
+          "
+        >
+          <div
+            style="
+              display:flex;
+              align-items:flex-start;
+              gap:12px;
+            "
+          >
+            <div
+              style="
+                width:42px;
+                height:42px;
+                border-radius:50%;
+                background:#f4f5f6;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:21px;
+                flex:0 0 auto;
+              "
+            >
+              🔐
+            </div>
+
+            <div
+              style="
+                flex:1;
+                min-width:0;
+              "
+            >
+              <strong
+                style="
+                  display:block;
+                  font-size:16px;
+                "
+              >
+                ${escapeHtmlNeu(
+                  a.mitarbeiter || ''
+                )}
+              </strong>
+
+              <div
+                style="
+                  margin-top:4px;
+                  color:#666;
+                "
+              >
+                Möchte den persönlichen PIN zurücksetzen.
+              </div>
+
+              ${
+                a.zeitstempel
+                  ? `
+                    <div
+                      style="
+                        margin-top:6px;
+                        color:#888;
+                        font-size:13px;
+                      "
+                    >
+                      🕒 ${escapeHtmlNeu(
+                        a.zeitstempel
+                      )}
+                    </div>
+                  `
+                  : ''
+              }
+            </div>
+          </div>
+
+          <div
+            style="
+              margin-top:12px;
+              padding:10px 11px;
+              border-radius:8px;
+              background:#fff8e8;
+              color:#6d5500;
+              font-size:13px;
+              line-height:1.45;
+            "
+          >
+            Bei Genehmigung wird nur der bisherige PIN gelöscht.
+            Der Mitarbeiter legt danach selbst einen neuen PIN fest.
+          </div>
+
+          <div
+            style="
+              display:grid;
+              grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+              gap:10px;
+              margin-top:14px;
+            "
+          >
+            <button
+              type="button"
+              onclick="bearbeiteAdminPinResetNeu(${Number(
+                a.zeile
+              )}, false)"
+              style="
+                width:100%;
+                min-height:44px;
+                border:1px solid #c9cdd2;
+                background:#ffffff;
+                color:#b00020;
+                border-radius:8px;
+                padding:9px 12px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ❌ Ablehnen
+            </button>
+
+            <button
+              type="button"
+              onclick="bearbeiteAdminPinResetNeu(${Number(
+                a.zeile
+              )}, true)"
+              style="
+                width:100%;
+                min-height:44px;
+                border:0;
+                background:#14943b;
+                color:#ffffff;
+                border-radius:8px;
+                padding:9px 12px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ✅ Reset genehmigen
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  );
+
+  liste.innerHTML =
+    html;
+}
+
+
+// ==========================================================
+// ADMIN – PIN RESET BEARBEITEN
+// ==========================================================
+
+async function bearbeiteAdminPinResetNeu(
+  zeile,
+  genehmigen
+) {
+  const frage =
+    genehmigen
+      ? 'PIN-Reset wirklich genehmigen? Der bisherige PIN des Mitarbeiters wird gelöscht.'
+      : 'PIN-Reset-Anfrage wirklich ablehnen?';
+
+  if (
+    !window.confirm(
+      frage
+    )
+  ) {
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+
+    return;
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'adminPinResetBearbeiten',
+        {
+          token:
+            token,
+
+          zeile:
+            Number(
+              zeile
+            ),
+
+          genehmigen:
+            genehmigen === true
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'PIN-Reset konnte nicht bearbeitet werden.'
+      );
+    }
+
+    window.alert(
+      result.message ||
+      'PIN-Anfrage wurde bearbeitet.'
+    );
+
+    await ladeAdminAnfragenNeu();
+
+  } catch (error) {
+    console.error(
+      'PIN Reset Admin:',
+      error
+    );
+
+    window.alert(
+      'Fehler: ' +
+      error.message
+    );
+  }
+}
+
+// ==========================================================
 // DYNAMISCHE ANSICHTEN INSTALLIEREN
 // ==========================================================
 
@@ -7553,16 +8135,15 @@ function installiereDynamischeAnsichtenNeu() {
 // ==========================================================
 
 function versteckeAlleHauptAnsichtenNeu() {
-  const ids =
-    [
-      'dienstplanAnsicht',
-      'tauschAnsicht',
-      'abwesenheitenAnsicht',
-      'anfragenAnsicht',
-      'pinAnsicht',
-      'adminAnsicht',
-      'sonstigerWunschAnsicht'
-    ];
+  const ids = [
+    'dienstplanAnsicht',
+    'tauschAnsicht',
+    'abwesenheitenAnsicht',
+    'anfragenAnsicht',
+    'pinAnsicht',
+    'adminAnsicht',
+    'sonstigerWunschAnsicht'
+  ];
 
   ids.forEach(
     function(id) {
@@ -7663,7 +8244,7 @@ function setzeNavigationAktivNeu(
 
 
 // ==========================================================
-// SEITENTITEL
+// SEITENTITEL MOBIL
 // ==========================================================
 
 function setzeSeitentitelNeu(
@@ -7741,7 +8322,7 @@ function schliesseNavigationNeu() {
 
 
 // ==========================================================
-// NAVIGATION INSTALLIEREN
+// NAVIGATION ERWEITERN
 // ==========================================================
 
 function installiereNavigationErweiterungNeu() {
@@ -7754,11 +8335,17 @@ function installiereNavigationErweiterungNeu() {
   window.__scsNavigationInstalliert =
     true;
 
+  /*
+    Falls in index.html bereits eine ältere
+    zeigeSeite()-Funktion vorhanden ist,
+    merken wir sie uns als Fallback.
+  */
   const basisZeigeSeite =
     typeof window.zeigeSeite ===
       'function'
       ? window.zeigeSeite
       : null;
+
 
   window.zeigeSeite =
     async function(seite) {
@@ -7800,8 +8387,16 @@ function installiereNavigationErweiterungNeu() {
 
         schliesseNavigationNeu();
 
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+
         await ladeMeinDienstplanNeu();
 
+        /*
+          Badge im Hintergrund aktualisieren.
+        */
         setTimeout(
           function() {
             ladeMeineAnfragenNeu(
@@ -7830,6 +8425,13 @@ function installiereNavigationErweiterungNeu() {
         seite ===
         'dienstTauschen'
       ) {
+        /*
+          Wichtig:
+          Wenn Dienst tauschen direkt über das
+          Hamburger-Menü geöffnet wird, müssen wir
+          zuerst die eigenen Dienste laden und
+          automatisch den ersten tauschbaren Tag setzen.
+        */
         if (
           !Array.isArray(
             letzterDienstplan
@@ -7851,6 +8453,11 @@ function installiereNavigationErweiterungNeu() {
             'block';
         }
 
+        /*
+          Hier wird Tag + Dienst initialisiert.
+          Dadurch funktionieren auch ← und →,
+          wenn man über das Menü kommt.
+        */
         await initialisiereTauschAnsichtNeu();
 
         schliesseNavigationNeu();
@@ -7862,7 +8469,8 @@ function installiereNavigationErweiterungNeu() {
 
         return;
       }
-      
+
+
       // ======================================================
       // ABWESENHEITEN
       // ======================================================
@@ -7963,7 +8571,7 @@ function installiereNavigationErweiterungNeu() {
 
 
       // ======================================================
-      // ADMIN
+      // ADMIN-BEREICH
       // ======================================================
 
       if (
@@ -8034,6 +8642,10 @@ function installiereNavigationErweiterungNeu() {
             'block';
         }
 
+        /*
+          Eigene Dienste für optionalen
+          Dienstbezug eintragen.
+        */
         ladeSonstigerWunschDiensteNeu();
 
         const meldung =
@@ -8064,7 +8676,7 @@ function installiereNavigationErweiterungNeu() {
       if (
         basisZeigeSeite
       ) {
-        basisZeigeSeite.call(
+        return basisZeigeSeite.call(
           window,
           seite
         );
@@ -8112,7 +8724,7 @@ async function ladeAppInfoNeu() {
 
 
 // ==========================================================
-// DIENSTZEITEN
+// DIENSTZEITEN – FRÜH
 // ==========================================================
 
 function zeitFruehNeu(
@@ -8128,6 +8740,10 @@ function zeitFruehNeu(
   return '09:00 – 14:30';
 }
 
+
+// ==========================================================
+// DIENSTZEITEN – SPÄT
+// ==========================================================
 
 function zeitSpaetNeu(
   tag
@@ -8151,6 +8767,10 @@ function zeitSpaetNeu(
   return '14:30 – 19:00';
 }
 
+
+// ==========================================================
+// ENDE FÜR GANZTAGESDIENST
+// ==========================================================
 
 function zeitSpaetEndeNeu(
   tag
@@ -8176,177 +8796,17 @@ function zeitSpaetEndeNeu(
 
 
 // ==========================================================
-// SESSION ABGELAUFEN
+// KOMPATIBILITÄT – LOGOUT
 // ==========================================================
 
-async function sessionAbgelaufenNeu() {
-  localStorage.removeItem(
-    SESSION_KEY
-  );
-
-  aktuellerBenutzer =
-    '';
-
-  aktuellerAdmin =
-    false;
-
-  letzterDienstplan =
-    [];
-
-  letzteAbwesenheiten =
-    [];
-
-  aktuelleKwNeu =
-    1;
-
-  dienstplanInitialisiert =
-    false;
-
-  zeigeLogin();
-
-  await ladeMitarbeiter();
-
-  zeigeLoginMeldung(
-    'Deine Anmeldung ist abgelaufen. Bitte melde dich erneut an.',
-    'fehler'
-  );
-}
-
-
-// ==========================================================
-// LOGOUT
-// ==========================================================
+/*
+  Falls index.html noch logoutAusfuehren()
+  aufruft, wird einfach unsere neue
+  logoutNeu()-Funktion verwendet.
+*/
 
 async function logoutAusfuehren() {
-  const token =
-    localStorage.getItem(
-      SESSION_KEY
-    );
-
-  localStorage.removeItem(
-    SESSION_KEY
-  );
-
-  aktuellerBenutzer =
-    '';
-
-  aktuellerAdmin =
-    false;
-
-  letzterDienstplan =
-    [];
-
-  letzteAbwesenheiten =
-    [];
-
-  aktuelleKwNeu =
-    1;
-
-  dienstplanInitialisiert =
-    false;
-
-  if (token) {
-    try {
-      await apiPost(
-        'logout',
-        {
-          token:
-            token
-        }
-      );
-
-    } catch (error) {
-      console.error(
-        'Logout:',
-        error
-      );
-    }
-  }
-
-  const pin =
-    document.getElementById(
-      'loginPin'
-    );
-
-  if (pin) {
-    pin.value =
-      '';
-  }
-
-  const adminNav =
-    document.getElementById(
-      'adminNav'
-    );
-
-  if (adminNav) {
-    adminNav.style.display =
-      'none';
-  }
-
-  const adminTitel =
-    document.getElementById(
-      'adminTitel'
-    );
-
-  if (adminTitel) {
-    adminTitel.style.display =
-      'none';
-  }
-
-  schliessePinFestlegenDialogNeu();
-
-  zeigeLogin();
-
-  await ladeMitarbeiter();
-}
-
-
-// ==========================================================
-// LOGIN-MELDUNG
-// ==========================================================
-
-function zeigeLoginMeldung(
-  text,
-  typ
-) {
-  const element =
-    document.getElementById(
-      'loginMeldung'
-    );
-
-  if (!element) {
-    return;
-  }
-
-  element.textContent =
-    text || '';
-
-  element.className =
-    'login-meldung ' +
-    (
-      typ ===
-      'erfolg'
-        ? 'erfolg'
-        : 'fehler'
-    );
-}
-
-
-function loescheLoginMeldung() {
-  const element =
-    document.getElementById(
-      'loginMeldung'
-    );
-
-  if (!element) {
-    return;
-  }
-
-  element.textContent =
-    '';
-
-  element.className =
-    'login-meldung';
+  await logoutNeu();
 }
 
 
