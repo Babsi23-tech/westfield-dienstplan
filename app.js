@@ -1244,11 +1244,29 @@ async function ladeMeinDienstplanNeu() {
 
     rendereDienstplanNeu();
 
+    const laden =
+      document.getElementById(
+        'dienstplanLaden'
+      );
+
+    if (laden) {
+      laden.style.display = 'none';
+    }
+
   } catch (error) {
     console.error(
       'Dienstplan:',
       error
     );
+
+    const laden =
+      document.getElementById(
+        'dienstplanLaden'
+      );
+
+    if (laden) {
+      laden.style.display = 'none';
+    }
 
     if (liste) {
       liste.innerHTML = `
@@ -1330,6 +1348,9 @@ function aktualisiereWochenstundenNeu(
   sollstunden
 ) {
   const element =
+    document.getElementById(
+      'dienstplanSollstunden'
+    ) ||
     document.getElementById(
       'sidebarWochenstunden'
     );
