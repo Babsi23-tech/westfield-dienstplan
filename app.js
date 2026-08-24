@@ -8876,3 +8876,40 @@ function escapeHtmlNeu(
 // ==========================================================
 // ENDE APP.JS
 // ==========================================================
+
+
+// ==========================================================
+// FIX – WOCHENPFEILE IM PERSÖNLICHEN DIENSTPLAN
+// ==========================================================
+// Die Pfeile wechseln jetzt wirklich KW für KW.
+// Sie springen nicht nur zwischen Wochen, in denen ein Dienst vorhanden ist.
+
+function wechselKwNeu(richtung) {
+  const schritt =
+    Number(richtung) < 0
+      ? -1
+      : 1;
+
+  let kw =
+    Number(aktuelleKwNeu) || 1;
+
+  kw += schritt;
+
+  if (kw < 1) {
+    kw = 53;
+  }
+
+  if (kw > 53) {
+    kw = 1;
+  }
+
+  aktuelleKwNeu = kw;
+
+  aktualisiereKwAnzeigeNeu();
+  rendereDienstplanNeu();
+}
+
+function wechselWoche(richtung) {
+  wechselKwNeu(richtung);
+}
+
