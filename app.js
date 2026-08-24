@@ -9433,7 +9433,7 @@ function rendereAdminGesamtDienstplanNeu() {
 
             ${
               dienste ||
-              '<div style="color:#777;">Keine Dienste eingetragen.</div>'
+              '<div ="color:#777;">Keine Dienste eingetragen.</div>'
             }
           </div>
         `;
