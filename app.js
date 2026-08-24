@@ -9671,7 +9671,7 @@ function installiereAdminUntermenueNeu() {
     'nav-pfeil';
 
   pfeil.textContent =
-    '⌄';
+    '⌃';
 
   adminNav.appendChild(
     pfeil
@@ -9689,7 +9689,7 @@ function installiereAdminUntermenueNeu() {
     'nav-untermenue';
 
   untermenue.style.display =
-    'none';
+    'block';
 
   untermenue.innerHTML = `
     <button
@@ -9729,20 +9729,15 @@ function toggleAdminUntermenueNeu() {
     return;
   }
 
-  const offen =
-    menue.style.display !==
-    'none';
-
+  // Wie bei "Änderung / Tausch":
+  // Der Admin-Bereich bleibt geöffnet und klappt
+  // beim erneuten Antippen nicht wieder zu.
   menue.style.display =
-    offen
-      ? 'none'
-      : 'block';
+    'block';
 
   if (pfeil) {
     pfeil.textContent =
-      offen
-        ? '⌄'
-        : '⌃';
+      '⌃';
   }
 }
 
