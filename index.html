@@ -957,7 +957,7 @@
             class="wochen-button"
             type="button"
             aria-label="Vorherige Woche"
-            onclick="wechselWoche(-1)"
+            onclick="wechselKwNeu(-1)"
           >
             ‹
           </button>
@@ -981,7 +981,7 @@
             class="wochen-button"
             type="button"
             aria-label="Nächste Woche"
-            onclick="wechselWoche(1)"
+            onclick="wechselKwNeu(1)"
           >
             ›
           </button>
@@ -1323,7 +1323,7 @@
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=20260821-3"></script>
+<script src="app.js?v=20260824-wochenfix-1"></script>
 
 
 <script>
@@ -1804,47 +1804,15 @@ function aktualisiereKwAnzeigeNeu() {
       'kwAnzeige'
     );
 
-
-  const liste =
-    document.getElementById(
-      'dienstplanListe'
-    );
-
-
-  if (
-    !kwAnzeige ||
-    !liste
-  ) {
+  if (!kwAnzeige) {
     return;
   }
-
-
-  const datum =
-    parseDatumIndexNeu(
-      liste.textContent
-    );
-
-
-  if (!datum) {
-    return;
-  }
-
-
-  const kw =
-    berechneIsoKwNeu(
-      datum
-    );
-
-
-  if (!kw) {
-    return;
-  }
-
 
   kwAnzeige.textContent =
     'KW ' +
-    kw;
-
+    String(
+      Number(aktuelleKwNeu) || 1
+    );
 }
 
 
@@ -3229,7 +3197,7 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js?v=20260821-3',
+          './service-worker.js?v=20260824-wochenfix-1',
           {
             updateViaCache:
               'none'
