@@ -1286,26 +1286,11 @@ function aktualisiereSidebarNeu(
   const nameElement =
     document.getElementById(
       'sidebarName'
-    ) ||
-    document.getElementById(
-      'profilNameAnzeige'
     );
 
   if (nameElement) {
     nameElement.textContent =
-      name || 'Mitarbeiter';
-  }
-
-  // Falls beide Varianten im HTML vorhanden sind,
-  // immer auch die sichtbare Profilanzeige aktualisieren.
-  const profilName =
-    document.getElementById(
-      'profilNameAnzeige'
-    );
-
-  if (profilName) {
-    profilName.textContent =
-      name || 'Mitarbeiter';
+      name || '';
   }
 
   const rolleElement =
@@ -9852,6 +9837,87 @@ function versucheAdminUntermenueInstallationNeu() {
 
 window.setTimeout(
   versucheAdminUntermenueInstallationNeu,
+  0
+);
+
+
+
+// ==========================================================
+// ADMIN – ANFRAGEN ÜBERSICHTLICH GLIEDERN
+// Nur Darstellung, keine Bearbeitungslogik.
+// ==========================================================
+
+function gliedereAdminAnfragenNeu() {
+  const ansicht =
+    document.getElementById(
+      'adminAnsicht'
+    );
+
+  if (!ansicht) {
+    return;
+  }
+
+  const tausch =
+    document.getElementById(
+      'adminTauschAnfragenListe'
+    );
+
+  const wuensche =
+    document.getElementById(
+      'adminDienstAnfragenListe'
+    );
+
+  const pin =
+    document.getElementById(
+      'adminPinResetListe'
+    );
+
+  [
+    [tausch, '🔄 Diensttausch'],
+    [wuensche, '💬 Sonstige Wünsche'],
+    [pin, '🔐 PIN-Reset']
+  ].forEach(function(eintrag) {
+    const liste = eintrag[0];
+    const titel = eintrag[1];
+
+    if (!liste) {
+      return;
+    }
+
+    const panel =
+      liste.closest(
+        '.panel'
+      );
+
+    if (!panel) {
+      return;
+    }
+
+    panel.style.marginBottom =
+      '18px';
+
+    panel.style.borderRadius =
+      '12px';
+
+    panel.style.overflow =
+      'hidden';
+
+    const h2 =
+      panel.querySelector(
+        'h2'
+      );
+
+    if (h2) {
+      h2.textContent =
+        titel;
+    }
+  });
+}
+
+
+// Bestehende Admin-Seite nach dem Aufbau nur optisch nachbearbeiten.
+window.setTimeout(
+  gliedereAdminAnfragenNeu,
   0
 );
 
