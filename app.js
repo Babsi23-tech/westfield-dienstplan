@@ -9921,3 +9921,98 @@ window.setTimeout(
   0
 );
 
+
+
+// ==========================================================
+// ADMIN – BEARBEITETE WÜNSCHE OPTISCH ABSETZEN
+// Nur Darstellung, keine Logik.
+// ==========================================================
+
+function styleBearbeiteteWuenscheNeu() {
+  const liste =
+    document.getElementById(
+      'adminDienstAnfragenListe'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  const panel =
+    liste.closest(
+      '.panel'
+    );
+
+  if (!panel) {
+    return;
+  }
+
+  // "Bearbeitete Wünsche" innerhalb des Wunsch-Panels suchen.
+  const elemente =
+    Array.from(
+      panel.querySelectorAll(
+        'h2, h3, h4, strong, div'
+      )
+    );
+
+  const titel =
+    elemente.find(
+      function(el) {
+        return (
+          el.textContent &&
+          el.textContent
+            .trim()
+            .includes(
+              'Bearbeitete Wünsche'
+            )
+        );
+      }
+    );
+
+  if (!titel) {
+    return;
+  }
+
+  // Nur den direkten Bereich optisch hervorheben.
+  const bereich =
+    titel.parentElement;
+
+  if (!bereich) {
+    return;
+  }
+
+  bereich.style.marginTop =
+    '22px';
+
+  bereich.style.paddingTop =
+    '20px';
+
+  bereich.style.borderTop =
+    '2px solid #e5e7eb';
+
+  titel.style.color =
+    '#555';
+
+  titel.style.fontWeight =
+    '800';
+}
+
+
+// Nach dem Laden der Admin-Anfragen anwenden.
+const ladeAdminAnfragenDarstellungBasisNeu =
+  ladeAdminAnfragenNeu;
+
+ladeAdminAnfragenNeu =
+  async function() {
+
+    await ladeAdminAnfragenDarstellungBasisNeu();
+
+    window.setTimeout(
+      function() {
+        gliedereAdminAnfragenNeu();
+        styleBearbeiteteWuenscheNeu();
+      },
+      0
+    );
+  };
+
