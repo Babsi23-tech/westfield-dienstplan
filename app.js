@@ -8390,6 +8390,585 @@ async function bearbeiteAdminPinResetNeu(
   }
 }
 
+
+// ==========================================================
+// URLAUB BEANTRAGEN – ANSICHT
+// ==========================================================
+
+function installiereUrlaubNavigationNeu() {
+  const menue =
+    document.getElementById(
+      'tauschUntermenue'
+    );
+
+  if (
+    !menue ||
+    document.getElementById(
+      'urlaubNavNeu'
+    )
+  ) {
+    return;
+  }
+
+  const button =
+    document.createElement(
+      'button'
+    );
+
+  button.id =
+    'urlaubNavNeu';
+
+  button.type =
+    'button';
+
+  button.setAttribute(
+    'onclick',
+    "zeigeSeite('urlaub')"
+  );
+
+  button.textContent =
+    '🏖️ Urlaub beantragen';
+
+  menue.appendChild(
+    button
+  );
+}
+
+
+function installiereUrlaubAnsichtNeu() {
+  if (
+    document.getElementById(
+      'urlaubAnsichtNeu'
+    )
+  ) {
+    return;
+  }
+
+  const main =
+    document.querySelector(
+      '#hauptApp .content'
+    );
+
+  if (!main) {
+    return;
+  }
+
+  const section =
+    document.createElement(
+      'section'
+    );
+
+  section.id =
+    'urlaubAnsichtNeu';
+
+  section.style.display =
+    'none';
+
+  section.innerHTML = `
+    <div class="content-header">
+      <div>
+        <h1>
+          🏖️ Urlaub beantragen
+        </h1>
+
+        <p>
+          Wähle deinen gewünschten Urlaubszeitraum.
+          Urlaubssperren werden automatisch geprüft.
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="panel"
+      style="
+        max-width:720px;
+        margin-left:auto;
+        margin-right:auto;
+      "
+    >
+      <label
+        for="urlaubVonNeu"
+        style="
+          display:block;
+          font-weight:700;
+          margin-bottom:7px;
+        "
+      >
+        Von
+      </label>
+
+      <input
+        id="urlaubVonNeu"
+        type="date"
+        onchange="pruefeUrlaubssperreLiveNeu()"
+        style="
+          width:100%;
+          box-sizing:border-box;
+          border:1px solid #d7dce1;
+          border-radius:9px;
+          padding:12px;
+          margin-bottom:16px;
+          font-size:16px;
+        "
+      >
+
+      <label
+        for="urlaubBisNeu"
+        style="
+          display:block;
+          font-weight:700;
+          margin-bottom:7px;
+        "
+      >
+        Bis
+      </label>
+
+      <input
+        id="urlaubBisNeu"
+        type="date"
+        onchange="pruefeUrlaubssperreLiveNeu()"
+        style="
+          width:100%;
+          box-sizing:border-box;
+          border:1px solid #d7dce1;
+          border-radius:9px;
+          padding:12px;
+          margin-bottom:16px;
+          font-size:16px;
+        "
+      >
+
+      <div
+        id="urlaubSperreHinweisNeu"
+        style="
+          display:none;
+          margin-bottom:16px;
+          padding:12px 13px;
+          border-radius:9px;
+          background:#fdecec;
+          color:#a51c2b;
+          font-weight:700;
+          line-height:1.45;
+        "
+      ></div>
+
+      <label
+        for="urlaubNotizNeu"
+        style="
+          display:block;
+          font-weight:700;
+          margin-bottom:7px;
+        "
+      >
+        Notiz
+        <span
+          style="
+            color:#888;
+            font-weight:400;
+          "
+        >
+          (optional)
+        </span>
+      </label>
+
+      <textarea
+        id="urlaubNotizNeu"
+        maxlength="500"
+        rows="4"
+        placeholder="Optionaler Hinweis …"
+        style="
+          width:100%;
+          box-sizing:border-box;
+          border:1px solid #d7dce1;
+          border-radius:9px;
+          padding:12px;
+          margin-bottom:16px;
+          font:inherit;
+          resize:vertical;
+        "
+      ></textarea>
+
+      <div
+        id="urlaubMeldungNeu"
+        style="
+          min-height:22px;
+          margin-bottom:12px;
+          line-height:1.45;
+        "
+      ></div>
+
+      <button
+        id="urlaubSendenButtonNeu"
+        type="button"
+        onclick="sendeUrlaubsAnfrageNeu()"
+        style="
+          width:100%;
+          min-height:48px;
+          border:0;
+          background:#111;
+          color:#fff;
+          border-radius:9px;
+          padding:11px 14px;
+          font-weight:800;
+          font-size:15px;
+          cursor:pointer;
+        "
+      >
+        📤 Urlaubsantrag senden
+      </button>
+    </div>
+  `;
+
+  main.appendChild(
+    section
+  );
+}
+
+
+function isoZuDatumNeu(
+  wert
+) {
+  const m =
+    String(wert || '')
+      .match(
+        /^(\d{4})-(\d{2})-(\d{2})$/
+      );
+
+  if (!m) {
+    return null;
+  }
+
+  return new Date(
+    Number(m[1]),
+    Number(m[2]) - 1,
+    Number(m[3]),
+    12,
+    0,
+    0
+  );
+}
+
+
+function findeUrlaubssperreFrontendNeu(
+  vonText,
+  bisText
+) {
+  const von =
+    isoZuDatumNeu(
+      vonText
+    );
+
+  const bis =
+    isoZuDatumNeu(
+      bisText
+    );
+
+  if (
+    !von ||
+    !bis
+  ) {
+    return null;
+  }
+
+  return (
+    kalenderHinweiseNeu || []
+  ).find(
+    function(hinweis) {
+      if (
+        String(
+          hinweis.typ || ''
+        )
+          .trim()
+          .toLowerCase() !==
+        'urlaubssperre'
+      ) {
+        return false;
+      }
+
+      const sperreVon =
+        parseDatumHinweisNeu(
+          hinweis.von
+        );
+
+      const sperreBis =
+        parseDatumHinweisNeu(
+          hinweis.bis
+        );
+
+      if (
+        !sperreVon ||
+        !sperreBis
+      ) {
+        return false;
+      }
+
+      return (
+        von.getTime() <=
+          sperreBis.getTime() &&
+        bis.getTime() >=
+          sperreVon.getTime()
+      );
+    }
+  ) || null;
+}
+
+
+function pruefeUrlaubssperreLiveNeu() {
+  const von =
+    document.getElementById(
+      'urlaubVonNeu'
+    );
+
+  const bis =
+    document.getElementById(
+      'urlaubBisNeu'
+    );
+
+  const hinweis =
+    document.getElementById(
+      'urlaubSperreHinweisNeu'
+    );
+
+  const button =
+    document.getElementById(
+      'urlaubSendenButtonNeu'
+    );
+
+  if (
+    !von ||
+    !bis ||
+    !hinweis ||
+    !button
+  ) {
+    return;
+  }
+
+  const sperre =
+    findeUrlaubssperreFrontendNeu(
+      von.value,
+      bis.value
+    );
+
+  if (sperre) {
+    hinweis.style.display =
+      'block';
+
+    hinweis.textContent =
+      '⛔ Urlaubssperre: ' +
+      String(
+        sperre.bezeichnung || ''
+      ) +
+      ' (' +
+      String(
+        sperre.von || ''
+      ) +
+      ' – ' +
+      String(
+        sperre.bis || ''
+      ) +
+      ')';
+
+    button.disabled =
+      true;
+
+    button.style.opacity =
+      '.55';
+
+    button.style.cursor =
+      'not-allowed';
+
+  } else {
+    hinweis.style.display =
+      'none';
+
+    hinweis.textContent =
+      '';
+
+    button.disabled =
+      false;
+
+    button.style.opacity =
+      '1';
+
+    button.style.cursor =
+      'pointer';
+  }
+}
+
+
+async function sendeUrlaubsAnfrageNeu() {
+  const von =
+    document.getElementById(
+      'urlaubVonNeu'
+    );
+
+  const bis =
+    document.getElementById(
+      'urlaubBisNeu'
+    );
+
+  const notiz =
+    document.getElementById(
+      'urlaubNotizNeu'
+    );
+
+  const meldung =
+    document.getElementById(
+      'urlaubMeldungNeu'
+    );
+
+  const button =
+    document.getElementById(
+      'urlaubSendenButtonNeu'
+    );
+
+  if (
+    !von ||
+    !bis ||
+    !meldung ||
+    !button
+  ) {
+    return;
+  }
+
+  meldung.textContent =
+    '';
+
+  if (
+    !von.value ||
+    !bis.value
+  ) {
+    meldung.style.color =
+      '#b00020';
+
+    meldung.textContent =
+      'Bitte wähle Von und Bis aus.';
+
+    return;
+  }
+
+  if (
+    bis.value <
+    von.value
+  ) {
+    meldung.style.color =
+      '#b00020';
+
+    meldung.textContent =
+      'Das Bis-Datum darf nicht vor dem Von-Datum liegen.';
+
+    return;
+  }
+
+  const sperre =
+    findeUrlaubssperreFrontendNeu(
+      von.value,
+      bis.value
+    );
+
+  if (sperre) {
+    pruefeUrlaubssperreLiveNeu();
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+    return;
+  }
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    'Wird gesendet …';
+
+  try {
+    const result =
+      await apiPost(
+        'urlaubAnfrageSenden',
+        {
+          token:
+            token,
+
+          von:
+            von.value,
+
+          bis:
+            bis.value,
+
+          notiz:
+            notiz
+              ? notiz.value
+              : ''
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'Urlaubsantrag konnte nicht gesendet werden.'
+      );
+    }
+
+    meldung.style.color =
+      '#176b2c';
+
+    meldung.textContent =
+      '✅ ' +
+      (
+        result.message ||
+        'Urlaubsantrag wurde gesendet.'
+      );
+
+    von.value =
+      '';
+
+    bis.value =
+      '';
+
+    if (notiz) {
+      notiz.value =
+        '';
+    }
+
+    pruefeUrlaubssperreLiveNeu();
+
+  } catch (error) {
+    meldung.style.color =
+      '#b00020';
+
+    meldung.textContent =
+      '❌ ' +
+      error.message;
+
+  } finally {
+    button.disabled =
+      false;
+
+    button.textContent =
+      '📤 Urlaubsantrag senden';
+
+    pruefeUrlaubssperreLiveNeu();
+  }
+}
+
+
 // ==========================================================
 // DYNAMISCHE ANSICHTEN INSTALLIEREN
 // ==========================================================
@@ -8404,6 +8983,10 @@ function installiereDynamischeAnsichtenNeu() {
   installiereAdminAnsichtNeu();
 
   installiereSonstigerWunschAnsichtNeu();
+
+  installiereUrlaubAnsichtNeu();
+
+  installiereUrlaubNavigationNeu();
 }
 
 
@@ -8419,7 +9002,8 @@ function versteckeAlleHauptAnsichtenNeu() {
     'anfragenAnsicht',
     'pinAnsicht',
     'adminAnsicht',
-    'sonstigerWunschAnsicht'
+    'sonstigerWunschAnsicht',
+    'urlaubAnsichtNeu'
   ];
 
   ids.forEach(
@@ -8498,7 +9082,9 @@ function setzeNavigationAktivNeu(
     seite ===
       'dienstTauschen' ||
     seite ===
-      'sonstigerWunsch'
+      'sonstigerWunsch' ||
+    seite ===
+      'urlaub'
   ) {
     if (tauschGruppe) {
       tauschGruppe.classList.add(
@@ -8556,7 +9142,10 @@ function setzeSeitentitelNeu(
       'Dienst tauschen',
 
     sonstigerWunsch:
-      'Sonstiger Wunsch'
+      'Sonstiger Wunsch',
+
+    urlaub:
+      'Urlaub beantragen'
   };
 
   titel.textContent =
@@ -8934,6 +9523,41 @@ function installiereNavigationErweiterungNeu() {
           meldung.textContent =
             '';
         }
+
+        schliesseNavigationNeu();
+
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+
+        return;
+      }
+
+
+      // ======================================================
+      // URLAUB BEANTRAGEN
+      // ======================================================
+
+      if (
+        seite ===
+        'urlaub'
+      ) {
+        versteckeAlleHauptAnsichtenNeu();
+
+        const ansicht =
+          document.getElementById(
+            'urlaubAnsichtNeu'
+          );
+
+        if (ansicht) {
+          ansicht.style.display =
+            'block';
+        }
+
+        await ladeKalenderHinweiseNeu();
+
+        pruefeUrlaubssperreLiveNeu();
 
         schliesseNavigationNeu();
 
