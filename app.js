@@ -9620,3 +9620,260 @@ ladeAdminAnfragenNeu =
     ]);
   };
 
+
+
+// ==========================================================
+// ADMIN – AUFKLAPPBARES UNTERMENÜ
+// ==========================================================
+
+function installiereAdminUntermenueNeu() {
+  const adminNav =
+    document.getElementById(
+      'adminNav'
+    );
+
+  if (
+    !adminNav ||
+    document.getElementById(
+      'adminUntermenueNeu'
+    )
+  ) {
+    return;
+  }
+
+  // Der bisherige Admin-Button wird zum Auf-/Zuklappen verwendet.
+  adminNav.removeAttribute(
+    'onclick'
+  );
+
+  adminNav.setAttribute(
+    'onclick',
+    'toggleAdminUntermenueNeu()'
+  );
+
+  // Pfeil ergänzen.
+  const pfeil =
+    document.createElement(
+      'span'
+    );
+
+  pfeil.id =
+    'adminUntermenuePfeilNeu';
+
+  pfeil.className =
+    'nav-pfeil';
+
+  pfeil.textContent =
+    '⌄';
+
+  adminNav.appendChild(
+    pfeil
+  );
+
+  const untermenue =
+    document.createElement(
+      'div'
+    );
+
+  untermenue.id =
+    'adminUntermenueNeu';
+
+  untermenue.className =
+    'nav-untermenue';
+
+  untermenue.style.display =
+    'none';
+
+  untermenue.innerHTML = `
+    <button
+      type="button"
+      onclick="zeigeAdminGesamtplanSeiteNeu()"
+    >
+      📅 Gesamter Dienstplan
+    </button>
+
+    <button
+      type="button"
+      onclick="zeigeAdminAnfragenSeiteNeu()"
+    >
+      📥 Anfragen bearbeiten
+    </button>
+  `;
+
+  adminNav.insertAdjacentElement(
+    'afterend',
+    untermenue
+  );
+}
+
+
+function toggleAdminUntermenueNeu() {
+  const menue =
+    document.getElementById(
+      'adminUntermenueNeu'
+    );
+
+  const pfeil =
+    document.getElementById(
+      'adminUntermenuePfeilNeu'
+    );
+
+  if (!menue) {
+    return;
+  }
+
+  const offen =
+    menue.style.display !==
+    'none';
+
+  menue.style.display =
+    offen
+      ? 'none'
+      : 'block';
+
+  if (pfeil) {
+    pfeil.textContent =
+      offen
+        ? '⌄'
+        : '⌃';
+  }
+}
+
+
+function setzeAdminPanelSichtbarkeitNeu(
+  gesamtplan
+) {
+  const ansicht =
+    document.getElementById(
+      'adminAnsicht'
+    );
+
+  if (!ansicht) {
+    return;
+  }
+
+  const gesamt =
+    document.getElementById(
+      'adminGesamtplanPanelNeu'
+    );
+
+  const panels =
+    Array.from(
+      ansicht.querySelectorAll(
+        ':scope > .panel'
+      )
+    );
+
+  panels.forEach(
+    function(panel) {
+      if (
+        panel.id ===
+        'adminGesamtplanPanelNeu'
+      ) {
+        panel.style.display =
+          gesamtplan
+            ? ''
+            : 'none';
+      } else {
+        panel.style.display =
+          gesamtplan
+            ? 'none'
+            : '';
+      }
+    }
+  );
+
+  if (gesamt) {
+    gesamt.style.display =
+      gesamtplan
+        ? ''
+        : 'none';
+  }
+}
+
+
+async function zeigeAdminGesamtplanSeiteNeu() {
+  if (
+    typeof zeigeSeite ===
+    'function'
+  ) {
+    zeigeSeite(
+      'admin'
+    );
+  }
+
+  installiereAdminGesamtplanPanelNeu();
+
+  setzeAdminPanelSichtbarkeitNeu(
+    true
+  );
+
+  await ladeAdminGesamtplanNeu();
+
+  const titel =
+    document.getElementById(
+      'mobileSeitentitel'
+    );
+
+  if (titel) {
+    titel.textContent =
+      'Gesamter Dienstplan';
+  }
+
+  schliesseMobileMenue();
+}
+
+
+async function zeigeAdminAnfragenSeiteNeu() {
+  if (
+    typeof zeigeSeite ===
+    'function'
+  ) {
+    zeigeSeite(
+      'admin'
+    );
+  }
+
+  installiereAdminGesamtplanPanelNeu();
+
+  setzeAdminPanelSichtbarkeitNeu(
+    false
+  );
+
+  await ladeAdminAnfragenBasisNeu();
+
+  const titel =
+    document.getElementById(
+      'mobileSeitentitel'
+    );
+
+  if (titel) {
+    titel.textContent =
+      'Anfragen bearbeiten';
+  }
+
+  schliesseMobileMenue();
+}
+
+
+// Nach dem Login / Aufbau der Navigation das Admin-Untermenü installieren.
+function versucheAdminUntermenueInstallationNeu() {
+  installiereAdminUntermenueNeu();
+
+  if (
+    !document.getElementById(
+      'adminUntermenueNeu'
+    )
+  ) {
+    window.setTimeout(
+      versucheAdminUntermenueInstallationNeu,
+      300
+    );
+  }
+}
+
+window.setTimeout(
+  versucheAdminUntermenueInstallationNeu,
+  0
+);
+
