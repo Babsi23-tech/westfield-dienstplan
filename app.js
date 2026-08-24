@@ -8930,21 +8930,38 @@ function dauerAusZeitTextNeu(text) {
 }
 
 function berechneGeplanteWochenstundenNeu() {
-  const liste = document.getElementById('dienstplanListe');
-  if (!liste) return 0;
-
+  const kw = Number(aktuelleKwNeu) || 1;
   let stunden = 0;
 
-  liste.querySelectorAll('.dienst-karte').forEach(function(karte) {
-    const text = karte.textContent || '';
+  (letzterDienstplan || []).forEach(function(z) {
+    if (Number(z.kw || 0) !== kw) {
+      return;
+    }
 
-    // Pausenablösen sind Zusatzinfos innerhalb eines normalen Dienstes
-    // und dürfen deshalb nicht ein zweites Mal zur Dienstzeit addiert werden.
-    const zeitTreffer = text.match(/(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})/);
-
-    if (zeitTreffer) {
+    // Nur die echten Hauptdienste zählen.
+    // Pausenablösen sind innerhalb des Dienstes Zusatzinfos und werden
+    // deshalb nicht noch einmal extra addiert.
+    if (z.gpFrueh) {
       stunden += dauerAusZeitTextNeu(
-        zeitTreffer[1] + ' - ' + zeitTreffer[2]
+        zeitFruehNeu(z.tag)
+      );
+    }
+
+    if (z.gpSpaet) {
+      stunden += dauerAusZeitTextNeu(
+        zeitSpaetNeu(z.tag)
+      );
+    }
+
+    if (z.wpFrueh) {
+      stunden += dauerAusZeitTextNeu(
+        zeitFruehNeu(z.tag)
+      );
+    }
+
+    if (z.wpSpaet) {
+      stunden += dauerAusZeitTextNeu(
+        zeitSpaetNeu(z.tag)
       );
     }
   });
