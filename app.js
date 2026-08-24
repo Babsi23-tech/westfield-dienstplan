@@ -12,6 +12,9 @@ let letzteAbwesenheiten = [];
 let aktuelleKwNeu = 1;
 let dienstplanInitialisiert = false;
 
+let kalenderHinweiseNeu = [];
+let kalenderHinweiseGeladenNeu = false;
+
 // Daten für den direkten Diensttausch
 let tauschDatum = '';
 let tauschTag = '';
@@ -1143,6 +1146,250 @@ async function speichereNeuenPinNeu() {
 }
 
 
+
+// ==========================================================
+// FERIEN / FEIERTAGE / URLAUBSSPERRE AUS GOOGLE SHEETS
+// Blatt: "Ferien & Feiertage"
+// ==========================================================
+
+function parseDatumHinweisNeu(text) {
+  const treffer =
+    String(text || '')
+      .trim()
+      .match(
+        /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/
+      );
+
+  if (!treffer) {
+    return null;
+  }
+
+  return new Date(
+    Number(treffer[3]),
+    Number(treffer[2]) - 1,
+    Number(treffer[1]),
+    12,
+    0,
+    0
+  );
+}
+
+
+async function ladeKalenderHinweiseNeu(
+  erzwingen = false
+) {
+  if (
+    kalenderHinweiseGeladenNeu &&
+    !erzwingen
+  ) {
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    return;
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'kalenderHinweise',
+        {
+          token:
+            token
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'Kalenderhinweise konnten nicht geladen werden.'
+      );
+    }
+
+    kalenderHinweiseNeu =
+      Array.isArray(
+        result.hinweise
+      )
+        ? result.hinweise
+        : [];
+
+    kalenderHinweiseGeladenNeu =
+      true;
+
+  } catch (error) {
+    console.error(
+      'Ferien & Feiertage:',
+      error
+    );
+
+    kalenderHinweiseNeu =
+      [];
+
+    kalenderHinweiseGeladenNeu =
+      false;
+  }
+}
+
+
+function getKalenderHinweiseFuerDatumNeu(
+  datumText
+) {
+  const datum =
+    parseDatumHinweisNeu(
+      datumText
+    );
+
+  if (!datum) {
+    return [];
+  }
+
+  const zeit =
+    datum.getTime();
+
+  return (
+    kalenderHinweiseNeu || []
+  ).filter(
+    function(hinweis) {
+      const von =
+        parseDatumHinweisNeu(
+          hinweis.von
+        );
+
+      const bis =
+        parseDatumHinweisNeu(
+          hinweis.bis
+        );
+
+      if (
+        !von ||
+        !bis
+      ) {
+        return false;
+      }
+
+      return (
+        zeit >= von.getTime() &&
+        zeit <= bis.getTime()
+      );
+    }
+  );
+}
+
+
+function kalenderHinweiseHtmlNeu(
+  datumText
+) {
+  const hinweise =
+    getKalenderHinweiseFuerDatumNeu(
+      datumText
+    );
+
+  if (!hinweise.length) {
+    return '';
+  }
+
+  return hinweise.map(
+    function(hinweis) {
+      const typ =
+        String(
+          hinweis.typ || ''
+        )
+          .trim()
+          .toLowerCase();
+
+      let symbol =
+        'ℹ️';
+
+      let hintergrund =
+        '#f3f4f6';
+
+      let farbe =
+        '#444';
+
+      if (
+        typ ===
+        'feiertag'
+      ) {
+        symbol =
+          '🎉';
+
+        hintergrund =
+          '#fff3cd';
+
+        farbe =
+          '#765600';
+      }
+
+      else if (
+        typ ===
+        'ferien'
+      ) {
+        symbol =
+          '🏖️';
+
+        hintergrund =
+          '#eaf4ff';
+
+        farbe =
+          '#174d7a';
+      }
+
+      else if (
+        typ ===
+        'urlaubssperre'
+      ) {
+        symbol =
+          '⛔';
+
+        hintergrund =
+          '#fdecec';
+
+        farbe =
+          '#a51c2b';
+      }
+
+      return `
+        <div
+          style="
+            display:inline-flex;
+            align-items:center;
+            gap:5px;
+            margin-top:6px;
+            margin-right:6px;
+            padding:5px 9px;
+            border-radius:999px;
+            background:${hintergrund};
+            color:${farbe};
+            font-size:12px;
+            font-weight:750;
+          "
+        >
+          ${symbol}
+          ${escapeHtmlNeu(
+            hinweis.bezeichnung || ''
+          )}
+        </div>
+      `;
+    }
+  ).join('');
+}
+
+
 // ==========================================================
 // MEIN DIENSTPLAN LADEN
 // ==========================================================
@@ -1232,6 +1479,8 @@ async function ladeMeinDienstplanNeu() {
     aktualisiereWochenstundenNeu(
       result.sollstunden
     );
+
+    await ladeKalenderHinweiseNeu();
 
     if (
       !dienstplanInitialisiert
@@ -1957,6 +2206,10 @@ function rendereDienstplan(
                 z.datum || ''
               )}
             </strong>
+
+            ${kalenderHinweiseHtmlNeu(
+              z.datum || ''
+            )}
           </div>
       `;
 
@@ -9284,6 +9537,8 @@ async function ladeAdminGesamtplanNeu() {
         ? result.dienstplan
         : [];
 
+    await ladeKalenderHinweiseNeu();
+
     if (
       !adminGesamtKwNeu ||
       !ermittleAdminGesamtKwsNeu()
@@ -9538,6 +9793,10 @@ function rendereAdminGesamtplanNeu() {
             )}
             ·
             ${escapeHtmlNeu(
+              tag.datum || ''
+            )}
+
+            ${kalenderHinweiseHtmlNeu(
               tag.datum || ''
             )}
           </div>
