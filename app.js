@@ -6675,6 +6675,18 @@ async function ladeAdminAnfragenNeu() {
       );
     }
 
+    aktualisiereAdminBadgeNeu(
+      (Array.isArray(tauschResult.anfragen)
+        ? tauschResult.anfragen.length
+        : 0) +
+      (Array.isArray(dienstResult.anfragen)
+        ? dienstResult.anfragen.length
+        : 0) +
+      (Array.isArray(pinResult.anfragen)
+        ? pinResult.anfragen.length
+        : 0)
+    );
+
     rendereAdminTauschAnfragenNeu(
       Array.isArray(
         tauschResult.anfragen
@@ -10015,4 +10027,87 @@ ladeAdminAnfragenNeu =
       0
     );
   };
+
+
+
+// ==========================================================
+// ADMIN – BADGE FÜR OFFENE ANFRAGEN
+// ==========================================================
+
+function aktualisiereAdminBadgeNeu(anzahl) {
+  const adminNav =
+    document.getElementById(
+      'adminNav'
+    );
+
+  if (!adminNav) {
+    return;
+  }
+
+  let badge =
+    document.getElementById(
+      'adminOffenBadgeNeu'
+    );
+
+  const wert =
+    Math.max(
+      0,
+      Number(anzahl || 0)
+    );
+
+  if (wert === 0) {
+    if (badge) {
+      badge.remove();
+    }
+    return;
+  }
+
+  if (!badge) {
+    badge =
+      document.createElement(
+        'span'
+      );
+
+    badge.id =
+      'adminOffenBadgeNeu';
+
+    badge.style.cssText = `
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:20px;
+      height:20px;
+      padding:0 6px;
+      margin-left:auto;
+      border-radius:999px;
+      background:#d93025;
+      color:#fff;
+      font-size:12px;
+      font-weight:800;
+      line-height:1;
+      box-sizing:border-box;
+    `;
+
+    const pfeil =
+      document.getElementById(
+        'adminUntermenuePfeilNeu'
+      );
+
+    if (pfeil) {
+      adminNav.insertBefore(
+        badge,
+        pfeil
+      );
+    } else {
+      adminNav.appendChild(
+        badge
+      );
+    }
+  }
+
+  badge.textContent =
+    wert > 99
+      ? '99+'
+      : String(wert);
+}
 
