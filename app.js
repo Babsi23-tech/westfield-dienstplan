@@ -9037,3 +9037,586 @@ rendereDienstplanNeu = function() {
   );
 };
 
+
+
+// ==========================================================
+// ADMIN – GESAMTER DIENSTPLAN
+// SCHRITT 3: NUR ANZEIGE IM ADMIN-BEREICH
+// ==========================================================
+
+let adminGesamtDienstplanNeu = [];
+let adminGesamtKwNeu = null;
+
+function installiereAdminGesamtplanPanelNeu() {
+  const ansicht =
+    document.getElementById(
+      'adminAnsicht'
+    );
+
+  if (
+    !ansicht ||
+    document.getElementById(
+      'adminGesamtplanPanelNeu'
+    )
+  ) {
+    return;
+  }
+
+  const panel =
+    document.createElement(
+      'div'
+    );
+
+  panel.id =
+    'adminGesamtplanPanelNeu';
+
+  panel.className =
+    'panel';
+
+  panel.style.marginBottom =
+    '18px';
+
+  panel.innerHTML = `
+    <h2 style="margin-top:0;">
+      📅 Gesamter Dienstplan
+    </h2>
+
+    <p style="color:#666;">
+      Hier siehst du alle eingetragenen Dienste einer Kalenderwoche.
+    </p>
+
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:16px;
+        margin:16px 0 18px;
+      "
+    >
+      <button
+        type="button"
+        onclick="wechselAdminGesamtKwNeu(-1)"
+        style="
+          width:44px;
+          height:44px;
+          border:1px solid #d7dce1;
+          background:#fff;
+          border-radius:9px;
+          font-size:24px;
+          cursor:pointer;
+        "
+      >
+        ‹
+      </button>
+
+      <strong
+        id="adminGesamtKwAnzeigeNeu"
+        style="
+          min-width:80px;
+          text-align:center;
+          font-size:17px;
+        "
+      >
+        KW —
+      </strong>
+
+      <button
+        type="button"
+        onclick="wechselAdminGesamtKwNeu(1)"
+        style="
+          width:44px;
+          height:44px;
+          border:1px solid #d7dce1;
+          background:#fff;
+          border-radius:9px;
+          font-size:24px;
+          cursor:pointer;
+        "
+      >
+        ›
+      </button>
+    </div>
+
+    <div id="adminGesamtplanListeNeu">
+      <div class="empty-state">
+        Gesamtdienstplan wird geladen …
+      </div>
+    </div>
+  `;
+
+  const header =
+    ansicht.querySelector(
+      '.content-header'
+    );
+
+  if (
+    header &&
+    header.nextSibling
+  ) {
+    ansicht.insertBefore(
+      panel,
+      header.nextSibling
+    );
+  } else {
+    ansicht.appendChild(
+      panel
+    );
+  }
+}
+
+
+function ermittleAdminGesamtKwsNeu() {
+  return Array.from(
+    new Set(
+      (adminGesamtDienstplanNeu || [])
+        .map(function(eintrag) {
+          return Number(
+            eintrag.kw || 0
+          );
+        })
+        .filter(function(kw) {
+          return (
+            Number.isFinite(kw) &&
+            kw > 0
+          );
+        })
+    )
+  ).sort(function(a, b) {
+    return a - b;
+  });
+}
+
+
+function setzeAdminGesamtStartKwNeu() {
+  const kws =
+    ermittleAdminGesamtKwsNeu();
+
+  if (!kws.length) {
+    adminGesamtKwNeu = null;
+    return;
+  }
+
+  const heute =
+    new Date();
+
+  const temp =
+    new Date(
+      Date.UTC(
+        heute.getFullYear(),
+        heute.getMonth(),
+        heute.getDate()
+      )
+    );
+
+  const tag =
+    temp.getUTCDay() || 7;
+
+  temp.setUTCDate(
+    temp.getUTCDate() + 4 - tag
+  );
+
+  const jahresStart =
+    new Date(
+      Date.UTC(
+        temp.getUTCFullYear(),
+        0,
+        1
+      )
+    );
+
+  const aktuelleKw =
+    Math.ceil(
+      (
+        (
+          temp - jahresStart
+        ) /
+        86400000 +
+        1
+      ) /
+      7
+    );
+
+  adminGesamtKwNeu =
+    kws.includes(
+      aktuelleKw
+    )
+      ? aktuelleKw
+      : kws[0];
+}
+
+
+async function ladeAdminGesamtplanNeu() {
+  installiereAdminGesamtplanPanelNeu();
+
+  const liste =
+    document.getElementById(
+      'adminGesamtplanListeNeu'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (!aktuellerAdmin) {
+    liste.innerHTML =
+      '<div class="empty-state">Keine Admin-Berechtigung.</div>';
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    return;
+  }
+
+  liste.innerHTML =
+    '<div class="empty-state">Gesamtdienstplan wird geladen …</div>';
+
+  try {
+    const result =
+      await apiPost(
+        'adminGesamtDienstplan',
+        {
+          token:
+            token
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'Gesamtdienstplan konnte nicht geladen werden.'
+      );
+    }
+
+    adminGesamtDienstplanNeu =
+      Array.isArray(
+        result.dienstplan
+      )
+        ? result.dienstplan
+        : [];
+
+    if (
+      !adminGesamtKwNeu ||
+      !ermittleAdminGesamtKwsNeu()
+        .includes(
+          Number(
+            adminGesamtKwNeu
+          )
+        )
+    ) {
+      setzeAdminGesamtStartKwNeu();
+    }
+
+    rendereAdminGesamtplanNeu();
+
+  } catch (error) {
+    liste.innerHTML = `
+      <div
+        class="empty-state"
+        style="color:#b00020;"
+      >
+        ❌ ${escapeHtmlNeu(
+          error.message
+        )}
+      </div>
+    `;
+  }
+}
+
+
+function wechselAdminGesamtKwNeu(
+  richtung
+) {
+  const kws =
+    ermittleAdminGesamtKwsNeu();
+
+  if (!kws.length) {
+    return;
+  }
+
+  let index =
+    kws.indexOf(
+      Number(
+        adminGesamtKwNeu
+      )
+    );
+
+  if (index < 0) {
+    index = 0;
+  }
+
+  index +=
+    Number(
+      richtung || 0
+    ) < 0
+      ? -1
+      : 1;
+
+  if (index < 0) {
+    index =
+      kws.length - 1;
+  }
+
+  if (
+    index >=
+    kws.length
+  ) {
+    index = 0;
+  }
+
+  adminGesamtKwNeu =
+    kws[index];
+
+  rendereAdminGesamtplanNeu();
+}
+
+
+function baueAdminDienstEintragNeu(
+  titel,
+  name,
+  zeit
+) {
+  name =
+    String(
+      name || ''
+    ).trim();
+
+  if (!name) {
+    return '';
+  }
+
+  return `
+    <div
+      style="
+        padding:8px 0;
+        border-top:1px solid #eef0f2;
+        line-height:1.45;
+      "
+    >
+      <strong>
+        ${escapeHtmlNeu(
+          titel
+        )}
+      </strong>
+
+      <div>
+        ${escapeHtmlNeu(
+          name
+        )}
+      </div>
+
+      ${
+        zeit
+          ? `
+            <div
+              style="
+                margin-top:2px;
+                color:#777;
+                font-size:12px;
+              "
+            >
+              ${escapeHtmlNeu(
+                zeit
+              )}
+            </div>
+          `
+          : ''
+      }
+    </div>
+  `;
+}
+
+
+function rendereAdminGesamtplanNeu() {
+  const liste =
+    document.getElementById(
+      'adminGesamtplanListeNeu'
+    );
+
+  const anzeige =
+    document.getElementById(
+      'adminGesamtKwAnzeigeNeu'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (anzeige) {
+    anzeige.textContent =
+      adminGesamtKwNeu
+        ? 'KW ' +
+          String(
+            adminGesamtKwNeu
+          )
+        : 'KW —';
+  }
+
+  if (!adminGesamtKwNeu) {
+    liste.innerHTML =
+      '<div class="empty-state">Keine Dienstplandaten vorhanden.</div>';
+    return;
+  }
+
+  const tage =
+    (adminGesamtDienstplanNeu || [])
+      .filter(function(eintrag) {
+        return (
+          Number(
+            eintrag.kw || 0
+          ) ===
+          Number(
+            adminGesamtKwNeu
+          )
+        );
+      });
+
+  if (!tage.length) {
+    liste.innerHTML =
+      '<div class="empty-state">Für diese Kalenderwoche gibt es keine Einträge.</div>';
+    return;
+  }
+
+  let html =
+    '';
+
+  tage.forEach(
+    function(tag) {
+      let dienste =
+        '';
+
+      dienste +=
+        baueAdminDienstEintragNeu(
+          '🟢 Garden Plaza – Früh',
+          tag.gpFrueh,
+          ''
+        );
+
+      dienste +=
+        baueAdminDienstEintragNeu(
+          '🟢 Garden Plaza – Spät',
+          tag.gpSpaet,
+          ''
+        );
+
+      dienste +=
+        baueAdminDienstEintragNeu(
+          '☕ GP – Pausenablöse',
+          tag.gpAbloese,
+          tag.gpAbloesezeit
+        );
+
+      dienste +=
+        baueAdminDienstEintragNeu(
+          '🔵 Water Plaza – Früh',
+          tag.wpFrueh,
+          ''
+        );
+
+      dienste +=
+        baueAdminDienstEintragNeu(
+          '🔵 Water Plaza – Spät',
+          tag.wpSpaet,
+          ''
+        );
+
+      dienste +=
+        baueAdminDienstEintragNeu(
+          '☕ WP – Pausenablöse',
+          tag.wpAbloese,
+          tag.wpAbloesezeit
+        );
+
+      html += `
+        <div
+          style="
+            border:1px solid #e1e4e8;
+            border-radius:10px;
+            padding:14px;
+            margin-bottom:12px;
+            background:#fff;
+          "
+        >
+          <div
+            style="
+              font-weight:800;
+              font-size:16px;
+              margin-bottom:8px;
+            "
+          >
+            ${escapeHtmlNeu(
+              tag.tag || ''
+            )}
+            ·
+            ${escapeHtmlNeu(
+              tag.datum || ''
+            )}
+          </div>
+
+          ${
+            dienste ||
+            '<div style="color:#777;">Keine Dienste eingetragen.</div>'
+          }
+
+          ${
+            tag.notiz
+              ? `
+                <div
+                  style="
+                    margin-top:10px;
+                    padding:9px 10px;
+                    border-radius:8px;
+                    background:#f7f8f9;
+                    color:#555;
+                    font-size:13px;
+                  "
+                >
+                  📝 ${escapeHtmlNeu(
+                    tag.notiz
+                  )}
+                </div>
+              `
+              : ''
+          }
+        </div>
+      `;
+    }
+  );
+
+  liste.innerHTML =
+    html;
+}
+
+
+// Bestehendes Admin-Laden nur erweitern.
+// Die vorhandenen Admin-Funktionen bleiben unverändert.
+const ladeAdminAnfragenBasisNeu =
+  ladeAdminAnfragenNeu;
+
+ladeAdminAnfragenNeu =
+  async function() {
+
+    installiereAdminGesamtplanPanelNeu();
+
+    await Promise.all([
+      ladeAdminAnfragenBasisNeu(),
+      ladeAdminGesamtplanNeu()
+    ]);
+  };
+
