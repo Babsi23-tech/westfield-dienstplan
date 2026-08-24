@@ -9641,6 +9641,13 @@ function installiereAdminUntermenueNeu() {
     return;
   }
 
+  // Wichtig: Der bestehende Klick-Handler in index.html schließt
+  // die mobile Sidebar nach normalen Sidebar-Buttons automatisch.
+  // Als nav-hauptpunkt bleibt der Admin-Reiter beim Aufklappen offen.
+  adminNav.classList.add(
+    'nav-hauptpunkt'
+  );
+
   // Der bisherige Admin-Button wird zum Auf-/Zuklappen verwendet.
   adminNav.removeAttribute(
     'onclick'
