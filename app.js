@@ -9197,52 +9197,13 @@ function setzeAdminGesamtStartKwNeu() {
     return;
   }
 
-  const heute =
-    new Date();
-
-  const temp =
-    new Date(
-      Date.UTC(
-        heute.getFullYear(),
-        heute.getMonth(),
-        heute.getDate()
-      )
-    );
-
-  const tag =
-    temp.getUTCDay() || 7;
-
-  temp.setUTCDate(
-    temp.getUTCDate() + 4 - tag
-  );
-
-  const jahresStart =
-    new Date(
-      Date.UTC(
-        temp.getUTCFullYear(),
-        0,
-        1
-      )
-    );
-
-  const aktuelleKw =
-    Math.ceil(
-      (
-        (
-          temp - jahresStart
-        ) /
-        86400000 +
-        1
-      ) /
-      7
-    );
-
+  // Wichtig:
+  // Der Gesamtplan darf NICHT die aktuelle Kalenderwoche
+  // des heutigen Jahres (2026) verwenden.
+  // Stattdessen starten wir – wie beim persönlichen Dienstplan –
+  // mit der ersten tatsächlich im Dienstplan 2027 vorhandenen KW.
   adminGesamtKwNeu =
-    kws.includes(
-      aktuelleKw
-    )
-      ? aktuelleKw
-      : kws[0];
+    kws[0];
 }
 
 
