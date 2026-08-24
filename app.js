@@ -1259,15 +1259,6 @@ async function ladeMeinDienstplanNeu() {
       error
     );
 
-    const laden =
-      document.getElementById(
-        'dienstplanLaden'
-      );
-
-    if (laden) {
-      laden.style.display = 'none';
-    }
-
     if (liste) {
       liste.innerHTML = `
         <div
@@ -1548,15 +1539,6 @@ function wechselKwNeu(
   rendereDienstplanNeu();
 }
 
-
-
-// ==========================================================
-// KOMPATIBILITÄT – WOCHENPFEILE
-// ==========================================================
-
-function wechselWoche(richtung) {
-  wechselKwNeu(richtung);
-}
 
 // ==========================================================
 // KW-ANZEIGE
@@ -8879,10 +8861,9 @@ function escapeHtmlNeu(
 
 
 // ==========================================================
-// FIX – WOCHENPFEILE IM PERSÖNLICHEN DIENSTPLAN
+// FINALER FIX – WOCHENNAVIGATION
 // ==========================================================
-// Die Pfeile wechseln jetzt wirklich KW für KW.
-// Sie springen nicht nur zwischen Wochen, in denen ein Dienst vorhanden ist.
+// Diese Definitionen stehen absichtlich am Ende von app.js.
 
 function wechselKwNeu(richtung) {
   const schritt =
@@ -8905,7 +8886,16 @@ function wechselKwNeu(richtung) {
 
   aktuelleKwNeu = kw;
 
-  aktualisiereKwAnzeigeNeu();
+  const anzeige =
+    document.getElementById(
+      'kwAnzeige'
+    );
+
+  if (anzeige) {
+    anzeige.textContent =
+      'KW ' + String(aktuelleKwNeu);
+  }
+
   rendereDienstplanNeu();
 }
 
