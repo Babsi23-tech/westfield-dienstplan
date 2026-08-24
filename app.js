@@ -8903,3 +8903,119 @@ function wechselWoche(richtung) {
   wechselKwNeu(richtung);
 }
 
+
+// ==========================================================
+// AUTOMATISCHE WOCHENSTUNDEN – GEPLANT / SOLL
+// ==========================================================
+
+function zeitZuMinutenNeu(text) {
+  const m = String(text || '').match(/(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  return Number(m[1]) * 60 + Number(m[2]);
+}
+
+function dauerAusZeitTextNeu(text) {
+  const teile = String(text || '').match(/(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})/);
+  if (!teile) return 0;
+
+  const start = zeitZuMinutenNeu(teile[1]);
+  const ende = zeitZuMinutenNeu(teile[2]);
+
+  if (start == null || ende == null) return 0;
+
+  let minuten = ende - start;
+  if (minuten < 0) minuten += 24 * 60;
+
+  return minuten / 60;
+}
+
+function berechneGeplanteWochenstundenNeu() {
+  const liste = document.getElementById('dienstplanListe');
+  if (!liste) return 0;
+
+  let stunden = 0;
+
+  liste.querySelectorAll('.dienst-karte').forEach(function(karte) {
+    const text = karte.textContent || '';
+
+    // Pausenablösen sind Zusatzinfos innerhalb eines normalen Dienstes
+    // und dürfen deshalb nicht ein zweites Mal zur Dienstzeit addiert werden.
+    const zeitTreffer = text.match(/(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})/);
+
+    if (zeitTreffer) {
+      stunden += dauerAusZeitTextNeu(
+        zeitTreffer[1] + ' - ' + zeitTreffer[2]
+      );
+    }
+  });
+
+  return Math.round(stunden * 100) / 100;
+}
+
+function formatiereStundenNeu(wert) {
+  const n = Number(wert || 0);
+  return n.toLocaleString('de-DE', {
+    minimumFractionDigits: Number.isInteger(n) ? 0 : 1,
+    maximumFractionDigits: 2
+  });
+}
+
+function aktualisiereAutomatischeWochenstundenNeu() {
+  const element = document.getElementById('dienstplanSollstunden');
+  if (!element) return;
+
+  const geplant = berechneGeplanteWochenstundenNeu();
+
+  let soll = Number(letzteSollstundenNeu);
+  if (!Number.isFinite(soll)) {
+    const gefunden = String(element.dataset.sollstunden || '').replace(',', '.');
+    soll = Number(gefunden);
+  }
+
+  if (!Number.isFinite(soll)) {
+    soll = 0;
+  }
+
+  element.dataset.sollstunden = String(soll);
+
+  element.textContent =
+    'Geplant: ' +
+    formatiereStundenNeu(geplant) +
+    ' Std. / Soll: ' +
+    formatiereStundenNeu(soll) +
+    ' Std.';
+}
+
+// Sollstunden separat merken, damit sie beim KW-Wechsel erhalten bleiben.
+let letzteSollstundenNeu = 0;
+
+const alteAktualisiereWochenstundenNeu =
+  typeof aktualisiereWochenstundenNeu === 'function'
+    ? aktualisiereWochenstundenNeu
+    : null;
+
+aktualisiereWochenstundenNeu = function(sollstunden) {
+  letzteSollstundenNeu = Number(sollstunden || 0);
+
+  const element = document.getElementById('dienstplanSollstunden');
+  if (element) {
+    element.dataset.sollstunden = String(letzteSollstundenNeu);
+  }
+
+  // Erst nach dem Rendern berechnen.
+  window.setTimeout(
+    aktualisiereAutomatischeWochenstundenNeu,
+    0
+  );
+};
+
+// Nach jedem Rendern die Stunden für die gerade sichtbare KW neu berechnen.
+const alterRendereDienstplanNeu = rendereDienstplanNeu;
+
+rendereDienstplanNeu = function() {
+  alterRendereDienstplanNeu();
+  window.setTimeout(
+    aktualisiereAutomatischeWochenstundenNeu,
+    0
+  );
+};
