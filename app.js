@@ -4298,6 +4298,8 @@ async function ladeMeineAnfragenNeu(
 
   installiereAnfragenAnsichtNeu();
 
+  entferneDoppelteUrlaubsPanelsNeu();
+
   const erhaltenListe =
     document.getElementById(
       'erhalteneTauschAnfragenListe'
@@ -11512,3 +11514,56 @@ function aktualisiereAdminBadgeNeu(anzahl) {
       ? '99+'
       : String(wert);
 }
+
+
+// ==========================================================
+// MEINE URLAUBSANTRÄGE – DOPPELTE PANELS ENTFERNEN
+// ==========================================================
+
+function entferneDoppelteUrlaubsPanelsNeu() {
+  const ansicht =
+    document.getElementById(
+      'anfragenAnsicht'
+    );
+
+  if (!ansicht) {
+    return;
+  }
+
+  const panels =
+    Array.from(
+      ansicht.querySelectorAll(
+        '.panel'
+      )
+    ).filter(
+      function(panel) {
+        const titel =
+          panel.querySelector(
+            'h2'
+          );
+
+        return (
+          titel &&
+          titel.textContent &&
+          titel.textContent.includes(
+            'Meine Urlaubsanträge'
+          )
+        );
+      }
+    );
+
+  if (panels.length <= 1) {
+    return;
+  }
+
+  for (
+    let i = 1;
+    i < panels.length;
+    i++
+  ) {
+    panels[i].remove();
+  }
+}
+
+
+setTimeout(entferneDoppelteUrlaubsPanelsNeu, 0);
