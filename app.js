@@ -10993,4 +10993,3 @@ function aktualisiereAdminBadgeNeu(anzahl) {
       ? '99+'
       : String(wert);
 }
-
