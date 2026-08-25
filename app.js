@@ -4298,8 +4298,6 @@ async function ladeMeineAnfragenNeu(
 
   installiereAnfragenAnsichtNeu();
 
-  installiereMeineUrlaubsantraegePanelNeu();
-
   const erhaltenListe =
     document.getElementById(
       'erhalteneTauschAnfragenListe'
@@ -11513,67 +11511,4 @@ function aktualisiereAdminBadgeNeu(anzahl) {
     wert > 99
       ? '99+'
       : String(wert);
-}
-
-
-// ==========================================================
-// MEINE URLAUBSANTRÄGE – PANEL SICHER EINHÄNGEN
-// ==========================================================
-
-function installiereMeineUrlaubsantraegePanelNeu() {
-  const ansicht =
-    document.getElementById(
-      'anfragenAnsicht'
-    );
-
-  if (
-    !ansicht ||
-    document.getElementById(
-      'meineUrlaubsanfragenPanelNeu'
-    )
-  ) {
-    return;
-  }
-
-  const panels =
-    ansicht.querySelectorAll(
-      '.panel'
-    );
-
-  if (!panels.length) {
-    return;
-  }
-
-  const panel =
-    document.createElement(
-      'div'
-    );
-
-  panel.id =
-    'meineUrlaubsanfragenPanelNeu';
-
-  panel.className =
-    'panel';
-
-  panel.style.marginBottom =
-    '18px';
-
-  panel.innerHTML = `
-    <h2 style="margin-top:0;">
-      🏖️ Meine Urlaubsanträge
-    </h2>
-
-    <div id="meineUrlaubsanfragenListeNeu">
-      <div class="empty-state">
-        Urlaubsanträge werden geladen …
-      </div>
-    </div>
-  `;
-
-  panels[
-    panels.length - 1
-  ].insertAdjacentElement(
-    'afterend',
-    panel
-  );
 }
