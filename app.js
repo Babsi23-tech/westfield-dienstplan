@@ -4246,6 +4246,21 @@ function installiereAnfragenAnsichtNeu() {
       </div>
     </div>
 
+    <div
+      class="panel"
+      style="margin-bottom:18px;"
+    >
+      <h2 style="margin-top:0;">
+        🏖️ Meine Urlaubsanträge
+      </h2>
+
+      <div id="meineUrlaubsanfragenListeNeu">
+        <div class="empty-state">
+          Urlaubsanträge werden geladen …
+        </div>
+      </div>
+    </div>
+
     <div class="panel">
       <h2 style="margin-top:0;">
         💬 Meine sonstigen Wünsche
@@ -4298,6 +4313,11 @@ async function ladeMeineAnfragenNeu(
       'meineDienstAnfragenListe'
     );
 
+  const urlaubListe =
+    document.getElementById(
+      'meineUrlaubsanfragenListeNeu'
+    );
+
   if (zeigeLaden) {
     if (erhaltenListe) {
       erhaltenListe.innerHTML =
@@ -4312,6 +4332,11 @@ async function ladeMeineAnfragenNeu(
     if (dienstListe) {
       dienstListe.innerHTML =
         '<div class="empty-state">Anfragen werden geladen …</div>';
+    }
+
+    if (urlaubListe) {
+      urlaubListe.innerHTML =
+        '<div class="empty-state">Urlaubsanträge werden geladen …</div>';
     }
   }
 
@@ -4332,6 +4357,14 @@ async function ladeMeineAnfragenNeu(
             token:
               token
           }
+        ),
+
+        apiPost(
+          'meineUrlaubsanfragen',
+          {
+            token:
+              token
+          }
         )
       ]);
 
@@ -4340,6 +4373,9 @@ async function ladeMeineAnfragenNeu(
 
     const dienstResult =
       ergebnisse[1];
+
+    const urlaubResult =
+      ergebnisse[2];
 
     if (
       tauschResult &&
@@ -4353,6 +4389,15 @@ async function ladeMeineAnfragenNeu(
     if (
       dienstResult &&
       dienstResult.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
+      urlaubResult &&
+      urlaubResult.sessionExpired
     ) {
       await sessionAbgelaufenNeu();
 
@@ -4379,6 +4424,16 @@ async function ladeMeineAnfragenNeu(
       );
     }
 
+    if (
+      !urlaubResult ||
+      !urlaubResult.ok
+    ) {
+      throw new Error(
+        urlaubResult?.message ||
+        'Urlaubsanträge konnten nicht geladen werden.'
+      );
+    }
+
     const erhalten =
       Array.isArray(
         tauschResult.erhalten
@@ -4400,6 +4455,13 @@ async function ladeMeineAnfragenNeu(
         ? dienstResult.anfragen
         : [];
 
+    const urlaubsAnfragen =
+      Array.isArray(
+        urlaubResult.anfragen
+      )
+        ? urlaubResult.anfragen
+        : [];
+
     rendereErhalteneTauschAnfragenNeu(
       erhalten
     );
@@ -4410,6 +4472,10 @@ async function ladeMeineAnfragenNeu(
 
     rendereMeineDienstAnfragenNeu(
       dienstAnfragen
+    );
+
+    rendereMeineUrlaubsanfragenNeu(
+      urlaubsAnfragen
     );
 
     aktualisiereAnfragenBadgeNeu(
@@ -4445,6 +4511,11 @@ async function ladeMeineAnfragenNeu(
 
     if (dienstListe) {
       dienstListe.innerHTML =
+        html;
+    }
+
+    if (urlaubListe) {
+      urlaubListe.innerHTML =
         html;
     }
   }
@@ -4848,6 +4919,112 @@ function rendereGesendeteTauschAnfragenNeu(
 
   liste.innerHTML =
     html;
+}
+
+
+
+// ==========================================================
+// MEINE URLAUBSANTRÄGE
+// ==========================================================
+
+function rendereMeineUrlaubsanfragenNeu(anfragen) {
+  const liste =
+    document.getElementById(
+      'meineUrlaubsanfragenListeNeu'
+    );
+
+  if (!liste) return;
+
+  if (!Array.isArray(anfragen) || anfragen.length === 0) {
+    liste.innerHTML =
+      '<div class="empty-state">Du hast aktuell keine Urlaubsanträge.</div>';
+    return;
+  }
+
+  let html = '';
+
+  anfragen.forEach(function(a) {
+    const status =
+      String(a.status || 'OFFEN')
+        .trim()
+        .toUpperCase();
+
+    let statusText = '🟡 Offen';
+    let statusFarbe = '#8a6500';
+    let statusHintergrund = '#fff5cf';
+
+    if (status === 'GENEHMIGT') {
+      statusText = '✅ Genehmigt';
+      statusFarbe = '#176b2c';
+      statusHintergrund = '#e7f6ec';
+    } else if (status === 'ABGELEHNT') {
+      statusText = '❌ Abgelehnt';
+      statusFarbe = '#b00020';
+      statusHintergrund = '#fdecec';
+    }
+
+    html += `
+      <div
+        style="
+          border:1px solid #dde1e5;
+          border-radius:11px;
+          padding:15px;
+          margin-bottom:12px;
+          background:#ffffff;
+        "
+      >
+        <div
+          style="
+            display:flex;
+            justify-content:space-between;
+            gap:12px;
+            align-items:flex-start;
+            flex-wrap:wrap;
+          "
+        >
+          <strong style="font-size:16px;">
+            🏖️ ${escapeHtmlNeu(a.von || '')}
+            –
+            ${escapeHtmlNeu(a.bis || '')}
+          </strong>
+
+          <span
+            style="
+              padding:6px 9px;
+              border-radius:999px;
+              background:${statusHintergrund};
+              color:${statusFarbe};
+              font-size:12px;
+              font-weight:800;
+            "
+          >
+            ${statusText}
+          </span>
+        </div>
+
+        ${
+          a.notiz
+            ? `
+              <div
+                style="
+                  margin-top:10px;
+                  padding:11px;
+                  border-radius:8px;
+                  background:#f7f8f9;
+                  color:#444;
+                  white-space:pre-wrap;
+                "
+              >
+                📝 ${escapeHtmlNeu(a.notiz)}
+              </div>
+            `
+            : ''
+        }
+      </div>
+    `;
+  });
+
+  liste.innerHTML = html;
 }
 
 
