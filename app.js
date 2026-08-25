@@ -6685,6 +6685,28 @@ function installiereAdminAnsichtNeu() {
       </div>
     </div>
 
+    <div
+      class="panel"
+      style="
+        margin-bottom:18px;
+      "
+    >
+      <h2 style="margin-top:0;">
+        🏖️ Urlaubsanträge
+      </h2>
+
+      <p style="color:#666;">
+        Hier kannst du offene Urlaubsanträge
+        genehmigen oder ablehnen.
+      </p>
+
+      <div id="adminUrlaubsanfragenListeNeu">
+        <div class="empty-state">
+          Urlaubsanträge werden geladen …
+        </div>
+      </div>
+    </div>
+
     <div class="panel">
       <h2 style="margin-top:0;">
         🔐 PIN-Reset
@@ -6752,6 +6774,11 @@ async function ladeAdminAnfragenNeu() {
       'adminPinResetListe'
     );
 
+  const urlaubListe =
+    document.getElementById(
+      'adminUrlaubsanfragenListeNeu'
+    );
+
   if (
     !aktuellerAdmin
   ) {
@@ -6781,6 +6808,11 @@ async function ladeAdminAnfragenNeu() {
 
     if (pinListe) {
       pinListe.innerHTML =
+        html;
+    }
+
+    if (urlaubListe) {
+      urlaubListe.innerHTML =
         html;
     }
 
@@ -6818,6 +6850,11 @@ async function ladeAdminAnfragenNeu() {
       '<div class="empty-state">PIN-Anfragen werden geladen …</div>';
   }
 
+  if (urlaubListe) {
+    urlaubListe.innerHTML =
+      '<div class="empty-state">Urlaubsanträge werden geladen …</div>';
+  }
+
   try {
     const ergebnisse =
       await Promise.all([
@@ -6851,6 +6888,14 @@ async function ladeAdminAnfragenNeu() {
             token:
               token
           }
+        ),
+
+        apiPost(
+          'adminUrlaubsanfragen',
+          {
+            token:
+              token
+          }
         )
       ]);
 
@@ -6866,11 +6911,15 @@ async function ladeAdminAnfragenNeu() {
     const pinResult =
       ergebnisse[3];
 
+    const urlaubResult =
+      ergebnisse[4];
+
     const alleResultate = [
       tauschResult,
       dienstResult,
       bearbeitetResult,
-      pinResult
+      pinResult,
+      urlaubResult
     ];
 
     for (
@@ -6928,6 +6977,16 @@ async function ladeAdminAnfragenNeu() {
       );
     }
 
+    if (
+      !urlaubResult ||
+      !urlaubResult.ok
+    ) {
+      throw new Error(
+        urlaubResult?.message ||
+        'Urlaubsanträge konnten nicht geladen werden.'
+      );
+    }
+
     aktualisiereAdminBadgeNeu(
       (Array.isArray(tauschResult.anfragen)
         ? tauschResult.anfragen.length
@@ -6937,6 +6996,9 @@ async function ladeAdminAnfragenNeu() {
         : 0) +
       (Array.isArray(pinResult.anfragen)
         ? pinResult.anfragen.length
+        : 0) +
+      (Array.isArray(urlaubResult.anfragen)
+        ? urlaubResult.anfragen.length
         : 0)
     );
 
@@ -6969,6 +7031,14 @@ async function ladeAdminAnfragenNeu() {
         pinResult.anfragen
       )
         ? pinResult.anfragen
+        : []
+    );
+
+    rendereAdminUrlaubsanfragenNeu(
+      Array.isArray(
+        urlaubResult.anfragen
+      )
+        ? urlaubResult.anfragen
         : []
     );
 
@@ -7006,6 +7076,11 @@ async function ladeAdminAnfragenNeu() {
 
     if (pinListe) {
       pinListe.innerHTML =
+        html;
+    }
+
+    if (urlaubListe) {
+      urlaubListe.innerHTML =
         html;
     }
   }
@@ -8104,6 +8179,273 @@ async function loescheAdminDienstAnfrageNeu(
   } catch (error) {
     console.error(
       'Wunsch löschen:',
+      error
+    );
+
+    window.alert(
+      'Fehler: ' +
+      error.message
+    );
+  }
+}
+
+
+
+// ==========================================================
+// ADMIN – URLAUBSANTRÄGE
+// ==========================================================
+
+function rendereAdminUrlaubsanfragenNeu(
+  anfragen
+) {
+  const liste =
+    document.getElementById(
+      'adminUrlaubsanfragenListeNeu'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (
+    !Array.isArray(anfragen) ||
+    anfragen.length === 0
+  ) {
+    liste.innerHTML = `
+      <div class="empty-state">
+        Keine offenen Urlaubsanträge.
+      </div>
+    `;
+
+    return;
+  }
+
+  let html =
+    '';
+
+  anfragen.forEach(
+    function(a) {
+      html += `
+        <div
+          style="
+            border:1px solid #dde1e5;
+            border-radius:13px;
+            padding:17px;
+            margin-bottom:14px;
+            background:#ffffff;
+            box-shadow:
+              0 3px 12px
+              rgba(0,0,0,0.035);
+          "
+        >
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              align-items:flex-start;
+              gap:12px;
+              flex-wrap:wrap;
+            "
+          >
+            <div>
+              <strong
+                style="
+                  display:block;
+                  font-size:17px;
+                "
+              >
+                👤 ${escapeHtmlNeu(
+                  a.mitarbeiter || ''
+                )}
+              </strong>
+
+              <div
+                style="
+                  margin-top:8px;
+                  color:#444;
+                  font-weight:700;
+                "
+              >
+                📅 ${escapeHtmlNeu(
+                  a.von || ''
+                )}
+                –
+                ${escapeHtmlNeu(
+                  a.bis || ''
+                )}
+              </div>
+            </div>
+
+            <span
+              style="
+                padding:6px 9px;
+                border-radius:999px;
+                background:#fff5cf;
+                color:#8a6500;
+                font-size:12px;
+                font-weight:800;
+              "
+            >
+              🟡 Offen
+            </span>
+          </div>
+
+          ${
+            a.notiz
+              ? `
+                <div
+                  style="
+                    margin-top:12px;
+                    padding:11px 12px;
+                    border-radius:8px;
+                    background:#f7f8f9;
+                    color:#444;
+                    white-space:pre-wrap;
+                    line-height:1.5;
+                  "
+                >
+                  📝 ${escapeHtmlNeu(
+                    a.notiz
+                  )}
+                </div>
+              `
+              : ''
+          }
+
+          <div
+            style="
+              margin-top:15px;
+              display:grid;
+              grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+              gap:10px;
+            "
+          >
+            <button
+              type="button"
+              onclick="bearbeiteAdminUrlaubsanfrageNeu(${Number(
+                a.zeile || 0
+              )}, false)"
+              style="
+                width:100%;
+                min-height:46px;
+                border:1px solid #d5d8dc;
+                background:#ffffff;
+                color:#b00020;
+                border-radius:9px;
+                padding:10px 12px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ❌ Ablehnen
+            </button>
+
+            <button
+              type="button"
+              onclick="bearbeiteAdminUrlaubsanfrageNeu(${Number(
+                a.zeile || 0
+              )}, true)"
+              style="
+                width:100%;
+                min-height:46px;
+                border:0;
+                background:#14943b;
+                color:#ffffff;
+                border-radius:9px;
+                padding:10px 12px;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              ✅ Genehmigen
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  );
+
+  liste.innerHTML =
+    html;
+}
+
+
+async function bearbeiteAdminUrlaubsanfrageNeu(
+  zeile,
+  genehmigen
+) {
+  const frage =
+    genehmigen
+      ? 'Diesen Urlaubsantrag genehmigen?'
+      : 'Diesen Urlaubsantrag ablehnen?';
+
+  if (
+    !window.confirm(
+      frage
+    )
+  ) {
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    await sessionAbgelaufenNeu();
+
+    return;
+  }
+
+  try {
+    const result =
+      await apiPost(
+        'adminUrlaubsanfrageBearbeiten',
+        {
+          token:
+            token,
+
+          zeile:
+            Number(
+              zeile
+            ),
+
+          genehmigen:
+            genehmigen === true
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'Urlaubsantrag konnte nicht bearbeitet werden.'
+      );
+    }
+
+    window.alert(
+      result.message ||
+      'Urlaubsantrag wurde bearbeitet.'
+    );
+
+    await ladeAdminAnfragenNeu();
+
+  } catch (error) {
+    console.error(
+      'Urlaubsantrag Admin:',
       error
     );
 
