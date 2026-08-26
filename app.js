@@ -10455,6 +10455,7 @@ rendereDienstplanNeu = function() {
 // ==========================================================
 
 let adminGesamtDienstplanNeu = [];
+let adminGesamtAbwesenheitenNeu = [];
 let adminGesamtKwNeu = null;
 
 function installiereAdminGesamtplanPanelNeu() {
@@ -10682,6 +10683,13 @@ async function ladeAdminGesamtplanNeu() {
         ? result.dienstplan
         : [];
 
+    adminGesamtAbwesenheitenNeu =
+      Array.isArray(
+        result.abwesenheiten
+      )
+        ? result.abwesenheiten
+        : [];
+
     await ladeKalenderHinweiseNeu();
 
     if (
@@ -10811,6 +10819,190 @@ function baueAdminDienstEintragNeu(
           `
           : ''
       }
+    </div>
+  `;
+}
+
+
+
+function datumTextZuZeitAdminNeu(
+  text
+) {
+  const m =
+    String(
+      text || ''
+    )
+      .trim()
+      .match(
+        /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/
+      );
+
+  if (!m) {
+    return null;
+  }
+
+  return new Date(
+    Number(m[3]),
+    Number(m[2]) - 1,
+    Number(m[1]),
+    12,
+    0,
+    0
+  ).getTime();
+}
+
+
+function adminAbwesenheitenFuerDatumNeu(
+  datumText
+) {
+  const zeit =
+    datumTextZuZeitAdminNeu(
+      datumText
+    );
+
+  if (zeit === null) {
+    return [];
+  }
+
+  return (
+    adminGesamtAbwesenheitenNeu || []
+  ).filter(
+    function(a) {
+      const von =
+        datumTextZuZeitAdminNeu(
+          a.von
+        );
+
+      const bis =
+        datumTextZuZeitAdminNeu(
+          a.bis
+        );
+
+      return (
+        von !== null &&
+        bis !== null &&
+        zeit >= von &&
+        zeit <= bis
+      );
+    }
+  );
+}
+
+
+function adminAbwesenheitenHtmlNeu(
+  datumText
+) {
+  const abwesenheiten =
+    adminAbwesenheitenFuerDatumNeu(
+      datumText
+    );
+
+  if (!abwesenheiten.length) {
+    return '';
+  }
+
+  const zeilen =
+    abwesenheiten.map(
+      function(a) {
+        const art =
+          String(
+            a.art || ''
+          ).trim();
+
+        const artKlein =
+          art.toLowerCase();
+
+        let symbol =
+          '📌';
+
+        let hintergrund =
+          '#f5f5f5';
+
+        let farbe =
+          '#444';
+
+        if (
+          artKlein.includes(
+            'urlaub'
+          )
+        ) {
+          symbol =
+            '🏖️';
+
+          hintergrund =
+            '#eaf4ff';
+
+          farbe =
+            '#174d7a';
+        }
+
+        else if (
+          artKlein.includes(
+            'krank'
+          )
+        ) {
+          symbol =
+            '🤒';
+
+          hintergrund =
+            '#fdecec';
+
+          farbe =
+            '#a51c2b';
+        }
+
+        return `
+          <div
+            style="
+              display:flex;
+              align-items:center;
+              gap:8px;
+              padding:9px 11px;
+              margin-top:7px;
+              border-radius:9px;
+              background:${hintergrund};
+              color:${farbe};
+              font-weight:700;
+              line-height:1.35;
+            "
+          >
+            <span>${symbol}</span>
+
+            <span>
+              ${escapeHtmlNeu(
+                a.mitarbeiter || ''
+              )}
+              ·
+              ${escapeHtmlNeu(
+                art || 'Abwesend'
+              )}
+            </span>
+          </div>
+        `;
+      }
+    )
+    .join('');
+
+  return `
+    <div
+      style="
+        margin-top:12px;
+        padding-top:10px;
+        border-top:1px solid #eceff2;
+      "
+    >
+      <div
+        style="
+          font-size:13px;
+          font-weight:800;
+          color:#555;
+          margin-bottom:3px;
+        "
+      >
+        👥 Abwesend
+      </div>
+
+      ${zeilen}
     </div>
   `;
 }
@@ -10950,6 +11142,10 @@ function rendereAdminGesamtplanNeu() {
             dienste ||
             '<div style="color:#777;">Keine Dienste eingetragen.</div>'
           }
+
+          ${adminAbwesenheitenHtmlNeu(
+            tag.datum || ''
+          )}
 
           ${
             tag.notiz
