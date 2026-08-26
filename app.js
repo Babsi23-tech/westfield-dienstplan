@@ -1,5 +1,5 @@
 const API_URL =
-  'https://script.google.com/macros/s/AKfycbxL-vdBIT5xLORL2k8xdNJXC4bRWt97X-QcvWQ5_bB1xXz083yntxCwimdaiqkoPMKBbg/exec';
+  'https://script.google.com/macros/s/AKfycbxtBr_mx3GW41P-tc7VSZL8c9OeJftrVUUJf6GFuUjvPDHg2oe6kb16Cqkbn0S9im6U_Q/exec';
 
 const SESSION_KEY = 'scs_team_session';
 
