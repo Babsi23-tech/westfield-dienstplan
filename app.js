@@ -1576,6 +1576,24 @@ function aktualisiereSidebarNeu(
       admin
         ? ''
         : 'none';
+
+    // Die Überschrift "ADMIN" steht im HTML direkt
+    // vor dem Admin-Button. Deshalb blenden wir genau
+    // dieses Element rollenabhängig ein/aus.
+    const adminUeberschrift =
+      adminNav.previousElementSibling;
+
+    if (
+      adminUeberschrift &&
+      String(
+        adminUeberschrift.textContent || ''
+      ).trim() === 'ADMIN'
+    ) {
+      adminUeberschrift.style.display =
+        admin
+          ? ''
+          : 'none';
+    }
   }
 
   const adminUntermenue =
