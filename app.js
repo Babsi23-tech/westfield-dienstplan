@@ -5397,11 +5397,70 @@ function aktualisiereAnfragenBadgeNeu(
 // ==========================================================
 
 function installiereAbwesenheitenAnsichtNeu() {
-  if (
+  const vorhandeneAnsicht =
     document.getElementById(
       'abwesenheitenAnsicht'
-    )
-  ) {
+    );
+
+  /*
+    Falls die Abwesenheiten-Ansicht bereits aus index.html
+    oder einer älteren App-Version existiert, nicht einfach
+    abbrechen. Das persönliche Urlaubskonto wird dann
+    nachträglich direkt vor dem Abwesenheiten-Panel eingefügt.
+  */
+  if (vorhandeneAnsicht) {
+    if (
+      !document.getElementById(
+        'meinUrlaubskontoNeu'
+      )
+    ) {
+      const kontoPanel =
+        document.createElement(
+          'div'
+        );
+
+      kontoPanel.id =
+        'meinUrlaubskontoNeu';
+
+      kontoPanel.className =
+        'panel';
+
+      kontoPanel.style.marginBottom =
+        '18px';
+
+      kontoPanel.innerHTML =
+        '<div class="empty-state">Urlaubskonto wird geladen …</div>';
+
+      const contentHeader =
+        vorhandeneAnsicht.querySelector(
+          '.content-header'
+        );
+
+      const erstesPanel =
+        vorhandeneAnsicht.querySelector(
+          '.panel'
+        );
+
+      if (erstesPanel) {
+        vorhandeneAnsicht.insertBefore(
+          kontoPanel,
+          erstesPanel
+        );
+      } else if (
+        contentHeader &&
+        contentHeader.nextSibling
+      ) {
+        vorhandeneAnsicht.insertBefore(
+          kontoPanel,
+          contentHeader.nextSibling
+        );
+      } else {
+        vorhandeneAnsicht.appendChild(
+          kontoPanel
+        );
+      }
+    }
+
     return;
   }
 
@@ -12430,4 +12489,3 @@ function rendereMeinUrlaubskontoNeu(
     </div>
   `;
 }
-
