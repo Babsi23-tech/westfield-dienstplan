@@ -1589,6 +1589,39 @@ function aktualisiereSidebarNeu(
         ? 'block'
         : 'none';
   }
+
+  // Auch die reine Abschnittsüberschrift "ADMIN" ausblenden.
+  const sidebar =
+    document.querySelector(
+      '.sidebar'
+    );
+
+  if (sidebar) {
+    const kandidaten =
+      Array.from(
+        sidebar.querySelectorAll(
+          'div, span, p, h2, h3, h4'
+        )
+      );
+
+    kandidaten.forEach(
+      function(element) {
+        const text =
+          String(
+            element.textContent || ''
+          ).trim();
+
+        if (
+          text === 'ADMIN'
+        ) {
+          element.style.display =
+            admin
+              ? ''
+              : 'none';
+        }
+      }
+    );
+  }
 }
 
 
