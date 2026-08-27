@@ -1577,6 +1577,18 @@ function aktualisiereSidebarNeu(
         ? ''
         : 'none';
   }
+
+  const adminUntermenue =
+    document.getElementById(
+      'adminUntermenueNeu'
+    );
+
+  if (adminUntermenue) {
+    adminUntermenue.style.display =
+      admin
+        ? 'block'
+        : 'none';
+  }
 }
 
 
@@ -11333,7 +11345,9 @@ function installiereAdminUntermenueNeu() {
     'nav-untermenue';
 
   untermenue.style.display =
-    'block';
+    aktuellerAdmin
+      ? 'block'
+      : 'none';
 
   untermenue.innerHTML = `
     <button
@@ -11366,6 +11380,10 @@ function installiereAdminUntermenueNeu() {
 
 
 function toggleAdminUntermenueNeu() {
+  if (!aktuellerAdmin) {
+    return;
+  }
+
   const menue =
     document.getElementById(
       'adminUntermenueNeu'
