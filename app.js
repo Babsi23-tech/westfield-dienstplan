@@ -11274,6 +11274,13 @@ function installiereAdminUntermenueNeu() {
 
     <button
       type="button"
+      onclick="zeigeAdminMitarbeiterSeiteNeu()"
+    >
+      👥 Mitarbeiterübersicht
+    </button>
+
+    <button
+      type="button"
       onclick="zeigeAdminAnfragenSeiteNeu()"
     >
       📥 Anfragen bearbeiten
@@ -11332,6 +11339,11 @@ function setzeAdminPanelSichtbarkeitNeu(
       'adminGesamtplanPanelNeu'
     );
 
+  const mitarbeiterPanel =
+    document.getElementById(
+      'adminMitarbeiterPanelNeu'
+    );
+
   const panels =
     Array.from(
       ansicht.querySelectorAll(
@@ -11349,6 +11361,12 @@ function setzeAdminPanelSichtbarkeitNeu(
           gesamtplan
             ? ''
             : 'none';
+      } else if (
+        panel.id ===
+        'adminMitarbeiterPanelNeu'
+      ) {
+        panel.style.display =
+          'none';
       } else {
         panel.style.display =
           gesamtplan
@@ -11763,3 +11781,396 @@ function entferneDoppelteUrlaubsPanelsNeu() {
 
 
 setTimeout(entferneDoppelteUrlaubsPanelsNeu, 0);
+
+
+// ==========================================================
+// ADMIN – MITARBEITERÜBERSICHT
+// Datenquelle: Blatt "Urlaubskonto"
+// ==========================================================
+
+let adminMitarbeiterUebersichtNeu = [];
+
+function installiereAdminMitarbeiterPanelNeu() {
+  const ansicht =
+    document.getElementById(
+      'adminAnsicht'
+    );
+
+  if (
+    !ansicht ||
+    document.getElementById(
+      'adminMitarbeiterPanelNeu'
+    )
+  ) {
+    return;
+  }
+
+  const panel =
+    document.createElement(
+      'div'
+    );
+
+  panel.id =
+    'adminMitarbeiterPanelNeu';
+
+  panel.className =
+    'panel';
+
+  panel.style.marginBottom =
+    '18px';
+
+  panel.style.display =
+    'none';
+
+  panel.innerHTML = `
+    <div
+      style="
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:16px;
+        flex-wrap:wrap;
+      "
+    >
+      <div>
+        <h2 style="margin:0 0 8px;">
+          👥 Mitarbeiterübersicht
+        </h2>
+
+        <p style="margin:0;color:#666;">
+          Urlaubskonto aller Mitarbeiter auf einen Blick.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onclick="ladeAdminMitarbeiterUebersichtNeu()"
+        style="
+          border:1px solid #d7dce1;
+          background:#fff;
+          border-radius:9px;
+          padding:10px 14px;
+          cursor:pointer;
+        "
+      >
+        ↻ Aktualisieren
+      </button>
+    </div>
+
+    <div
+      id="adminMitarbeiterListeNeu"
+      style="margin-top:18px;"
+    >
+      <div class="empty-state">
+        Mitarbeiter werden geladen …
+      </div>
+    </div>
+  `;
+
+  const header =
+    ansicht.querySelector(
+      '.content-header'
+    );
+
+  if (
+    header &&
+    header.nextSibling
+  ) {
+    ansicht.insertBefore(
+      panel,
+      header.nextSibling
+    );
+  } else {
+    ansicht.appendChild(
+      panel
+    );
+  }
+}
+
+
+function formatiereUrlaubstageNeu(
+  wert
+) {
+  const zahl =
+    Number(
+      wert || 0
+    );
+
+  if (!Number.isFinite(zahl)) {
+    return '0';
+  }
+
+  return Number.isInteger(zahl)
+    ? String(zahl)
+    : String(zahl)
+        .replace('.', ',');
+}
+
+
+function rendereAdminMitarbeiterUebersichtNeu() {
+  const liste =
+    document.getElementById(
+      'adminMitarbeiterListeNeu'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  const daten =
+    Array.isArray(
+      adminMitarbeiterUebersichtNeu
+    )
+      ? adminMitarbeiterUebersichtNeu
+      : [];
+
+  if (!daten.length) {
+    liste.innerHTML =
+      '<div class="empty-state">Keine Mitarbeiter im Urlaubskonto gefunden.</div>';
+    return;
+  }
+
+  liste.innerHTML =
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;">' +
+    daten.map(
+      function(eintrag) {
+
+        const verfuegbar =
+          Number(
+            eintrag.verfuegbar || 0
+          );
+
+        const statusFarbe =
+          verfuegbar <= 5
+            ? '#b00020'
+            : (
+                verfuegbar <= 10
+                  ? '#8a5a00'
+                  : '#176b3a'
+              );
+
+        const statusBg =
+          verfuegbar <= 5
+            ? '#fdecec'
+            : (
+                verfuegbar <= 10
+                  ? '#fff4d6'
+                  : '#e8f6ee'
+              );
+
+        return `
+          <div
+            style="
+              border:1px solid #dfe3e8;
+              border-radius:14px;
+              padding:17px;
+              background:#fff;
+            "
+          >
+            <div
+              style="
+                font-size:18px;
+                font-weight:800;
+                margin-bottom:14px;
+              "
+            >
+              👤 ${escapeHtmlNeu(
+                eintrag.name
+              )}
+            </div>
+
+            <div
+              style="
+                display:grid;
+                grid-template-columns:1fr auto;
+                gap:9px 14px;
+                align-items:center;
+                font-size:14px;
+              "
+            >
+              <span>🏖️ Urlaubsanspruch / Resturlaub</span>
+              <strong>
+                ${formatiereUrlaubstageNeu(
+                  eintrag.resturlaub
+                )} Tage
+              </strong>
+
+              <span>📅 Aliquoter Resturlaub</span>
+              <strong>
+                ${formatiereUrlaubstageNeu(
+                  eintrag.aliquoterResturlaub
+                )} Tage
+              </strong>
+
+              <span>✅ Genommen</span>
+              <strong>
+                ${formatiereUrlaubstageNeu(
+                  eintrag.genommen
+                )} Tage
+              </strong>
+            </div>
+
+            <div
+              style="
+                margin-top:15px;
+                padding:11px 13px;
+                border-radius:10px;
+                background:${statusBg};
+                color:${statusFarbe};
+                font-weight:800;
+                display:flex;
+                justify-content:space-between;
+                gap:12px;
+              "
+            >
+              <span>Verfügbar</span>
+              <span>
+                ${formatiereUrlaubstageNeu(
+                  eintrag.verfuegbar
+                )} Tage
+              </span>
+            </div>
+          </div>
+        `;
+      }
+    ).join('') +
+    '</div>';
+}
+
+
+async function ladeAdminMitarbeiterUebersichtNeu() {
+  installiereAdminMitarbeiterPanelNeu();
+
+  const liste =
+    document.getElementById(
+      'adminMitarbeiterListeNeu'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (!aktuellerAdmin) {
+    liste.innerHTML =
+      '<div class="empty-state">Keine Admin-Berechtigung.</div>';
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    return;
+  }
+
+  liste.innerHTML =
+    '<div class="empty-state">Mitarbeiter werden geladen …</div>';
+
+  try {
+    const result =
+      await apiPost(
+        'adminMitarbeiterUebersicht',
+        {
+          token: token
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'Mitarbeiterübersicht konnte nicht geladen werden.'
+      );
+    }
+
+    adminMitarbeiterUebersichtNeu =
+      Array.isArray(
+        result.mitarbeiter
+      )
+        ? result.mitarbeiter
+        : [];
+
+    rendereAdminMitarbeiterUebersichtNeu();
+
+  } catch (error) {
+    liste.innerHTML = `
+      <div
+        class="empty-state"
+        style="color:#b00020;"
+      >
+        ❌ ${escapeHtmlNeu(
+          error.message
+        )}
+      </div>
+    `;
+  }
+}
+
+
+function setzeAdminMitarbeiterPanelSichtbarkeitNeu() {
+  const ansicht =
+    document.getElementById(
+      'adminAnsicht'
+    );
+
+  if (!ansicht) {
+    return;
+  }
+
+  installiereAdminMitarbeiterPanelNeu();
+  installiereAdminGesamtplanPanelNeu();
+
+  Array.from(
+    ansicht.querySelectorAll(
+      ':scope > .panel'
+    )
+  ).forEach(
+    function(panel) {
+      panel.style.display =
+        panel.id ===
+        'adminMitarbeiterPanelNeu'
+          ? ''
+          : 'none';
+    }
+  );
+}
+
+
+async function zeigeAdminMitarbeiterSeiteNeu() {
+  if (
+    typeof zeigeSeite ===
+    'function'
+  ) {
+    await zeigeSeite(
+      'admin'
+    );
+  }
+
+  setzeAdminMitarbeiterPanelSichtbarkeitNeu();
+
+  await ladeAdminMitarbeiterUebersichtNeu();
+
+  const titel =
+    document.getElementById(
+      'mobileSeitentitel'
+    );
+
+  if (titel) {
+    titel.textContent =
+      'Mitarbeiterübersicht';
+  }
+
+  schliesseNavigationNeu();
+}
