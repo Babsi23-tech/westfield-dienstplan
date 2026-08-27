@@ -5438,6 +5438,16 @@ function installiereAbwesenheitenAnsichtNeu() {
       </div>
     </div>
 
+    <div
+      id="meinUrlaubskontoNeu"
+      class="panel"
+      style="margin-bottom:18px;"
+    >
+      <div class="empty-state">
+        Urlaubskonto wird geladen …
+      </div>
+    </div>
+
     <div class="panel">
       <div
         style="
@@ -5487,6 +5497,8 @@ function installiereAbwesenheitenAnsichtNeu() {
 // ==========================================================
 
 async function ladeMeineAbwesenheitenNeu() {
+  ladeMeinUrlaubskontoNeu();
+
   const token =
     localStorage.getItem(
       SESSION_KEY
@@ -12174,3 +12186,248 @@ async function zeigeAdminMitarbeiterSeiteNeu() {
 
   schliesseNavigationNeu();
 }
+
+
+// ==========================================================
+// MEIN URLAUBSKONTO
+// Persönliche Anzeige – jeder sieht nur seine eigenen Werte.
+// ==========================================================
+
+async function ladeMeinUrlaubskontoNeu() {
+  const box =
+    document.getElementById(
+      'meinUrlaubskontoNeu'
+    );
+
+  if (!box) {
+    return;
+  }
+
+  const token =
+    localStorage.getItem(
+      SESSION_KEY
+    );
+
+  if (!token) {
+    return;
+  }
+
+  box.innerHTML =
+    '<div class="empty-state">Urlaubskonto wird geladen …</div>';
+
+  try {
+    const result =
+      await apiPost(
+        'meinUrlaubskonto',
+        {
+          token: token
+        }
+      );
+
+    if (
+      result &&
+      result.sessionExpired
+    ) {
+      await sessionAbgelaufenNeu();
+      return;
+    }
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+      throw new Error(
+        result?.message ||
+        'Urlaubskonto konnte nicht geladen werden.'
+      );
+    }
+
+    rendereMeinUrlaubskontoNeu(
+      result.urlaubskonto,
+      result.jahr
+    );
+
+  } catch (error) {
+    box.innerHTML = `
+      <div
+        class="empty-state"
+        style="color:#b00020;"
+      >
+        ❌ ${escapeHtmlNeu(
+          error.message
+        )}
+      </div>
+    `;
+  }
+}
+
+
+function rendereMeinUrlaubskontoNeu(
+  konto,
+  jahr
+) {
+  const box =
+    document.getElementById(
+      'meinUrlaubskontoNeu'
+    );
+
+  if (
+    !box ||
+    !konto
+  ) {
+    return;
+  }
+
+  const fmt =
+    function(wert) {
+      const zahl =
+        Number(
+          wert || 0
+        );
+
+      if (!Number.isFinite(zahl)) {
+        return '0';
+      }
+
+      return Number.isInteger(zahl)
+        ? String(zahl)
+        : String(zahl).replace('.', ',');
+    };
+
+  const verfuegbar =
+    Number(
+      konto.verfuegbar || 0
+    );
+
+  const statusBg =
+    verfuegbar <= 5
+      ? '#fdecec'
+      : (
+          verfuegbar <= 10
+            ? '#fff4d6'
+            : '#e8f6ee'
+        );
+
+  const statusFarbe =
+    verfuegbar <= 5
+      ? '#b00020'
+      : (
+          verfuegbar <= 10
+            ? '#8a5a00'
+            : '#176b3a'
+        );
+
+  box.innerHTML = `
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        gap:12px;
+        flex-wrap:wrap;
+        margin-bottom:16px;
+      "
+    >
+      <div>
+        <h2 style="margin:0 0 5px;">
+          🏖️ Mein Urlaubskonto
+        </h2>
+
+        <div style="color:#666;font-size:13px;">
+          ${
+            jahr
+              ? 'Planjahr ' +
+                escapeHtmlNeu(
+                  String(jahr)
+                )
+              : ''
+          }
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onclick="ladeMeinUrlaubskontoNeu()"
+        style="
+          border:1px solid #d7dce1;
+          background:#fff;
+          border-radius:8px;
+          padding:8px 12px;
+          cursor:pointer;
+        "
+      >
+        ↻ Aktualisieren
+      </button>
+    </div>
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+        gap:10px;
+      "
+    >
+      <div
+        style="
+          border:1px solid #e0e4e8;
+          border-radius:10px;
+          padding:12px;
+        "
+      >
+        <div style="color:#666;font-size:12px;">
+          Urlaubsanspruch / Resturlaub
+        </div>
+        <strong style="display:block;margin-top:5px;font-size:18px;">
+          ${fmt(konto.resturlaub)} Tage
+        </strong>
+      </div>
+
+      <div
+        style="
+          border:1px solid #e0e4e8;
+          border-radius:10px;
+          padding:12px;
+        "
+      >
+        <div style="color:#666;font-size:12px;">
+          Aliquoter Resturlaub
+        </div>
+        <strong style="display:block;margin-top:5px;font-size:18px;">
+          ${fmt(konto.aliquoterResturlaub)} Tage
+        </strong>
+      </div>
+
+      <div
+        style="
+          border:1px solid #e0e4e8;
+          border-radius:10px;
+          padding:12px;
+        "
+      >
+        <div style="color:#666;font-size:12px;">
+          Genommen
+        </div>
+        <strong style="display:block;margin-top:5px;font-size:18px;">
+          ${fmt(konto.genommen)} Tage
+        </strong>
+      </div>
+
+      <div
+        style="
+          border-radius:10px;
+          padding:12px;
+          background:${statusBg};
+          color:${statusFarbe};
+        "
+      >
+        <div style="font-size:12px;">
+          Noch verfügbar
+        </div>
+        <strong style="display:block;margin-top:5px;font-size:18px;">
+          ${fmt(konto.verfuegbar)} Tage
+        </strong>
+      </div>
+    </div>
+  `;
+}
+
