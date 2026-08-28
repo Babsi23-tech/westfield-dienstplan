@@ -1561,15 +1561,29 @@ async function ladeMeinDienstplanNeu() {
         result.sollstunden
       );
 
-      // Kalenderhinweise wurden parallel gestartet.
-      await kalenderPromise;
-
+      // Der Dienstplan soll nach dem Login sofort sichtbar werden.
+      // Ferien/Feiertage laufen bereits parallel und dürfen die erste
+      // Anzeige nicht mehr blockieren. Sobald sie fertig sind, wird
+      // die aktuell sichtbare Woche still im Hintergrund aktualisiert.
       if (
         !dienstplanInitialisiert
       ) {
         setzeAktuelleKwNeu();
         dienstplanInitialisiert = true;
       }
+
+      kalenderPromise
+        .then(function() {
+          if (dienstplanInitialisiert) {
+            rendereDienstplanNeu();
+          }
+        })
+        .catch(function(error) {
+          console.error(
+            'Kalenderhinweise im Hintergrund:',
+            error
+          );
+        });
 
     } catch (error) {
       console.error(
