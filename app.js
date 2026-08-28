@@ -34,6 +34,18 @@ let meinUrlaubskontoLadePromiseNeu = null;
 const SCS_DIENSTPLAN_CACHE_MS = 60000;
 const SCS_BADGE_CACHE_MS = 60000;
 const SCS_APPINFO_CACHE_MS = 120000;
+
+// Meine Anfragen kurz zwischenspeichern. Dadurch öffnet sich die Seite
+// beim Zurückwechseln sofort und parallele Doppelaufrufe werden vermieden.
+let meineAnfragenCacheNeu = null;
+let meineAnfragenCacheZeitNeu = 0;
+let meineAnfragenLadevorgangNeu = null;
+const SCS_MEINE_ANFRAGEN_CACHE_MS = 45000;
+
+function invalidiereMeineAnfragenCacheNeu() {
+  meineAnfragenCacheNeu = null;
+  meineAnfragenCacheZeitNeu = 0;
+}
 const SCS_URLAUBSKONTO_CACHE_MS = 120000;
 
 // Daten für den direkten Diensttausch
@@ -660,6 +672,8 @@ async function logoutNeu() {
   dienstplanLetztesLadenNeu = 0;
   anfragenBadgeLetztesLadenNeu = 0;
   appInfoLetztesLadenNeu = 0;
+  invalidiereMeineAnfragenCacheNeu();
+  meineAnfragenLadevorgangNeu = null;
   dienstplanLadePromiseNeu = null;
   meinUrlaubskontoCacheNeu = null;
   meinUrlaubskontoLetztesLadenNeu = 0;
@@ -715,6 +729,8 @@ async function sessionAbgelaufenNeu() {
   dienstplanLetztesLadenNeu = 0;
   anfragenBadgeLetztesLadenNeu = 0;
   appInfoLetztesLadenNeu = 0;
+  invalidiereMeineAnfragenCacheNeu();
+  meineAnfragenLadevorgangNeu = null;
   dienstplanLadePromiseNeu = null;
   meinUrlaubskontoCacheNeu = null;
   meinUrlaubskontoLetztesLadenNeu = 0;
@@ -4184,6 +4200,8 @@ async function sendeTauschAnfrageNeu() {
       );
     }
 
+    invalidiereMeineAnfragenCacheNeu();
+
     if (meldung) {
       meldung.style.color =
         '#14943b';
@@ -4445,6 +4463,11 @@ async function ladeMeineAnfragenNeu(
 
   entferneDoppelteUrlaubsPanelsNeu();
 
+  const cacheGueltig =
+    meineAnfragenCacheNeu &&
+    (Date.now() - meineAnfragenCacheZeitNeu <
+      SCS_MEINE_ANFRAGEN_CACHE_MS);
+
   const erhaltenListe =
     document.getElementById(
       'erhalteneTauschAnfragenListe'
@@ -4465,7 +4488,7 @@ async function ladeMeineAnfragenNeu(
       'meineUrlaubsanfragenListeNeu'
     );
 
-  if (zeigeLaden) {
+  if (zeigeLaden && !cacheGueltig) {
     if (erhaltenListe) {
       erhaltenListe.innerHTML =
         '<div class="empty-state">Anfragen werden geladen …</div>';
@@ -4494,14 +4517,32 @@ async function ladeMeineAnfragenNeu(
 
     // Neue schnelle Variante: nur EIN Web-App-Aufruf
     // statt drei separater HTTP-Aufrufe.
-    const paket =
-      await apiPost(
-        'meineAnfragenPaket',
-        {
-          token:
-            token
-        }
-      );
+    let paket;
+
+    if (cacheGueltig) {
+      paket = meineAnfragenCacheNeu;
+    } else {
+      // Wenn z. B. der Dienstplan im Hintergrund das Badge lädt und der
+      // Mitarbeiter gleichzeitig „Meine Anfragen“ öffnet, teilen sich beide
+      // denselben laufenden Request statt zweimal Apps Script aufzurufen.
+      if (!meineAnfragenLadevorgangNeu) {
+        meineAnfragenLadevorgangNeu =
+          apiPost(
+            'meineAnfragenPaket',
+            {
+              token:
+                token
+            }
+          ).finally(
+            function() {
+              meineAnfragenLadevorgangNeu = null;
+            }
+          );
+      }
+
+      paket =
+        await meineAnfragenLadevorgangNeu;
+    }
 
     if (
       paket &&
@@ -4615,6 +4656,15 @@ async function ladeMeineAnfragenNeu(
         'Urlaubsanträge konnten nicht geladen werden.'
       );
     }
+
+    // Nur vollständig erfolgreiche Daten cachen.
+    meineAnfragenCacheNeu = {
+      ok: true,
+      tauschResult: tauschResult,
+      dienstResult: dienstResult,
+      urlaubResult: urlaubResult
+    };
+    meineAnfragenCacheZeitNeu = Date.now();
 
     const erhalten =
       Array.isArray(
@@ -5500,6 +5550,8 @@ async function bearbeiteTauschAnfrageMitarbeiterNeu(
       result.message ||
       'Tauschanfrage wurde bearbeitet.'
     );
+
+    invalidiereMeineAnfragenCacheNeu();
 
     await ladeMeineAnfragenNeu(
       true
@@ -6924,6 +6976,8 @@ async function sendeSonstigenWunschNeu() {
           'Dein Wunsch wurde gesendet.'
         );
     }
+
+    invalidiereMeineAnfragenCacheNeu();
 
     await ladeMeineAnfragenNeu(
       false
@@ -9740,6 +9794,8 @@ async function sendeUrlaubsAnfrageNeu() {
         result.message ||
         'Urlaubsantrag wurde gesendet.'
       );
+
+    invalidiereMeineAnfragenCacheNeu();
 
     von.value =
       '';
