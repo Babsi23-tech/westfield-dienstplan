@@ -4973,206 +4973,147 @@ function rendereErhalteneTauschAnfragenNeu(
 // GESENDETE TAUSCHANFRAGEN
 // ==========================================================
 
-function rendereGesendeteTauschAnfragenNeu(
-  anfragen
-) {
-  const liste =
-    document.getElementById(
-      'gesendeteTauschAnfragenListe'
-    );
+function statusGruppeMeineAnfragenNeu(statusWert) {
+  const status = String(statusWert || 'OFFEN')
+    .trim()
+    .toUpperCase();
 
-  if (!liste) {
+  if (status === 'GENEHMIGT') return 'GENEHMIGT';
+  if (status === 'ABGELEHNT') return 'ABGELEHNT';
+  return 'OFFEN';
+}
+
+function gruppenKopfMeineAnfragenNeu(gruppe, anzahl) {
+  let symbol = '🟡';
+  let text = 'Offen';
+  let farbe = '#8a6500';
+  let hintergrund = '#fff8df';
+
+  if (gruppe === 'GENEHMIGT') {
+    symbol = '✅';
+    text = 'Genehmigt';
+    farbe = '#176b2c';
+    hintergrund = '#edf8f0';
+  } else if (gruppe === 'ABGELEHNT') {
+    symbol = '❌';
+    text = 'Abgelehnt';
+    farbe = '#b00020';
+    hintergrund = '#fff0f2';
+  }
+
+  return `
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        margin:18px 0 10px;
+        padding:9px 11px;
+        border-radius:9px;
+        background:${hintergrund};
+        color:${farbe};
+        font-weight:800;
+      "
+    >
+      <span>${symbol} ${text}</span>
+      <span
+        style="
+          min-width:26px;
+          text-align:center;
+          padding:2px 7px;
+          border-radius:999px;
+          background:#ffffff;
+          font-size:12px;
+        "
+      >
+        ${Number(anzahl || 0)}
+      </span>
+    </div>
+  `;
+}
+
+function rendereGesendeteTauschAnfragenNeu(anfragen) {
+  const liste = document.getElementById('gesendeteTauschAnfragenListe');
+  if (!liste) return;
+
+  const daten = Array.isArray(anfragen) ? anfragen : [];
+  if (!daten.length) {
+    liste.innerHTML = '<div class="empty-state">Keine gesendeten Tauschanfragen.</div>';
     return;
   }
 
-  if (
-    !Array.isArray(anfragen) ||
-    anfragen.length === 0
-  ) {
-    liste.innerHTML = `
-      <div class="empty-state">
-        Keine gesendeten Tauschanfragen.
-      </div>
-    `;
+  const gruppen = {
+    OFFEN: [],
+    GENEHMIGT: [],
+    ABGELEHNT: []
+  };
 
-    return;
-  }
+  daten.forEach(function(a) {
+    gruppen[statusGruppeMeineAnfragenNeu(a.status)].push(a);
+  });
 
   let html = '';
 
-  anfragen.forEach(
-    function(a) {
-      const status =
-        String(
-          a.status || 'OFFEN'
-        )
-          .trim()
-          .toUpperCase();
+  ['OFFEN', 'GENEHMIGT', 'ABGELEHNT'].forEach(function(gruppe) {
+    const eintraege = gruppen[gruppe];
+    if (!eintraege.length) return;
 
-      let statusText =
-        '🟡 Offen';
+    html += gruppenKopfMeineAnfragenNeu(gruppe, eintraege.length);
 
-      let statusFarbe =
-        '#8a6500';
+    eintraege.forEach(function(a) {
+      const status = String(a.status || 'OFFEN').trim().toUpperCase();
 
-      let statusHintergrund =
-        '#fff5cf';
+      let statusText = '🟡 Offen';
+      let statusFarbe = '#8a6500';
+      let statusHintergrund = '#fff5cf';
 
-      if (
-        status ===
-        'GENEHMIGT'
-      ) {
-        statusText =
-          '✅ Genehmigt';
-
-        statusFarbe =
-          '#176b2c';
-
-        statusHintergrund =
-          '#e7f6ec';
-      }
-
-      else if (
-        status ===
-        'ABGELEHNT'
-      ) {
-        statusText =
-          '❌ Abgelehnt';
-
-        statusFarbe =
-          '#b00020';
-
-        statusHintergrund =
-          '#fdecec';
-      }
-
-      else if (
-        status ===
-        'WARTET_ADMIN'
-      ) {
-        statusText =
-          '🟠 Wartet auf Admin';
-
-        statusFarbe =
-          '#8a5200';
-
-        statusHintergrund =
-          '#fff0dc';
+      if (status === 'GENEHMIGT') {
+        statusText = '✅ Genehmigt';
+        statusFarbe = '#176b2c';
+        statusHintergrund = '#e7f6ec';
+      } else if (status === 'ABGELEHNT') {
+        statusText = '❌ Abgelehnt';
+        statusFarbe = '#b00020';
+        statusHintergrund = '#fdecec';
+      } else if (status === 'WARTET_ADMIN') {
+        statusText = '🟠 Wartet auf Admin';
+        statusFarbe = '#8a5200';
+        statusHintergrund = '#fff0dc';
       }
 
       html += `
-        <div
-          style="
-            border:1px solid #dde1e5;
-            border-radius:11px;
-            padding:15px;
-            margin-bottom:12px;
-            background:#ffffff;
-          "
-        >
-          <div
-            style="
-              display:flex;
-              justify-content:space-between;
-              gap:12px;
-              align-items:flex-start;
-              flex-wrap:wrap;
-            "
-          >
+        <div style="border:1px solid #dde1e5;border-radius:11px;padding:15px;margin-bottom:12px;background:#ffffff;">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
             <div>
-              <strong
-                style="
-                  display:block;
-                  font-size:16px;
-                "
-              >
-                Tausch mit
-                ${escapeHtmlNeu(
-                  a.partner || ''
-                )}
+              <strong style="display:block;font-size:16px;">
+                Tausch mit ${escapeHtmlNeu(a.partner || '')}
               </strong>
-
-              <div
-                style="
-                  margin-top:6px;
-                  color:#666;
-                "
-              >
-                📅 ${escapeHtmlNeu(
-                  a.datum || ''
-                )}
-              </div>
+              <div style="margin-top:6px;color:#666;">📅 ${escapeHtmlNeu(a.datum || '')}</div>
             </div>
-
-            <span
-              style="
-                padding:6px 9px;
-                border-radius:999px;
-                background:${statusHintergrund};
-                color:${statusFarbe};
-                font-size:12px;
-                font-weight:700;
-              "
-            >
+            <span style="padding:6px 9px;border-radius:999px;background:${statusHintergrund};color:${statusFarbe};font-size:12px;font-weight:700;">
               ${statusText}
             </span>
           </div>
 
-          <div
-            style="
-              margin-top:10px;
-              padding:11px;
-              background:#f7f8f9;
-              border-radius:8px;
-            "
-          >
-            ${escapeHtmlNeu(
-              entferneDienstSymbol(
-                a.eigenerDienst || ''
-              )
-            )}
-
-            <span
-              style="
-                margin:0 7px;
-              "
-            >
-              ↔
-            </span>
-
-            ${escapeHtmlNeu(
-              entferneDienstSymbol(
-                a.partnerDienst || ''
-              )
-            )}
+          <div style="margin-top:10px;padding:11px;background:#f7f8f9;border-radius:8px;">
+            ${escapeHtmlNeu(entferneDienstSymbol(a.eigenerDienst || ''))}
+            <span style="margin:0 7px;">↔</span>
+            ${escapeHtmlNeu(entferneDienstSymbol(a.partnerDienst || ''))}
           </div>
 
-          ${
-            a.nachricht
-              ? `
-                <div
-                  style="
-                    margin-top:10px;
-                    color:#555;
-                    white-space:pre-wrap;
-                  "
-                >
-                  💬 ${escapeHtmlNeu(
-                    a.nachricht
-                  )}
-                </div>
-              `
-              : ''
-          }
+          ${a.nachricht ? `
+            <div style="margin-top:10px;color:#555;white-space:pre-wrap;">
+              💬 ${escapeHtmlNeu(a.nachricht)}
+            </div>
+          ` : ''}
         </div>
       `;
-    }
-  );
+    });
+  });
 
-  liste.innerHTML =
-    html;
+  liste.innerHTML = html;
 }
-
 
 
 // ==========================================================
@@ -5180,100 +5121,63 @@ function rendereGesendeteTauschAnfragenNeu(
 // ==========================================================
 
 function rendereMeineUrlaubsanfragenNeu(anfragen) {
-  const liste =
-    document.getElementById(
-      'meineUrlaubsanfragenListeNeu'
-    );
-
+  const liste = document.getElementById('meineUrlaubsanfragenListeNeu');
   if (!liste) return;
 
-  if (!Array.isArray(anfragen) || anfragen.length === 0) {
-    liste.innerHTML =
-      '<div class="empty-state">Du hast aktuell keine Urlaubsanträge.</div>';
+  const daten = Array.isArray(anfragen) ? anfragen : [];
+  if (!daten.length) {
+    liste.innerHTML = '<div class="empty-state">Du hast aktuell keine Urlaubsanträge.</div>';
     return;
   }
 
+  const gruppen = { OFFEN: [], GENEHMIGT: [], ABGELEHNT: [] };
+  daten.forEach(function(a) {
+    gruppen[statusGruppeMeineAnfragenNeu(a.status)].push(a);
+  });
+
   let html = '';
 
-  anfragen.forEach(function(a) {
-    const status =
-      String(a.status || 'OFFEN')
-        .trim()
-        .toUpperCase();
+  ['OFFEN', 'GENEHMIGT', 'ABGELEHNT'].forEach(function(gruppe) {
+    const eintraege = gruppen[gruppe];
+    if (!eintraege.length) return;
 
-    let statusText = '🟡 Offen';
-    let statusFarbe = '#8a6500';
-    let statusHintergrund = '#fff5cf';
+    html += gruppenKopfMeineAnfragenNeu(gruppe, eintraege.length);
 
-    if (status === 'GENEHMIGT') {
-      statusText = '✅ Genehmigt';
-      statusFarbe = '#176b2c';
-      statusHintergrund = '#e7f6ec';
-    } else if (status === 'ABGELEHNT') {
-      statusText = '❌ Abgelehnt';
-      statusFarbe = '#b00020';
-      statusHintergrund = '#fdecec';
-    }
+    eintraege.forEach(function(a) {
+      const status = String(a.status || 'OFFEN').trim().toUpperCase();
+      let statusText = '🟡 Offen';
+      let statusFarbe = '#8a6500';
+      let statusHintergrund = '#fff5cf';
 
-    html += `
-      <div
-        style="
-          border:1px solid #dde1e5;
-          border-radius:11px;
-          padding:15px;
-          margin-bottom:12px;
-          background:#ffffff;
-        "
-      >
-        <div
-          style="
-            display:flex;
-            justify-content:space-between;
-            gap:12px;
-            align-items:flex-start;
-            flex-wrap:wrap;
-          "
-        >
-          <strong style="font-size:16px;">
-            🏖️ ${escapeHtmlNeu(a.von || '')}
-            –
-            ${escapeHtmlNeu(a.bis || '')}
-          </strong>
+      if (status === 'GENEHMIGT') {
+        statusText = '✅ Genehmigt';
+        statusFarbe = '#176b2c';
+        statusHintergrund = '#e7f6ec';
+      } else if (status === 'ABGELEHNT') {
+        statusText = '❌ Abgelehnt';
+        statusFarbe = '#b00020';
+        statusHintergrund = '#fdecec';
+      }
 
-          <span
-            style="
-              padding:6px 9px;
-              border-radius:999px;
-              background:${statusHintergrund};
-              color:${statusFarbe};
-              font-size:12px;
-              font-weight:800;
-            "
-          >
-            ${statusText}
-          </span>
+      html += `
+        <div style="border:1px solid #dde1e5;border-radius:11px;padding:15px;margin-bottom:12px;background:#ffffff;">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <strong style="font-size:16px;">
+              🏖️ ${escapeHtmlNeu(a.von || '')} – ${escapeHtmlNeu(a.bis || '')}
+            </strong>
+            <span style="padding:6px 9px;border-radius:999px;background:${statusHintergrund};color:${statusFarbe};font-size:12px;font-weight:800;">
+              ${statusText}
+            </span>
+          </div>
+
+          ${a.notiz ? `
+            <div style="margin-top:10px;padding:11px;border-radius:8px;background:#f7f8f9;color:#444;white-space:pre-wrap;">
+              📝 ${escapeHtmlNeu(a.notiz)}
+            </div>
+          ` : ''}
         </div>
-
-        ${
-          a.notiz
-            ? `
-              <div
-                style="
-                  margin-top:10px;
-                  padding:11px;
-                  border-radius:8px;
-                  background:#f7f8f9;
-                  color:#444;
-                  white-space:pre-wrap;
-                "
-              >
-                📝 ${escapeHtmlNeu(a.notiz)}
-              </div>
-            `
-            : ''
-        }
-      </div>
-    `;
+      `;
+    });
   });
 
   liste.innerHTML = html;
@@ -5284,213 +5188,81 @@ function rendereMeineUrlaubsanfragenNeu(anfragen) {
 // MEINE SONSTIGEN WÜNSCHE
 // ==========================================================
 
-function rendereMeineDienstAnfragenNeu(
-  anfragen
-) {
-  const liste =
-    document.getElementById(
-      'meineDienstAnfragenListe'
-    );
+function rendereMeineDienstAnfragenNeu(anfragen) {
+  const liste = document.getElementById('meineDienstAnfragenListe');
+  if (!liste) return;
 
-  if (!liste) {
+  const daten = Array.isArray(anfragen) ? anfragen : [];
+  if (!daten.length) {
+    liste.innerHTML = '<div class="empty-state">Du hast aktuell keine sonstigen Wünsche.</div>';
     return;
   }
 
-  if (
-    !Array.isArray(anfragen) ||
-    anfragen.length === 0
-  ) {
-    liste.innerHTML = `
-      <div class="empty-state">
-        Du hast aktuell keine sonstigen Wünsche.
-      </div>
-    `;
-
-    return;
-  }
+  const gruppen = { OFFEN: [], GENEHMIGT: [], ABGELEHNT: [] };
+  daten.forEach(function(a) {
+    gruppen[statusGruppeMeineAnfragenNeu(a.status)].push(a);
+  });
 
   let html = '';
 
-  anfragen.forEach(
-    function(a) {
-      const status =
-        String(
-          a.status || 'OFFEN'
-        )
-          .trim()
-          .toUpperCase();
+  ['OFFEN', 'GENEHMIGT', 'ABGELEHNT'].forEach(function(gruppe) {
+    const eintraege = gruppen[gruppe];
+    if (!eintraege.length) return;
 
-      let statusText =
-        '🟡 Offen';
+    html += gruppenKopfMeineAnfragenNeu(gruppe, eintraege.length);
 
-      let statusFarbe =
-        '#8a6500';
+    eintraege.forEach(function(a) {
+      const status = String(a.status || 'OFFEN').trim().toUpperCase();
+      let statusText = '🟡 Offen';
+      let statusFarbe = '#8a6500';
+      let statusHintergrund = '#fff5cf';
 
-      let statusHintergrund =
-        '#fff5cf';
-
-      if (
-        status ===
-        'GENEHMIGT'
-      ) {
-        statusText =
-          '✅ Genehmigt';
-
-        statusFarbe =
-          '#176b2c';
-
-        statusHintergrund =
-          '#e7f6ec';
-      }
-
-      else if (
-        status ===
-        'ABGELEHNT'
-      ) {
-        statusText =
-          '❌ Abgelehnt';
-
-        statusFarbe =
-          '#b00020';
-
-        statusHintergrund =
-          '#fdecec';
+      if (status === 'GENEHMIGT') {
+        statusText = '✅ Genehmigt';
+        statusFarbe = '#176b2c';
+        statusHintergrund = '#e7f6ec';
+      } else if (status === 'ABGELEHNT') {
+        statusText = '❌ Abgelehnt';
+        statusFarbe = '#b00020';
+        statusHintergrund = '#fdecec';
       }
 
       const teile = [];
-
-      if (
-        a.datum
-      ) {
-        teile.push(
-          escapeHtmlNeu(
-            a.datum
-          )
-        );
-      }
-
-      if (
-        a.dienst
-      ) {
-        teile.push(
-          escapeHtmlNeu(
-            entferneDienstSymbol(
-              a.dienst
-            )
-          )
-        );
-      }
+      if (a.datum) teile.push(escapeHtmlNeu(a.datum));
+      if (a.dienst) teile.push(escapeHtmlNeu(entferneDienstSymbol(a.dienst)));
 
       html += `
-        <div
-          style="
-            border:1px solid #dde1e5;
-            border-radius:11px;
-            padding:15px;
-            margin-bottom:12px;
-            background:#ffffff;
-          "
-        >
-          <div
-            style="
-              display:flex;
-              justify-content:space-between;
-              gap:12px;
-              align-items:flex-start;
-              flex-wrap:wrap;
-            "
-          >
-            <strong
-              style="
-                font-size:16px;
-              "
-            >
-              ${
-                teile.length
-                  ? '💬 Wunsch mit Dienstbezug'
-                  : '💬 Allgemeiner Wunsch'
-              }
+        <div style="border:1px solid #dde1e5;border-radius:11px;padding:15px;margin-bottom:12px;background:#ffffff;">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <strong style="font-size:16px;">
+              ${teile.length ? '💬 Wunsch mit Dienstbezug' : '💬 Allgemeiner Wunsch'}
             </strong>
-
-            <span
-              style="
-                padding:6px 9px;
-                border-radius:999px;
-                background:${statusHintergrund};
-                color:${statusFarbe};
-                font-size:12px;
-                font-weight:700;
-              "
-            >
+            <span style="padding:6px 9px;border-radius:999px;background:${statusHintergrund};color:${statusFarbe};font-size:12px;font-weight:700;">
               ${statusText}
             </span>
           </div>
 
-          ${
-            teile.length
-              ? `
-                <div
-                  style="
-                    margin-top:9px;
-                    color:#555;
-                    line-height:1.5;
-                  "
-                >
-                  📅 ${teile.join(
-                    ' · '
-                  )}
-                </div>
-              `
-              : ''
-          }
+          ${teile.length ? `
+            <div style="margin-top:9px;color:#555;line-height:1.5;">📅 ${teile.join(' · ')}</div>
+          ` : ''}
 
-          ${
-            a.nachricht
-              ? `
-                <div
-                  style="
-                    margin-top:10px;
-                    padding:11px;
-                    border-radius:8px;
-                    background:#f7f8f9;
-                    white-space:pre-wrap;
-                    color:#444;
-                    line-height:1.5;
-                  "
-                >
-                  ${escapeHtmlNeu(
-                    a.nachricht
-                  )}
-                </div>
-              `
-              : ''
-          }
+          ${a.nachricht ? `
+            <div style="margin-top:10px;padding:11px;border-radius:8px;background:#f7f8f9;white-space:pre-wrap;color:#444;line-height:1.5;">
+              ${escapeHtmlNeu(a.nachricht)}
+            </div>
+          ` : ''}
 
-          ${
-            a.zeitstempel
-              ? `
-                <div
-                  style="
-                    margin-top:8px;
-                    font-size:12px;
-                    color:#888;
-                  "
-                >
-                  Gesendet:
-                  ${escapeHtmlNeu(
-                    a.zeitstempel
-                  )}
-                </div>
-              `
-              : ''
-          }
+          ${a.zeitstempel ? `
+            <div style="margin-top:8px;font-size:12px;color:#888;">
+              Gesendet: ${escapeHtmlNeu(a.zeitstempel)}
+            </div>
+          ` : ''}
         </div>
       `;
-    }
-  );
+    });
+  });
 
-  liste.innerHTML =
-    html;
+  liste.innerHTML = html;
 }
 
 
