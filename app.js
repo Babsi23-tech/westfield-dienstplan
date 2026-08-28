@@ -1561,6 +1561,15 @@ async function ladeMeinDienstplanNeu() {
         error
       );
 
+      const ladenAnzeige =
+        document.getElementById(
+          'dienstplanLaden'
+        );
+
+      if (ladenAnzeige) {
+        ladenAnzeige.style.display = 'none';
+      }
+
       if (liste) {
         liste.innerHTML = `
           <div
@@ -1957,6 +1966,17 @@ function rendereDienstplan(
     document.getElementById(
       'dienstplanListe'
     );
+
+  // Die feste Ladeanzeige aus index.html ausblenden,
+  // sobald der Dienstplan tatsächlich gerendert wird.
+  const ladenAnzeige =
+    document.getElementById(
+      'dienstplanLaden'
+    );
+
+  if (ladenAnzeige) {
+    ladenAnzeige.style.display = 'none';
+  }
 
   if (!liste) {
     return;
