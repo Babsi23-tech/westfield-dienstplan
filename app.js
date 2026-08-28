@@ -686,26 +686,29 @@ async function logoutNeu() {
   tauschDienstText = '';
   tauschZeit = '';
 
-  try {
-    if (token) {
-      await apiPost(
-        'logout',
-        {
-          token: token
-        }
-      );
-    }
-
-  } catch (error) {
-    console.error(
-      'Logout:',
-      error
+  // Sofort lokal abmelden. Der Server-Logout läuft nur noch im Hintergrund,
+  // damit ein langsamer Google-Apps-Script-Aufruf die Oberfläche nicht blockiert.
+  if (token) {
+    apiPost(
+      'logout',
+      {
+        token: token
+      }
+    ).catch(
+      function(error) {
+        console.error(
+          'Logout:',
+          error
+        );
+      }
     );
   }
 
   zeigeLogin();
 
-  await ladeMitarbeiter();
+  // Mitarbeiterliste ebenfalls im Hintergrund laden.
+  // Die Login-Seite ist dadurch sofort sichtbar.
+  ladeMitarbeiter();
 }
 
 
