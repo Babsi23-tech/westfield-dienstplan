@@ -21,9 +21,20 @@ let dienstplanLetztesLadenNeu = 0;
 let anfragenBadgeLetztesLadenNeu = 0;
 let appInfoLetztesLadenNeu = 0;
 
+// Verhindert doppelte gleichzeitige Server-Aufrufe, wenn schnell
+// zwischen Dienstplan / Abwesenheiten / Diensttausch gewechselt wird.
+let dienstplanLadePromiseNeu = null;
+
+// Urlaubskonto kurz zwischenspeichern, damit die Abwesenheiten-Seite
+// beim erneuten Öffnen nicht sofort wieder Google Apps Script aufruft.
+let meinUrlaubskontoCacheNeu = null;
+let meinUrlaubskontoLetztesLadenNeu = 0;
+let meinUrlaubskontoLadePromiseNeu = null;
+
 const SCS_DIENSTPLAN_CACHE_MS = 60000;
 const SCS_BADGE_CACHE_MS = 60000;
 const SCS_APPINFO_CACHE_MS = 120000;
+const SCS_URLAUBSKONTO_CACHE_MS = 120000;
 
 // Daten für den direkten Diensttausch
 let tauschDatum = '';
@@ -649,6 +660,10 @@ async function logoutNeu() {
   dienstplanLetztesLadenNeu = 0;
   anfragenBadgeLetztesLadenNeu = 0;
   appInfoLetztesLadenNeu = 0;
+  dienstplanLadePromiseNeu = null;
+  meinUrlaubskontoCacheNeu = null;
+  meinUrlaubskontoLetztesLadenNeu = 0;
+  meinUrlaubskontoLadePromiseNeu = null;
 
   tauschDatum = '';
   tauschTag = '';
@@ -700,6 +715,10 @@ async function sessionAbgelaufenNeu() {
   dienstplanLetztesLadenNeu = 0;
   anfragenBadgeLetztesLadenNeu = 0;
   appInfoLetztesLadenNeu = 0;
+  dienstplanLadePromiseNeu = null;
+  meinUrlaubskontoCacheNeu = null;
+  meinUrlaubskontoLetztesLadenNeu = 0;
+  meinUrlaubskontoLadePromiseNeu = null;
 
   window.alert(
     'Deine Anmeldung ist abgelaufen. Bitte melde dich erneut an.'
@@ -1420,7 +1439,6 @@ async function ladeMeinDienstplanNeu() {
 
   if (!token) {
     await sessionAbgelaufenNeu();
-
     return;
   }
 
@@ -1429,8 +1447,7 @@ async function ladeMeinDienstplanNeu() {
       'dienstplanListe'
     );
 
-  // Beim Zurückwechseln zum Dienstplan nicht jedes Mal
-  // sofort wieder Google Apps Script aufrufen.
+  // Bereits geladene Daten sofort wiederverwenden.
   if (
     dienstplanInitialisiert &&
     Array.isArray(letzterDienstplan) &&
@@ -1439,6 +1456,16 @@ async function ladeMeinDienstplanNeu() {
       SCS_DIENSTPLAN_CACHE_MS
   ) {
     rendereDienstplanNeu();
+    return;
+  }
+
+  // Läuft bereits derselbe Ladevorgang, hängen wir uns daran an.
+  // Das verhindert doppelte meinDienstplan-Aufrufe bei schneller Navigation.
+  if (dienstplanLadePromiseNeu) {
+    await dienstplanLadePromiseNeu;
+    if (Array.isArray(letzterDienstplan)) {
+      rendereDienstplanNeu();
+    }
     return;
   }
 
@@ -1453,107 +1480,108 @@ async function ladeMeinDienstplanNeu() {
     `;
   }
 
-  try {
-    const result =
-      await apiPost(
-        'meinDienstplan',
-        {
-          token: token
-        }
+  dienstplanLadePromiseNeu = (async function() {
+    try {
+      // Ferien/Feiertage parallel zum Dienstplan laden statt erst danach.
+      const kalenderPromise =
+        ladeKalenderHinweiseNeu();
+
+      const result =
+        await apiPost(
+          'meinDienstplan',
+          {
+            token: token
+          }
+        );
+
+      if (
+        result &&
+        result.sessionExpired
+      ) {
+        await sessionAbgelaufenNeu();
+        return;
+      }
+
+      if (
+        !result ||
+        !result.ok
+      ) {
+        throw new Error(
+          result?.message ||
+          'Dienstplan konnte nicht geladen werden.'
+        );
+      }
+
+      aktuellerBenutzer =
+        result.name ||
+        aktuellerBenutzer;
+
+      aktuellerAdmin =
+        result.admin === true;
+
+      letzterDienstplan =
+        Array.isArray(
+          result.dienstplan
+        )
+          ? result.dienstplan
+          : [];
+
+      letzteAbwesenheiten =
+        Array.isArray(
+          result.abwesenheiten
+        )
+          ? result.abwesenheiten
+          : [];
+
+      dienstplanLetztesLadenNeu =
+        Date.now();
+
+      aktualisiereSidebarNeu(
+        aktuellerBenutzer,
+        aktuellerAdmin
       );
 
-    if (
-      result &&
-      result.sessionExpired
-    ) {
-      await sessionAbgelaufenNeu();
-
-      return;
-    }
-
-    if (
-      !result ||
-      !result.ok
-    ) {
-      throw new Error(
-        result?.message ||
-        'Dienstplan konnte nicht geladen werden.'
+      aktualisiereWochenstundenNeu(
+        result.sollstunden
       );
+
+      // Kalenderhinweise wurden parallel gestartet.
+      await kalenderPromise;
+
+      if (
+        !dienstplanInitialisiert
+      ) {
+        setzeAktuelleKwNeu();
+        dienstplanInitialisiert = true;
+      }
+
+    } catch (error) {
+      console.error(
+        'Dienstplan:',
+        error
+      );
+
+      if (liste) {
+        liste.innerHTML = `
+          <div
+            class="empty-state"
+            style="color:#b00020;"
+          >
+            ❌ ${escapeHtmlNeu(
+              error.message
+            )}
+          </div>
+        `;
+      }
+    } finally {
+      dienstplanLadePromiseNeu = null;
     }
+  })();
 
-    aktuellerBenutzer =
-      result.name ||
-      aktuellerBenutzer;
+  await dienstplanLadePromiseNeu;
 
-    aktuellerAdmin =
-      result.admin === true;
-
-    letzterDienstplan =
-      Array.isArray(
-        result.dienstplan
-      )
-        ? result.dienstplan
-        : [];
-
-    letzteAbwesenheiten =
-      Array.isArray(
-        result.abwesenheiten
-      )
-        ? result.abwesenheiten
-        : [];
-
-    dienstplanLetztesLadenNeu =
-      Date.now();
-
-    aktualisiereSidebarNeu(
-      aktuellerBenutzer,
-      aktuellerAdmin
-    );
-
-    aktualisiereWochenstundenNeu(
-      result.sollstunden
-    );
-
-    await ladeKalenderHinweiseNeu();
-
-    if (
-      !dienstplanInitialisiert
-    ) {
-      setzeAktuelleKwNeu();
-
-      dienstplanInitialisiert =
-        true;
-    }
-
+  if (dienstplanInitialisiert) {
     rendereDienstplanNeu();
-
-    const laden =
-      document.getElementById(
-        'dienstplanLaden'
-      );
-
-    if (laden) {
-      laden.style.display = 'none';
-    }
-
-  } catch (error) {
-    console.error(
-      'Dienstplan:',
-      error
-    );
-
-    if (liste) {
-      liste.innerHTML = `
-        <div
-          class="empty-state"
-          style="color:#b00020;"
-        >
-          ❌ ${escapeHtmlNeu(
-            error.message
-          )}
-        </div>
-      `;
-    }
   }
 }
 
@@ -5691,6 +5719,7 @@ function installiereAbwesenheitenAnsichtNeu() {
 // ==========================================================
 
 async function ladeMeineAbwesenheitenNeu() {
+  // Urlaubskonto parallel laden; es blockiert die Abwesenheiten nicht.
   ladeMeinUrlaubskontoNeu();
 
   const token =
@@ -5700,7 +5729,6 @@ async function ladeMeineAbwesenheitenNeu() {
 
   if (!token) {
     await sessionAbgelaufenNeu();
-
     return;
   }
 
@@ -5709,8 +5737,8 @@ async function ladeMeineAbwesenheitenNeu() {
       'abwesenheitenListeNeu'
     );
 
-  // Wenn der Dienstplan gerade erst geladen wurde,
-  // sind die Abwesenheiten bereits vorhanden.
+  // Abwesenheiten sind Bestandteil von meinDienstplan und werden daher
+  // aus demselben Cache verwendet.
   if (
     dienstplanInitialisiert &&
     Array.isArray(letzteAbwesenheiten) &&
@@ -5729,46 +5757,14 @@ async function ladeMeineAbwesenheitenNeu() {
   }
 
   try {
-    const result =
-      await apiPost(
-        'meinDienstplan',
-        {
-          token:
-            token
-        }
-      );
-
-    if (
-      result &&
-      result.sessionExpired
-    ) {
-      await sessionAbgelaufenNeu();
-
-      return;
-    }
-
-    if (
-      !result ||
-      !result.ok
-    ) {
-      throw new Error(
-        result?.message ||
-        'Abwesenheiten konnten nicht geladen werden.'
-      );
-    }
-
-    letzteAbwesenheiten =
-      Array.isArray(
-        result.abwesenheiten
-      )
-        ? result.abwesenheiten
-        : [];
-
-    dienstplanLetztesLadenNeu =
-      Date.now();
+    // Immer denselben zentralen Dienstplan-Ladevorgang verwenden.
+    // Dadurch entsteht kein zweiter gleichzeitiger Server-Aufruf.
+    await ladeMeinDienstplanNeu();
 
     rendereAbwesenheitenNeu(
-      letzteAbwesenheiten
+      Array.isArray(letzteAbwesenheiten)
+        ? letzteAbwesenheiten
+        : []
     );
 
   } catch (error) {
@@ -12476,7 +12472,9 @@ async function zeigeAdminMitarbeiterSeiteNeu() {
 // Persönliche Anzeige – jeder sieht nur seine eigenen Werte.
 // ==========================================================
 
-async function ladeMeinUrlaubskontoNeu() {
+async function ladeMeinUrlaubskontoNeu(
+  erzwingen = false
+) {
   const box =
     document.getElementById(
       'meinUrlaubskontoNeu'
@@ -12495,53 +12493,85 @@ async function ladeMeinUrlaubskontoNeu() {
     return;
   }
 
+  if (
+    !erzwingen &&
+    meinUrlaubskontoCacheNeu &&
+    Date.now() - meinUrlaubskontoLetztesLadenNeu <
+      SCS_URLAUBSKONTO_CACHE_MS
+  ) {
+    rendereMeinUrlaubskontoNeu(
+      meinUrlaubskontoCacheNeu.urlaubskonto,
+      meinUrlaubskontoCacheNeu.jahr
+    );
+    return;
+  }
+
+  // Bei schneller Navigation denselben laufenden Request wiederverwenden.
+  if (meinUrlaubskontoLadePromiseNeu) {
+    await meinUrlaubskontoLadePromiseNeu;
+    return;
+  }
+
   box.innerHTML =
     '<div class="empty-state">Urlaubskonto wird geladen …</div>';
 
-  try {
-    const result =
-      await apiPost(
-        'meinUrlaubskonto',
-        {
-          token: token
-        }
+  meinUrlaubskontoLadePromiseNeu = (async function() {
+    try {
+      const result =
+        await apiPost(
+          'meinUrlaubskonto',
+          {
+            token: token
+          }
+        );
+
+      if (
+        result &&
+        result.sessionExpired
+      ) {
+        await sessionAbgelaufenNeu();
+        return;
+      }
+
+      if (
+        !result ||
+        !result.ok
+      ) {
+        throw new Error(
+          result?.message ||
+          'Urlaubskonto konnte nicht geladen werden.'
+        );
+      }
+
+      meinUrlaubskontoCacheNeu = {
+        urlaubskonto: result.urlaubskonto,
+        jahr: result.jahr
+      };
+      meinUrlaubskontoLetztesLadenNeu =
+        Date.now();
+
+      rendereMeinUrlaubskontoNeu(
+        result.urlaubskonto,
+        result.jahr
       );
 
-    if (
-      result &&
-      result.sessionExpired
-    ) {
-      await sessionAbgelaufenNeu();
-      return;
+    } catch (error) {
+      box.innerHTML = `
+        <div
+          class="empty-state"
+          style="color:#b00020;"
+        >
+          ❌ ${escapeHtmlNeu(
+            error.message
+          )}
+        </div>
+      `;
+    } finally {
+      meinUrlaubskontoLadePromiseNeu = null;
     }
+  })();
 
-    if (
-      !result ||
-      !result.ok
-    ) {
-      throw new Error(
-        result?.message ||
-        'Urlaubskonto konnte nicht geladen werden.'
-      );
-    }
-
-    rendereMeinUrlaubskontoNeu(
-      result.urlaubskonto,
-      result.jahr
-    );
-
-  } catch (error) {
-    box.innerHTML = `
-      <div
-        class="empty-state"
-        style="color:#b00020;"
-      >
-        ❌ ${escapeHtmlNeu(
-          error.message
-        )}
-      </div>
-    `;
-  }
+  await meinUrlaubskontoLadePromiseNeu;
 }
 
 
