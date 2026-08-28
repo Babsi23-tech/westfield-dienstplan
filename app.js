@@ -15,6 +15,16 @@ let dienstplanInitialisiert = false;
 let kalenderHinweiseNeu = [];
 let kalenderHinweiseGeladenNeu = false;
 
+// Kleine Frontend-Zwischenspeicher für schnellere Navigation.
+// Es werden nur bereits geladene Daten kurz wiederverwendet.
+let dienstplanLetztesLadenNeu = 0;
+let anfragenBadgeLetztesLadenNeu = 0;
+let appInfoLetztesLadenNeu = 0;
+
+const SCS_DIENSTPLAN_CACHE_MS = 60000;
+const SCS_BADGE_CACHE_MS = 60000;
+const SCS_APPINFO_CACHE_MS = 120000;
+
 // Daten für den direkten Diensttausch
 let tauschDatum = '';
 let tauschTag = '';
@@ -636,6 +646,10 @@ async function logoutNeu() {
 
   dienstplanInitialisiert = false;
 
+  dienstplanLetztesLadenNeu = 0;
+  anfragenBadgeLetztesLadenNeu = 0;
+  appInfoLetztesLadenNeu = 0;
+
   tauschDatum = '';
   tauschTag = '';
   tauschKw = '';
@@ -682,6 +696,10 @@ async function sessionAbgelaufenNeu() {
   letzteAbwesenheiten = [];
 
   dienstplanInitialisiert = false;
+
+  dienstplanLetztesLadenNeu = 0;
+  anfragenBadgeLetztesLadenNeu = 0;
+  appInfoLetztesLadenNeu = 0;
 
   window.alert(
     'Deine Anmeldung ist abgelaufen. Bitte melde dich erneut an.'
@@ -1411,6 +1429,19 @@ async function ladeMeinDienstplanNeu() {
       'dienstplanListe'
     );
 
+  // Beim Zurückwechseln zum Dienstplan nicht jedes Mal
+  // sofort wieder Google Apps Script aufrufen.
+  if (
+    dienstplanInitialisiert &&
+    Array.isArray(letzterDienstplan) &&
+    letzterDienstplan.length > 0 &&
+    Date.now() - dienstplanLetztesLadenNeu <
+      SCS_DIENSTPLAN_CACHE_MS
+  ) {
+    rendereDienstplanNeu();
+    return;
+  }
+
   if (
     liste &&
     !dienstplanInitialisiert
@@ -1470,6 +1501,9 @@ async function ladeMeinDienstplanNeu() {
       )
         ? result.abwesenheiten
         : [];
+
+    dienstplanLetztesLadenNeu =
+      Date.now();
 
     aktualisiereSidebarNeu(
       aktuellerBenutzer,
@@ -4406,41 +4440,76 @@ async function ladeMeineAnfragenNeu(
   }
 
   try {
-    const ergebnisse =
-      await Promise.all([
-        apiPost(
-          'tauschAnfragen',
-          {
-            token:
-              token
-          }
-        ),
+    let tauschResult;
+    let dienstResult;
+    let urlaubResult;
 
-        apiPost(
-          'meineDienstAnfragen',
-          {
-            token:
-              token
-          }
-        ),
+    // Neue schnelle Variante: nur EIN Web-App-Aufruf
+    // statt drei separater HTTP-Aufrufe.
+    const paket =
+      await apiPost(
+        'meineAnfragenPaket',
+        {
+          token:
+            token
+        }
+      );
 
-        apiPost(
-          'meineUrlaubsanfragen',
-          {
-            token:
-              token
-          }
-        )
-      ]);
+    if (
+      paket &&
+      paket.ok &&
+      paket.tauschResult &&
+      paket.dienstResult &&
+      paket.urlaubResult
+    ) {
+      tauschResult =
+        paket.tauschResult;
 
-    const tauschResult =
-      ergebnisse[0];
+      dienstResult =
+        paket.dienstResult;
 
-    const dienstResult =
-      ergebnisse[1];
+      urlaubResult =
+        paket.urlaubResult;
 
-    const urlaubResult =
-      ergebnisse[2];
+    } else {
+      // Fallback: funktioniert auch noch mit einer älteren
+      // Apps-Script-Bereitstellung.
+      const ergebnisse =
+        await Promise.all([
+          apiPost(
+            'tauschAnfragen',
+            {
+              token:
+                token
+            }
+          ),
+
+          apiPost(
+            'meineDienstAnfragen',
+            {
+              token:
+                token
+            }
+          ),
+
+          apiPost(
+            'meineUrlaubsanfragen',
+            {
+              token:
+                token
+            }
+          )
+        ]);
+
+      tauschResult =
+        ergebnisse[0];
+
+      dienstResult =
+        ergebnisse[1];
+
+      urlaubResult =
+        ergebnisse[2];
+    }
 
     if (
       tauschResult &&
@@ -4546,6 +4615,9 @@ async function ladeMeineAnfragenNeu(
     aktualisiereAnfragenBadgeNeu(
       erhalten
     );
+
+    anfragenBadgeLetztesLadenNeu =
+      Date.now();
 
   } catch (error) {
     console.error(
@@ -5637,6 +5709,20 @@ async function ladeMeineAbwesenheitenNeu() {
       'abwesenheitenListeNeu'
     );
 
+  // Wenn der Dienstplan gerade erst geladen wurde,
+  // sind die Abwesenheiten bereits vorhanden.
+  if (
+    dienstplanInitialisiert &&
+    Array.isArray(letzteAbwesenheiten) &&
+    Date.now() - dienstplanLetztesLadenNeu <
+      SCS_DIENSTPLAN_CACHE_MS
+  ) {
+    rendereAbwesenheitenNeu(
+      letzteAbwesenheiten
+    );
+    return;
+  }
+
   if (liste) {
     liste.innerHTML =
       '<div class="empty-state">Abwesenheiten werden geladen …</div>';
@@ -5677,6 +5763,9 @@ async function ladeMeineAbwesenheitenNeu() {
       )
         ? result.abwesenheiten
         : [];
+
+    dienstplanLetztesLadenNeu =
+      Date.now();
 
     rendereAbwesenheitenNeu(
       letzteAbwesenheiten
@@ -7169,63 +7258,108 @@ async function ladeAdminAnfragenNeu() {
   }
 
   try {
-    const ergebnisse =
-      await Promise.all([
-        apiPost(
-          'adminTauschAnfragen',
-          {
-            token:
-              token
-          }
-        ),
+    let tauschResult;
+    let dienstResult;
+    let bearbeitetResult;
+    let pinResult;
+    let urlaubResult;
 
-        apiPost(
-          'adminDienstAnfragen',
-          {
-            token:
-              token
-          }
-        ),
+    // Neue schnelle Variante: alle Admin-Anfragen mit
+    // nur EINEM Web-App-Aufruf laden.
+    const paket =
+      await apiPost(
+        'adminAnfragenPaket',
+        {
+          token:
+            token
+        }
+      );
 
-        apiPost(
-          'adminBearbeiteteDienstAnfragen',
-          {
-            token:
-              token
-          }
-        ),
+    if (
+      paket &&
+      paket.ok &&
+      paket.tauschResult &&
+      paket.dienstResult &&
+      paket.bearbeitetResult &&
+      paket.pinResult &&
+      paket.urlaubResult
+    ) {
+      tauschResult =
+        paket.tauschResult;
 
-        apiPost(
-          'adminPinResets',
-          {
-            token:
-              token
-          }
-        ),
+      dienstResult =
+        paket.dienstResult;
 
-        apiPost(
-          'adminUrlaubsanfragen',
-          {
-            token:
-              token
-          }
-        )
-      ]);
+      bearbeitetResult =
+        paket.bearbeitetResult;
 
-    const tauschResult =
-      ergebnisse[0];
+      pinResult =
+        paket.pinResult;
 
-    const dienstResult =
-      ergebnisse[1];
+      urlaubResult =
+        paket.urlaubResult;
 
-    const bearbeitetResult =
-      ergebnisse[2];
+    } else {
+      // Fallback für eine noch nicht aktualisierte
+      // Apps-Script-Bereitstellung.
+      const ergebnisse =
+        await Promise.all([
+          apiPost(
+            'adminTauschAnfragen',
+            {
+              token:
+                token
+            }
+          ),
 
-    const pinResult =
-      ergebnisse[3];
+          apiPost(
+            'adminDienstAnfragen',
+            {
+              token:
+                token
+            }
+          ),
 
-    const urlaubResult =
-      ergebnisse[4];
+          apiPost(
+            'adminBearbeiteteDienstAnfragen',
+            {
+              token:
+                token
+            }
+          ),
+
+          apiPost(
+            'adminPinResets',
+            {
+              token:
+                token
+            }
+          ),
+
+          apiPost(
+            'adminUrlaubsanfragen',
+            {
+              token:
+                token
+            }
+          )
+        ]);
+
+      tauschResult =
+        ergebnisse[0];
+
+      dienstResult =
+        ergebnisse[1];
+
+      bearbeitetResult =
+        ergebnisse[2];
+
+      pinResult =
+        ergebnisse[3];
+
+      urlaubResult =
+        ergebnisse[4];
+    }
 
     const alleResultate = [
       tauschResult,
@@ -9916,22 +10050,29 @@ function installiereNavigationErweiterungNeu() {
         await ladeMeinDienstplanNeu();
 
         /*
-          Badge im Hintergrund aktualisieren.
+          Badge und App-Info nur gelegentlich im Hintergrund
+          aktualisieren. So bleibt der Dienstplan beim Öffnen
+          schnell und unnötige Server-Aufrufe entfallen.
         */
-        setTimeout(
-          function() {
-            ladeMeineAnfragenNeu(
-              false
-            );
-          },
-          300
-        );
+        if (
+          Date.now() - anfragenBadgeLetztesLadenNeu >
+            SCS_BADGE_CACHE_MS
+        ) {
+          setTimeout(
+            function() {
+              ladeMeineAnfragenNeu(
+                false
+              );
+            },
+            150
+          );
+        }
 
         setTimeout(
           function() {
             ladeAppInfoNeu();
           },
-          400
+          200
         );
 
         return;
@@ -10245,7 +10386,18 @@ function installiereNavigationErweiterungNeu() {
 // APP-INFO / AKTUALISIERT AM
 // ==========================================================
 
-async function ladeAppInfoNeu() {
+async function ladeAppInfoNeu(
+  erzwingen = false
+) {
+  if (
+    !erzwingen &&
+    appInfoLetztesLadenNeu &&
+    Date.now() - appInfoLetztesLadenNeu <
+      SCS_APPINFO_CACHE_MS
+  ) {
+    return;
+  }
+
   const element =
     document.getElementById(
       'sidebarAktualisiert'
@@ -10268,6 +10420,9 @@ async function ladeAppInfoNeu() {
       element.textContent =
         result.aktualisiert ||
         '—';
+
+      appInfoLetztesLadenNeu =
+        Date.now();
     }
 
   } catch (error) {
