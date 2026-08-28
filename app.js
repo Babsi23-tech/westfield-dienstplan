@@ -12713,3 +12713,98 @@ function rendereMeinUrlaubskontoNeu(
     </div>
   `;
 }
+
+// ==========================================================
+// PERFORMANCE-FIX – ADMIN-BEREICH NUR BEI BEDARF LADEN
+// ==========================================================
+// Jede Admin-Unterseite lädt jetzt ausschließlich ihre eigenen Daten.
+// Dadurch wird z. B. beim Öffnen der Mitarbeiterübersicht nicht mehr
+// zusätzlich der Gesamtplan und die komplette Anfragenliste geladen.
+
+function oeffneAdminGrundansichtSchnellNeu() {
+  if (!aktuellerAdmin) {
+    window.alert('Keine Admin-Berechtigung.');
+    return false;
+  }
+
+  installiereDynamischeAnsichtenNeu();
+  installiereAdminGesamtplanPanelNeu();
+  installiereAdminMitarbeiterPanelNeu();
+
+  versteckeAlleHauptAnsichtenNeu();
+
+  const ansicht = document.getElementById('adminAnsicht');
+  if (ansicht) {
+    ansicht.style.display = 'block';
+  }
+
+  schliesseNavigationNeu();
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+
+  return true;
+}
+
+// Standard-Adminseite = nur Anfragen laden.
+ladeAdminAnfragenNeu = async function() {
+  await ladeAdminAnfragenBasisNeu();
+
+  window.setTimeout(function() {
+    gliedereAdminAnfragenNeu();
+    styleBearbeiteteWuenscheNeu();
+  }, 0);
+};
+
+// Gesamtplan: keine Anfragen im Hintergrund laden.
+zeigeAdminGesamtplanSeiteNeu = async function() {
+  if (!oeffneAdminGrundansichtSchnellNeu()) {
+    return;
+  }
+
+  setzeAdminPanelSichtbarkeitNeu(true);
+  setzeSeitentitelNeu('admin');
+
+  const titel = document.getElementById('mobileSeitentitel');
+  if (titel) {
+    titel.textContent = 'Gesamter Dienstplan';
+  }
+
+  await ladeAdminGesamtplanNeu();
+};
+
+// Anfragen: nur das Anfragen-Paket laden.
+zeigeAdminAnfragenSeiteNeu = async function() {
+  if (!oeffneAdminGrundansichtSchnellNeu()) {
+    return;
+  }
+
+  setzeAdminPanelSichtbarkeitNeu(false);
+  setzeSeitentitelNeu('admin');
+
+  const titel = document.getElementById('mobileSeitentitel');
+  if (titel) {
+    titel.textContent = 'Anfragen bearbeiten';
+  }
+
+  await ladeAdminAnfragenNeu();
+};
+
+// Mitarbeiterübersicht: nur Urlaubskonto-Daten laden.
+zeigeAdminMitarbeiterSeiteNeu = async function() {
+  if (!oeffneAdminGrundansichtSchnellNeu()) {
+    return;
+  }
+
+  setzeAdminMitarbeiterPanelSichtbarkeitNeu();
+  setzeSeitentitelNeu('admin');
+
+  const titel = document.getElementById('mobileSeitentitel');
+  if (titel) {
+    titel.textContent = 'Mitarbeiterübersicht';
+  }
+
+  await ladeAdminMitarbeiterUebersichtNeu();
+};
