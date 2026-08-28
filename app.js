@@ -1582,10 +1582,10 @@ function aktualisiereSidebarNeu(
     );
 
   if (rolleElement) {
+    // Im Profil immer den tatsächlich angemeldeten Namen anzeigen.
+    // Dadurch steht hier z. B. "Babsi" statt nur "Mitarbeiter".
     rolleElement.textContent =
-      admin
-        ? 'Admin'
-        : 'Mitarbeiter';
+      name || (admin ? 'Admin' : 'Mitarbeiter');
   }
 
   const adminButton =
