@@ -12703,3 +12703,232 @@ zeigeAdminMitarbeiterSeiteNeu = async function() {
 
   await ladeAdminMitarbeiterUebersichtNeu();
 };
+
+// ==========================================================
+// MOBILE-OPTIMIERUNG – HANDY / TABLET
+// ==========================================================
+// Nur Darstellung und Bedienung. Keine Daten- oder Backend-Logik wird verändert.
+
+function installiereMobileOptimierungNeu() {
+  if (document.getElementById('scsMobileOptimierungNeu')) {
+    return;
+  }
+
+  const style = document.createElement('style');
+  style.id = 'scsMobileOptimierungNeu';
+
+  style.textContent = `
+    /* Tablet und kleiner */
+    @media (max-width: 900px) {
+      html,
+      body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .hauptinhalt,
+      .main-content,
+      .content,
+      main {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .scs-tag-karte,
+      .scs-dienst-karte {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      #dienstplanListe,
+      #abwesenheitenListe,
+      #meineAnfragenListe,
+      #adminGesamtplanInhalt,
+      #adminMitarbeiterInhalt {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+      }
+
+      table {
+        max-width: 100%;
+      }
+
+      .scs-mobile-scroll,
+      .table-scroll,
+      .admin-tabelle-wrap {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+
+    /* Handy */
+    @media (max-width: 640px) {
+      body {
+        font-size: 15px;
+      }
+
+      /* Hauptabstände kompakter */
+      .hauptinhalt,
+      .main-content,
+      .content,
+      main {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+      }
+
+      h1 {
+        font-size: 23px !important;
+        line-height: 1.2 !important;
+      }
+
+      h2 {
+        font-size: 20px !important;
+        line-height: 1.25 !important;
+      }
+
+      h3 {
+        font-size: 17px !important;
+      }
+
+      /* Dienstplan */
+      .scs-tag-karte {
+        padding: 13px !important;
+        margin-bottom: 10px !important;
+        border-radius: 11px !important;
+      }
+
+      .scs-dienst-karte {
+        padding: 11px 12px !important;
+        margin-top: 8px !important;
+      }
+
+      .scs-dienst-karte > div {
+        align-items: stretch !important;
+        gap: 9px !important;
+      }
+
+      .scs-dienst-karte button {
+        width: 100% !important;
+        min-height: 42px !important;
+        margin-top: 3px !important;
+      }
+
+      /* Buttons generell fingertauglich */
+      button,
+      .button,
+      input[type="button"],
+      input[type="submit"] {
+        min-height: 42px;
+      }
+
+      select,
+      input,
+      textarea {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 16px !important;
+      }
+
+      textarea {
+        min-height: 90px;
+      }
+
+      /* Wochen-Navigation */
+      #kwNavigation,
+      .kw-navigation,
+      .wochen-navigation {
+        gap: 6px !important;
+      }
+
+      #kwNavigation button,
+      .kw-navigation button,
+      .wochen-navigation button {
+        min-width: 44px !important;
+        padding: 8px 10px !important;
+      }
+
+      /* Karten und Formulare */
+      .card,
+      .karte,
+      .panel,
+      .admin-panel,
+      .anfrage-karte {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Admin-Gesamtplan: horizontal scrollen statt Seite sprengen */
+      #adminGesamtplanInhalt {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+      }
+
+      #adminGesamtplanInhalt table {
+        min-width: 680px;
+      }
+
+      /* Mitarbeiterübersicht */
+      #adminMitarbeiterInhalt {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      #adminMitarbeiterInhalt table {
+        min-width: 620px;
+      }
+
+      /* Lange Texte / Namen umbrechen */
+      .scs-tag-karte,
+      .scs-dienst-karte,
+      .anfrage-karte,
+      td,
+      th {
+        overflow-wrap: anywhere;
+        word-break: normal;
+      }
+
+      /* Dialoge passen sicher aufs Handy */
+      [id$="OverlayNeu"] > div,
+      [id*="Overlay"] > div {
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100vh - 24px) !important;
+        overflow-y: auto !important;
+      }
+    }
+
+    /* Sehr kleine Handys */
+    @media (max-width: 390px) {
+      .hauptinhalt,
+      .main-content,
+      .content,
+      main {
+        padding-left: 9px !important;
+        padding-right: 9px !important;
+      }
+
+      .scs-tag-karte {
+        padding: 11px !important;
+      }
+
+      .scs-dienst-karte {
+        padding: 10px !important;
+      }
+
+      button {
+        font-size: 14px !important;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
+document.addEventListener(
+  'DOMContentLoaded',
+  function() {
+    installiereMobileOptimierungNeu();
+  }
+);
