@@ -931,7 +931,19 @@
       </div>
 
 
-      <div class="dienstplan-bereich" style="display:flex;align-items:center;gap:12px;">
+      <div class="dienstplan-bereich">
+
+        <div
+          class="dienstplan-kopfzeile-neu"
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:16px;
+            width:100%;
+            margin-bottom:18px;
+          "
+        >
 
         <h2>
 
@@ -945,6 +957,27 @@
           Meine Dienste
 
         </h2>
+
+        <button
+              id="kwAktuellButtonNeu"
+              type="button"
+              onclick="springeZurAktuellenKwNeu()"
+              style="
+                margin-left:auto;
+                flex:0 0 auto;
+                padding:8px 14px;
+                border:1px solid #e30613;
+                border-radius:8px;
+                background:#fff;
+                color:#e30613;
+                font-weight:700;
+                cursor:pointer;
+              "
+            >
+              Aktuelle KW
+            </button>
+
+        </div>
 
 
         <div
@@ -972,26 +1005,6 @@
             <strong id="kwAnzeige">
               KW —
             </strong>
-
-          
-
-            <button
-              id="kwAktuellButtonNeu"
-              type="button"
-              onclick="springeZurAktuellenKwNeu()"
-              style="
-                padding:8px 14px;
-                margin-left:auto;
-                border:1px solid #e30613;
-                border-radius:8px;
-                background:#fff;
-                color:#e30613;
-                font-weight:700;
-                cursor:pointer;
-              "
-            >
-              Aktuelle KW
-            </button>
 </div>
 
 
@@ -1352,7 +1365,7 @@
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=20260831-4"></script>
+<script src="app.js?v=20260831-5"></script>
 
 
 <script>
