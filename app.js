@@ -13542,3 +13542,171 @@ if (document.readyState === 'loading') {
     0
   );
 }
+
+
+// ==========================================================
+// FIX – DATUMSZEITRAUM AUCH IN "MEIN DIENSTPLAN"
+// ==========================================================
+// Der Zeitraum wird jetzt bei JEDEM Rendern und JEDEM KW-Wechsel aktualisiert.
+
+function scsKwZeitraumAusPlanNeu(plan, kw) {
+  const liste =
+    Array.isArray(plan)
+      ? plan
+      : [];
+
+  const kwNummer =
+    Number(kw);
+
+  // Zuerst ein echtes Datum aus der ausgewählten KW verwenden.
+  const eintrag =
+    liste.find(function(z) {
+      return (
+        Number(z?.kw) === kwNummer &&
+        scsParseDeDatumNeu(z?.datum)
+      );
+    });
+
+  if (eintrag) {
+    const p =
+      scsParseDeDatumNeu(
+        eintrag.datum
+      );
+
+    const datum =
+      new Date(
+        Date.UTC(
+          p.jahr,
+          p.monat - 1,
+          p.tag
+        )
+      );
+
+    const tag =
+      datum.getUTCDay() || 7;
+
+    const montag =
+      new Date(datum);
+
+    montag.setUTCDate(
+      datum.getUTCDate() -
+      tag +
+      1
+    );
+
+    const sonntag =
+      new Date(montag);
+
+    sonntag.setUTCDate(
+      montag.getUTCDate() + 6
+    );
+
+    const pad =
+      function(zahl) {
+        return String(zahl)
+          .padStart(2, '0');
+      };
+
+    return (
+      pad(montag.getUTCDate()) +
+      '.' +
+      pad(montag.getUTCMonth() + 1) +
+      '. – ' +
+      pad(sonntag.getUTCDate()) +
+      '.' +
+      pad(sonntag.getUTCMonth() + 1) +
+      '.' +
+      sonntag.getUTCFullYear()
+    );
+  }
+
+  // Fallback über das Planjahr.
+  const jahr =
+    scsPlanJahrAusDatenNeu(
+      liste
+    );
+
+  return scsIsoWocheZeitraumNeu(
+    jahr,
+    kwNummer
+  );
+}
+
+
+aktualisiereKwAnzeigeNeu = function() {
+  const anzeige =
+    document.getElementById(
+      'kwAnzeige'
+    );
+
+  if (!anzeige) {
+    return;
+  }
+
+  const zeitraum =
+    scsKwZeitraumAusPlanNeu(
+      letzterDienstplan,
+      aktuelleKwNeu
+    );
+
+  anzeige.textContent =
+    'KW ' +
+    String(
+      aktuelleKwNeu || 1
+    ) +
+    (
+      zeitraum
+        ? ' · ' + zeitraum
+        : ''
+    );
+};
+
+
+// Den aktuell letzten Wochenwechsel überschreiben,
+// damit er nicht wieder nur "KW X" einträgt.
+wechselKwNeu = function(richtung) {
+  const schritt =
+    Number(richtung) < 0
+      ? -1
+      : 1;
+
+  let kw =
+    Number(aktuelleKwNeu) || 1;
+
+  kw += schritt;
+
+  if (kw < 1) {
+    kw = 53;
+  }
+
+  if (kw > 53) {
+    kw = 1;
+  }
+
+  aktuelleKwNeu = kw;
+
+  aktualisiereKwAnzeigeNeu();
+  rendereDienstplanNeu();
+};
+
+
+wechselWoche = function(richtung) {
+  wechselKwNeu(richtung);
+};
+
+
+// Auch beim Öffnen aus dem Cache muss die KW-Anzeige aktualisiert werden.
+const rendereDienstplanMitKwZeitraumBasisNeu =
+  rendereDienstplanNeu;
+
+rendereDienstplanNeu = function() {
+  aktualisiereKwAnzeigeNeu();
+  rendereDienstplanMitKwZeitraumBasisNeu();
+};
+
+
+// Falls die Seite bereits offen ist, Anzeige sofort aktualisieren.
+window.setTimeout(
+  aktualisiereKwAnzeigeNeu,
+  0
+);
