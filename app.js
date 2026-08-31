@@ -2393,6 +2393,10 @@ function rendereDienstplan(
             ${kalenderHinweiseHtmlNeu(
               z.datum || ''
             )}
+
+            ${sonderzeitHinweisHtmlNeu(
+              z.datum || ''
+            )}
           </div>
       `;
 
@@ -13934,6 +13938,50 @@ function sonderzeitFuerDatumNeu(datumText) {
         treffer.bezeichnung || ''
       ).trim()
   };
+}
+
+
+
+function sonderzeitHinweisHtmlNeu(
+  datumText
+) {
+  const sonderzeit =
+    sonderzeitFuerDatumNeu(
+      datumText
+    );
+
+  if (!sonderzeit) {
+    return '';
+  }
+
+  return `
+    <div
+      class="sonderzeit-hinweis-neu"
+      style="
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        margin-top:8px;
+        padding:7px 10px;
+        border-radius:9px;
+        background:#fff1f2;
+        border:1px solid #fecdd3;
+        color:#9f1239;
+        font-weight:800;
+        font-size:13px;
+        line-height:1.25;
+      "
+    >
+      🕘 Sonderöffnungszeit:
+      ${escapeHtmlNeu(
+        sonderzeit.von
+      )}
+      –
+      ${escapeHtmlNeu(
+        sonderzeit.bis
+      )}
+    </div>
+  `;
 }
 
 
