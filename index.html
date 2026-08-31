@@ -963,7 +963,7 @@
           </button>
 
 
-          <div class="wochen-mitte">
+          <div class="wochen-mitte" style="position:relative;">
 
             <span class="wochen-label">
               Ausgewählte Woche
@@ -978,14 +978,17 @@
               type="button"
               onclick="springeZurAktuellenKwNeu()"
               style="
-                margin-top:8px;
-                padding:7px 12px;
+                position:absolute;
+                top:18px;
+                right:18px;
+                padding:8px 14px;
                 border:1px solid #e30613;
                 border-radius:8px;
                 background:#fff;
                 color:#e30613;
                 font-weight:700;
                 cursor:pointer;
+                z-index:2;
               "
             >
               Aktuelle KW
@@ -1351,7 +1354,7 @@
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=20260831-2"></script>
+<script src="app.js?v=20260831-3"></script>
 
 
 <script>
