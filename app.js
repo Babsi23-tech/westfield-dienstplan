@@ -13877,3 +13877,417 @@ installiereAdminGesamtplanPanelNeu = function() {
     button
   );
 };
+
+
+// ==========================================================
+// SONDERÖFFNUNGSZEITEN AUS "FERIEN & FEIERTAGE"
+// F = Sonderzeit von, G = Sonderzeit bis
+// ==========================================================
+
+function sonderzeitFuerDatumNeu(datumText) {
+  const hinweise =
+    getKalenderHinweiseFuerDatumNeu(
+      datumText
+    );
+
+  const treffer =
+    hinweise.find(
+      function(hinweis) {
+        return (
+          String(
+            hinweis.sonderzeitVon || ''
+          ).trim() &&
+          String(
+            hinweis.sonderzeitBis || ''
+          ).trim()
+        );
+      }
+    );
+
+  if (!treffer) {
+    return null;
+  }
+
+  return {
+    von:
+      String(
+        treffer.sonderzeitVon
+      ).trim(),
+
+    bis:
+      String(
+        treffer.sonderzeitBis
+      ).trim(),
+
+    bezeichnung:
+      String(
+        treffer.bezeichnung || ''
+      ).trim()
+  };
+}
+
+
+function sonderzeitTextFuerDatumNeu(
+  datumText
+) {
+  const sonderzeit =
+    sonderzeitFuerDatumNeu(
+      datumText
+    );
+
+  if (!sonderzeit) {
+    return '';
+  }
+
+  return (
+    sonderzeit.von +
+    ' – ' +
+    sonderzeit.bis
+  );
+}
+
+
+// Bestehende Standardzeiten bleiben unverändert.
+// Nur wenn F + G für das Datum gefüllt sind, hat die Sonderzeit Vorrang.
+const zeitFruehStandardNeu =
+  zeitFruehNeu;
+
+const zeitSpaetStandardNeu =
+  zeitSpaetNeu;
+
+const zeitSpaetEndeStandardNeu =
+  zeitSpaetEndeNeu;
+
+zeitFruehNeu = function(
+  tag,
+  datumText
+) {
+  const sonderzeit =
+    sonderzeitTextFuerDatumNeu(
+      datumText
+    );
+
+  return (
+    sonderzeit ||
+    zeitFruehStandardNeu(
+      tag
+    )
+  );
+};
+
+
+zeitSpaetNeu = function(
+  tag,
+  datumText
+) {
+  const sonderzeit =
+    sonderzeitTextFuerDatumNeu(
+      datumText
+    );
+
+  return (
+    sonderzeit ||
+    zeitSpaetStandardNeu(
+      tag
+    )
+  );
+};
+
+
+zeitSpaetEndeNeu = function(
+  tag,
+  datumText
+) {
+  const sonderzeit =
+    sonderzeitFuerDatumNeu(
+      datumText
+    );
+
+  return (
+    sonderzeit
+      ? sonderzeit.bis
+      : zeitSpaetEndeStandardNeu(
+          tag
+        )
+  );
+};
+
+
+// Wochenstunden mit Sonderzeiten berechnen.
+berechneGeplanteWochenstundenNeu = function() {
+  const kw =
+    Number(
+      aktuelleKwNeu
+    ) || 1;
+
+  let stunden =
+    0;
+
+  (
+    letzterDienstplan || []
+  ).forEach(
+    function(z) {
+      if (
+        Number(
+          z.kw || 0
+        ) !== kw
+      ) {
+        return;
+      }
+
+      if (z.gpFrueh) {
+        stunden +=
+          dauerAusZeitTextNeu(
+            zeitFruehNeu(
+              z.tag,
+              z.datum
+            )
+          );
+      }
+
+      if (z.gpSpaet) {
+        stunden +=
+          dauerAusZeitTextNeu(
+            zeitSpaetNeu(
+              z.tag,
+              z.datum
+            )
+          );
+      }
+
+      if (z.wpFrueh) {
+        stunden +=
+          dauerAusZeitTextNeu(
+            zeitFruehNeu(
+              z.tag,
+              z.datum
+            )
+          );
+      }
+
+      if (z.wpSpaet) {
+        stunden +=
+          dauerAusZeitTextNeu(
+            zeitSpaetNeu(
+              z.tag,
+              z.datum
+            )
+          );
+      }
+    }
+  );
+
+  return (
+    Math.round(
+      stunden * 100
+    ) / 100
+  );
+};
+
+
+// Persönliche Dienstkarten nach jedem Rendern auf Sonderzeit korrigieren.
+// Damit müssen wir die stabile bestehende Renderlogik nicht umbauen.
+function wendeSonderzeitenAufPersoenlichenPlanAnNeu() {
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  const tage =
+    (
+      letzterDienstplan || []
+    ).filter(
+      function(z) {
+        return (
+          Number(
+            z.kw || 0
+          ) ===
+          Number(
+            aktuelleKwNeu || 0
+          )
+        );
+      }
+    );
+
+  tage.forEach(
+    function(z) {
+      const sonderzeit =
+        sonderzeitTextFuerDatumNeu(
+          z.datum
+        );
+
+      if (!sonderzeit) {
+        return;
+      }
+
+      // Die Tageskarte anhand des sichtbaren Datums finden.
+      const karten =
+        Array.from(
+          liste.querySelectorAll(
+            '.day-card, .dienstplan-tag, [class*="day"]'
+          )
+        );
+
+      const karte =
+        karten.find(
+          function(element) {
+            return String(
+              element.textContent || ''
+            ).includes(
+              String(
+                z.datum || ''
+              )
+            );
+          }
+        );
+
+      if (!karte) {
+        return;
+      }
+
+      // Nur Zeitzeilen der Hauptdienste ersetzen.
+      Array.from(
+        karte.querySelectorAll(
+          '*'
+        )
+      ).forEach(
+        function(element) {
+          if (
+            element.children.length
+          ) {
+            return;
+          }
+
+          const text =
+            String(
+              element.textContent || ''
+            ).trim();
+
+          if (
+            /^\d{2}:\d{2}\s*[–-]\s*\d{2}:\d{2}$/.test(
+              text
+            )
+          ) {
+            element.textContent =
+              sonderzeit;
+          }
+        }
+      );
+    }
+  );
+}
+
+
+const rendereDienstplanSonderzeitBasisNeu =
+  rendereDienstplanNeu;
+
+rendereDienstplanNeu = function() {
+  rendereDienstplanSonderzeitBasisNeu();
+
+  window.setTimeout(
+    function() {
+      wendeSonderzeitenAufPersoenlichenPlanAnNeu();
+      aktualisiereAutomatischeWochenstundenNeu();
+    },
+    0
+  );
+};
+
+
+// Im Admin-Gesamtplan Sonderzeit sichtbar ergänzen.
+const rendereAdminGesamtplanSonderzeitBasisNeu =
+  rendereAdminGesamtplanNeu;
+
+rendereAdminGesamtplanNeu = function() {
+  rendereAdminGesamtplanSonderzeitBasisNeu();
+
+  const liste =
+    document.getElementById(
+      'adminGesamtplanListeNeu'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  (
+    adminGesamtDienstplanNeu || []
+  ).forEach(
+    function(tag) {
+      if (
+        Number(
+          tag.kw || 0
+        ) !==
+        Number(
+          adminGesamtKwNeu || 0
+        )
+      ) {
+        return;
+      }
+
+      const sonderzeit =
+        sonderzeitFuerDatumNeu(
+          tag.datum
+        );
+
+      if (!sonderzeit) {
+        return;
+      }
+
+      const karten =
+        Array.from(
+          liste.children
+        );
+
+      const karte =
+        karten.find(
+          function(element) {
+            return String(
+              element.textContent || ''
+            ).includes(
+              String(
+                tag.datum || ''
+              )
+            );
+          }
+        );
+
+      if (
+        !karte ||
+        karte.querySelector(
+          '.sonderzeit-admin-neu'
+        )
+      ) {
+        return;
+      }
+
+      const info =
+        document.createElement(
+          'div'
+        );
+
+      info.className =
+        'sonderzeit-admin-neu';
+
+      info.style.cssText =
+        'margin:7px 0 10px;' +
+        'font-weight:800;' +
+        'color:#b00020;';
+
+      info.textContent =
+        '🕘 Sonderöffnungszeit: ' +
+        sonderzeit.von +
+        ' – ' +
+        sonderzeit.bis;
+
+      karte.insertBefore(
+        info,
+        karte.children[1] || null
+      );
+    }
+  );
+};
