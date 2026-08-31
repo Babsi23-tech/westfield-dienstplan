@@ -13710,3 +13710,170 @@ window.setTimeout(
   aktualisiereKwAnzeigeNeu,
   0
 );
+
+
+// ==========================================================
+// BUTTON "AKTUELLE KW"
+// ==========================================================
+
+function scsAktuelleIsoKwNeu() {
+  const heute = new Date();
+
+  const datum = new Date(
+    Date.UTC(
+      heute.getFullYear(),
+      heute.getMonth(),
+      heute.getDate()
+    )
+  );
+
+  const tag = datum.getUTCDay() || 7;
+
+  datum.setUTCDate(
+    datum.getUTCDate() + 4 - tag
+  );
+
+  const jahresStart = new Date(
+    Date.UTC(
+      datum.getUTCFullYear(),
+      0,
+      1
+    )
+  );
+
+  return Math.ceil(
+    (
+      (
+        datum - jahresStart
+      ) / 86400000 + 1
+    ) / 7
+  );
+}
+
+
+function springeZurAktuellenKwNeu() {
+  const zielKw =
+    scsAktuelleIsoKwNeu();
+
+  const vorhandeneKws =
+    Array.from(
+      new Set(
+        (letzterDienstplan || [])
+          .map(function(eintrag) {
+            return Number(
+              eintrag?.kw
+            );
+          })
+          .filter(function(kw) {
+            return (
+              Number.isFinite(kw) &&
+              kw > 0
+            );
+          })
+      )
+    );
+
+  if (
+    vorhandeneKws.length &&
+    !vorhandeneKws.includes(
+      zielKw
+    )
+  ) {
+    // Falls diese KW im persönlichen Dienstplan keine Einträge hat,
+    // trotzdem die KW anzeigen. So bleibt der Sprung logisch.
+    aktuelleKwNeu =
+      zielKw;
+  } else {
+    aktuelleKwNeu =
+      zielKw;
+  }
+
+  aktualisiereKwAnzeigeNeu();
+  rendereDienstplanNeu();
+}
+
+
+function springeAdminZurAktuellenKwNeu() {
+  const zielKw =
+    scsAktuelleIsoKwNeu();
+
+  adminGesamtKwNeu =
+    zielKw;
+
+  rendereAdminGesamtplanNeu();
+}
+
+
+// Admin-Panel um den Button ergänzen, ohne die bestehende Logik zu verändern.
+const installiereAdminGesamtplanPanelMitAktuellerKwBasisNeu =
+  installiereAdminGesamtplanPanelNeu;
+
+installiereAdminGesamtplanPanelNeu = function() {
+  installiereAdminGesamtplanPanelMitAktuellerKwBasisNeu();
+
+  const panel =
+    document.getElementById(
+      'adminGesamtplanPanelNeu'
+    );
+
+  if (!panel) {
+    return;
+  }
+
+  if (
+    panel.querySelector(
+      '#adminAktuelleKwButtonNeu'
+    )
+  ) {
+    return;
+  }
+
+  const kwAnzeige =
+    panel.querySelector(
+      '#adminGesamtKwAnzeigeNeu'
+    );
+
+  if (!kwAnzeige) {
+    return;
+  }
+
+  const nav =
+    kwAnzeige.parentElement;
+
+  if (!nav) {
+    return;
+  }
+
+  const button =
+    document.createElement(
+      'button'
+    );
+
+  button.id =
+    'adminAktuelleKwButtonNeu';
+
+  button.type =
+    'button';
+
+  button.textContent =
+    'Aktuelle KW';
+
+  button.onclick =
+    springeAdminZurAktuellenKwNeu;
+
+  button.style.cssText =
+    'display:block;' +
+    'margin:0 auto 18px;' +
+    'padding:8px 14px;' +
+    'border:1px solid #e30613;' +
+    'border-radius:8px;' +
+    'background:#fff;' +
+    'color:#e30613;' +
+    'font-weight:700;' +
+    'cursor:pointer;';
+
+  nav.insertAdjacentElement(
+    'afterend',
+    button
+  );
+};
