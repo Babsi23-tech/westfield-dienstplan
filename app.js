@@ -13316,3 +13316,229 @@ if (document.readyState === 'loading') {
 } else {
   installiereAdminGesamtplanKompaktStylesNeu();
 }
+
+
+// ==========================================================
+// KW-ANZEIGE – ZUSÄTZLICH MIT WOCHENZEITRAUM
+// ==========================================================
+// Reine Anzeigeverbesserung. Keine Server- oder Dienstplanlogik wird geändert.
+
+function scsParseDeDatumNeu(text) {
+  const m = String(text || '')
+    .trim()
+    .match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+
+  if (!m) {
+    return null;
+  }
+
+  return {
+    tag: Number(m[1]),
+    monat: Number(m[2]),
+    jahr: Number(m[3])
+  };
+}
+
+
+function scsPlanJahrAusDatenNeu(daten) {
+  const liste = Array.isArray(daten)
+    ? daten
+    : [];
+
+  for (let i = 0; i < liste.length; i++) {
+    const parsed =
+      scsParseDeDatumNeu(
+        liste[i]?.datum
+      );
+
+    if (
+      parsed &&
+      Number.isFinite(parsed.jahr)
+    ) {
+      return parsed.jahr;
+    }
+  }
+
+  return null;
+}
+
+
+function scsIsoWocheZeitraumNeu(
+  jahr,
+  kw
+) {
+  jahr = Number(jahr);
+  kw = Number(kw);
+
+  if (
+    !Number.isFinite(jahr) ||
+    !Number.isFinite(kw) ||
+    kw < 1 ||
+    kw > 53
+  ) {
+    return '';
+  }
+
+  // ISO-Woche: 4. Januar liegt immer in KW 1.
+  const vierterJanuar =
+    new Date(
+      Date.UTC(
+        jahr,
+        0,
+        4
+      )
+    );
+
+  const wochentag =
+    vierterJanuar.getUTCDay() || 7;
+
+  const montagKw1 =
+    new Date(
+      vierterJanuar
+    );
+
+  montagKw1.setUTCDate(
+    vierterJanuar.getUTCDate() -
+    wochentag +
+    1
+  );
+
+  const montag =
+    new Date(
+      montagKw1
+    );
+
+  montag.setUTCDate(
+    montagKw1.getUTCDate() +
+    (kw - 1) * 7
+  );
+
+  const sonntag =
+    new Date(
+      montag
+    );
+
+  sonntag.setUTCDate(
+    montag.getUTCDate() + 6
+  );
+
+  const pad =
+    function(zahl) {
+      return String(zahl)
+        .padStart(2, '0');
+    };
+
+  const von =
+    pad(montag.getUTCDate()) +
+    '.' +
+    pad(montag.getUTCMonth() + 1) +
+    '.';
+
+  const bis =
+    pad(sonntag.getUTCDate()) +
+    '.' +
+    pad(sonntag.getUTCMonth() + 1) +
+    '.' +
+    sonntag.getUTCFullYear();
+
+  return von + ' – ' + bis;
+}
+
+
+aktualisiereKwAnzeigeNeu = function() {
+  const anzeige =
+    document.getElementById(
+      'kwAnzeige'
+    );
+
+  if (!anzeige) {
+    return;
+  }
+
+  const jahr =
+    scsPlanJahrAusDatenNeu(
+      letzterDienstplan
+    );
+
+  const zeitraum =
+    scsIsoWocheZeitraumNeu(
+      jahr,
+      aktuelleKwNeu
+    );
+
+  anzeige.textContent =
+    'KW ' +
+    String(
+      aktuelleKwNeu || 1
+    ) +
+    (
+      zeitraum
+        ? ' · ' + zeitraum
+        : ''
+    );
+};
+
+
+// Bestehenden Admin-Renderer nur um die bessere KW-Anzeige ergänzen.
+const rendereAdminGesamtplanMitZeitraumBasisNeu =
+  rendereAdminGesamtplanNeu;
+
+rendereAdminGesamtplanNeu = function() {
+  rendereAdminGesamtplanMitZeitraumBasisNeu();
+
+  const anzeige =
+    document.getElementById(
+      'adminGesamtKwAnzeigeNeu'
+    );
+
+  if (
+    !anzeige ||
+    !adminGesamtKwNeu
+  ) {
+    return;
+  }
+
+  const jahr =
+    scsPlanJahrAusDatenNeu(
+      adminGesamtDienstplanNeu
+    );
+
+  const zeitraum =
+    scsIsoWocheZeitraumNeu(
+      jahr,
+      adminGesamtKwNeu
+    );
+
+  anzeige.textContent =
+    'KW ' +
+    String(
+      adminGesamtKwNeu
+    ) +
+    (
+      zeitraum
+        ? ' · ' + zeitraum
+        : ''
+    );
+
+  anzeige.style.minWidth =
+    '170px';
+};
+
+
+// Nach dem Laden einmal die aktuelle Anzeige ergänzen.
+if (document.readyState === 'loading') {
+  document.addEventListener(
+    'DOMContentLoaded',
+    function() {
+      window.setTimeout(
+        aktualisiereKwAnzeigeNeu,
+        0
+      );
+    }
+  );
+} else {
+  window.setTimeout(
+    aktualisiereKwAnzeigeNeu,
+    0
+  );
+}
