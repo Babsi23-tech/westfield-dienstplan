@@ -603,11 +603,14 @@
 
         <div
           class="profil-name"
-          id="sidebarName"
+          id="profilNameAnzeige"
         >
           Mitarbeiter
         </div>
 
+        <div class="profil-rolle">
+          SCS Team
+        </div>
 
       </div>
 
@@ -954,7 +957,7 @@
             class="wochen-button"
             type="button"
             aria-label="Vorherige Woche"
-            onclick="wechselKwNeu(-1)"
+            onclick="wechselWoche(-1)"
           >
             ‹
           </button>
@@ -978,7 +981,7 @@
             class="wochen-button"
             type="button"
             aria-label="Nächste Woche"
-            onclick="wechselKwNeu(1)"
+            onclick="wechselWoche(1)"
           >
             ›
           </button>
@@ -1195,7 +1198,17 @@
 
             </div>
 
+
+            <button
+              class="secondary-button"
+              type="button"
+            >
+              📆 Anderen Tag wählen
+            </button>
+
           </div>
+
+
 
           <div class="eigene-dienste">
 
@@ -1320,7 +1333,7 @@
      APP.JS
      ====================================================== -->
 
-<script src="app.js?v=20260828-profilname-fix"></script>
+<script src="app.js?v=20260831-1"></script>
 
 
 <script>
@@ -1801,15 +1814,85 @@ function aktualisiereKwAnzeigeNeu() {
       'kwAnzeige'
     );
 
-  if (!kwAnzeige) {
+
+  const liste =
+    document.getElementById(
+      'dienstplanListe'
+    );
+
+
+  if (
+    !kwAnzeige ||
+    !liste
+  ) {
     return;
   }
 
+
+  const datum =
+    parseDatumIndexNeu(
+      liste.textContent
+    );
+
+
+  if (!datum) {
+    return;
+  }
+
+
+  const kw =
+    berechneIsoKwNeu(
+      datum
+    );
+
+
+  if (!kw) {
+    return;
+  }
+
+
+  const tag =
+    datum.getDay() || 7;
+
+  const montag =
+    new Date(datum);
+
+  montag.setDate(
+    datum.getDate() -
+    tag +
+    1
+  );
+
+  const sonntag =
+    new Date(montag);
+
+  sonntag.setDate(
+    montag.getDate() + 6
+  );
+
+  const pad =
+    function(zahl) {
+      return String(zahl)
+        .padStart(2, '0');
+    };
+
+  const zeitraum =
+    pad(montag.getDate()) +
+    '.' +
+    pad(montag.getMonth() + 1) +
+    '. – ' +
+    pad(sonntag.getDate()) +
+    '.' +
+    pad(sonntag.getMonth() + 1) +
+    '.' +
+    sonntag.getFullYear();
+
   kwAnzeige.textContent =
     'KW ' +
-    String(
-      Number(aktuelleKwNeu) || 1
-    );
+    kw +
+    ' · ' +
+    zeitraum;
+
 }
 
 
@@ -3194,7 +3277,7 @@ if (
       navigator
         .serviceWorker
         .register(
-          './service-worker.js?v=20260824-wochenfix-1',
+          './service-worker.js?v=20260821-3',
           {
             updateViaCache:
               'none'
