@@ -2113,7 +2113,8 @@ function rendereDienstplan(
 
           zeit:
             zeitFruehNeu(
-              z.tag
+              z.tag,
+              z.datum
             ),
 
           tauschbar:
@@ -2164,7 +2165,8 @@ function rendereDienstplan(
 
           zeit:
             zeitSpaetNeu(
-              z.tag
+              z.tag,
+              z.datum
             ),
 
           tauschbar:
@@ -2199,7 +2201,8 @@ function rendereDienstplan(
           zeit:
             '09:00 – ' +
             zeitSpaetEndeNeu(
-              z.tag
+              z.tag,
+              z.datum
             ),
 
           tauschbar:
@@ -2233,7 +2236,8 @@ function rendereDienstplan(
 
             zeit:
               zeitFruehNeu(
-                z.tag
+                z.tag,
+                z.datum
               ),
 
             tauschbar:
@@ -2266,7 +2270,8 @@ function rendereDienstplan(
 
             zeit:
               zeitSpaetNeu(
-                z.tag
+                z.tag,
+                z.datum
               ),
 
             tauschbar:
@@ -2728,7 +2733,8 @@ function sammleTauschbareEigeneDiensteNeu() {
           text: 'Garden Plaza – Früh',
           zeit:
             zeitFruehNeu(
-              z.tag
+              z.tag,
+              z.datum
             )
         });
       }
@@ -2744,7 +2750,8 @@ function sammleTauschbareEigeneDiensteNeu() {
           text: 'Garden Plaza – Spät',
           zeit:
             zeitSpaetNeu(
-              z.tag
+              z.tag,
+              z.datum
             )
         });
       }
@@ -2766,7 +2773,8 @@ function sammleTauschbareEigeneDiensteNeu() {
           zeit:
             '09:00 – ' +
             zeitSpaetEndeNeu(
-              z.tag
+              z.tag,
+              z.datum
             )
         });
 
@@ -2784,7 +2792,8 @@ function sammleTauschbareEigeneDiensteNeu() {
           text: 'Water Plaza – Früh',
           zeit:
             zeitFruehNeu(
-              z.tag
+              z.tag,
+              z.datum
             )
         });
       }
@@ -2800,7 +2809,8 @@ function sammleTauschbareEigeneDiensteNeu() {
           text: 'Water Plaza – Spät',
           zeit:
             zeitSpaetNeu(
-              z.tag
+              z.tag,
+              z.datum
             )
         });
       }
