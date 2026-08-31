@@ -12932,3 +12932,387 @@ document.addEventListener(
     installiereMobileOptimierungNeu();
   }
 );
+
+// ==========================================================
+// ADMIN-GESAMTPLAN – KOMPAKTE WOCHENANSICHT
+// ==========================================================
+// Nur Darstellung. Daten, Backend und Bearbeitungslogik bleiben unverändert.
+
+function installiereAdminGesamtplanKompaktStylesNeu() {
+  if (document.getElementById('adminGesamtplanKompaktStylesNeu')) {
+    return;
+  }
+
+  const style = document.createElement('style');
+  style.id = 'adminGesamtplanKompaktStylesNeu';
+  style.textContent = `
+    #adminGesamtplanListeNeu {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .admin-gesamt-tag-neu {
+      border:1px solid #dfe3e8;
+      border-radius:12px;
+      background:#fff;
+      padding:12px;
+      min-width:0;
+      box-sizing:border-box;
+    }
+
+    .admin-gesamt-tagkopf-neu {
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:9px;
+      padding-bottom:8px;
+      border-bottom:1px solid #edf0f2;
+    }
+
+    .admin-gesamt-datum-neu {
+      font-size:15px;
+      font-weight:800;
+      line-height:1.3;
+    }
+
+    .admin-gesamt-dienst-neu {
+      display:grid;
+      grid-template-columns:minmax(112px, 0.9fr) minmax(0, 1.1fr);
+      gap:8px;
+      align-items:center;
+      padding:6px 0;
+      border-top:1px solid #f0f2f4;
+      line-height:1.3;
+    }
+
+    .admin-gesamt-dienst-neu:first-child {
+      border-top:0;
+    }
+
+    .admin-gesamt-dienst-titel-neu {
+      font-size:12px;
+      font-weight:750;
+      color:#555;
+    }
+
+    .admin-gesamt-dienst-name-neu {
+      font-size:14px;
+      font-weight:800;
+      color:#171717;
+      min-width:0;
+      overflow-wrap:anywhere;
+    }
+
+    .admin-gesamt-dienst-zeit-neu {
+      display:block;
+      margin-top:2px;
+      font-size:11px;
+      font-weight:600;
+      color:#777;
+    }
+
+    .admin-gesamt-abwesend-neu {
+      margin-top:9px;
+      padding:9px;
+      border:1px solid #f0d9d9;
+      border-radius:9px;
+      background:#fffafa;
+    }
+
+    .admin-gesamt-abwesend-titel-neu {
+      margin-bottom:5px;
+      font-size:12px;
+      font-weight:850;
+      color:#8b2323;
+    }
+
+    .admin-gesamt-abwesend-zeile-neu {
+      display:flex;
+      align-items:center;
+      gap:7px;
+      padding:5px 7px;
+      margin-top:4px;
+      border-radius:7px;
+      font-size:13px;
+      font-weight:750;
+      line-height:1.3;
+    }
+
+    .admin-gesamt-notiz-neu {
+      margin-top:9px;
+      padding:7px 9px;
+      border-radius:8px;
+      background:#f7f8f9;
+      color:#555;
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    @media (max-width: 850px) {
+      #adminGesamtplanListeNeu {
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .admin-gesamt-tag-neu {
+        padding:10px;
+      }
+
+      .admin-gesamt-dienst-neu {
+        grid-template-columns:1fr;
+        gap:2px;
+        padding:7px 0;
+      }
+
+      .admin-gesamt-dienst-titel-neu {
+        font-size:11px;
+      }
+
+      .admin-gesamt-dienst-name-neu {
+        font-size:14px;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
+
+baueAdminDienstEintragNeu = function(
+  titel,
+  name,
+  zeit
+) {
+  name = String(name || '').trim();
+
+  if (!name) {
+    return '';
+  }
+
+  return `
+    <div class="admin-gesamt-dienst-neu">
+      <div class="admin-gesamt-dienst-titel-neu">
+        ${escapeHtmlNeu(titel)}
+      </div>
+
+      <div class="admin-gesamt-dienst-name-neu">
+        ${escapeHtmlNeu(name)}
+        ${
+          zeit
+            ? `<span class="admin-gesamt-dienst-zeit-neu">🕒 ${escapeHtmlNeu(zeit)}</span>`
+            : ''
+        }
+      </div>
+    </div>
+  `;
+};
+
+
+adminAbwesenheitenHtmlNeu = function(
+  datumText
+) {
+  const abwesenheiten =
+    adminAbwesenheitenFuerDatumNeu(
+      datumText
+    );
+
+  if (!abwesenheiten.length) {
+    return '';
+  }
+
+  const zeilen =
+    abwesenheiten
+      .map(function(a) {
+        const art =
+          String(
+            a.art || ''
+          ).trim();
+
+        const artKlein =
+          art.toLowerCase();
+
+        let symbol = '📌';
+        let hintergrund = '#f3f4f6';
+        let farbe = '#444';
+
+        if (artKlein.includes('urlaub')) {
+          symbol = '🏖️';
+          hintergrund = '#eaf4ff';
+          farbe = '#174d7a';
+        } else if (artKlein.includes('krank')) {
+          symbol = '🤒';
+          hintergrund = '#fdecec';
+          farbe = '#a51c2b';
+        }
+
+        return `
+          <div
+            class="admin-gesamt-abwesend-zeile-neu"
+            style="
+              background:${hintergrund};
+              color:${farbe};
+            "
+          >
+            <span>${symbol}</span>
+            <span>
+              ${escapeHtmlNeu(a.mitarbeiter || '')}
+              ·
+              ${escapeHtmlNeu(art || 'Abwesend')}
+            </span>
+          </div>
+        `;
+      })
+      .join('');
+
+  return `
+    <div class="admin-gesamt-abwesend-neu">
+      <div class="admin-gesamt-abwesend-titel-neu">
+        👥 Abwesend
+      </div>
+      ${zeilen}
+    </div>
+  `;
+};
+
+
+rendereAdminGesamtplanNeu = function() {
+  installiereAdminGesamtplanKompaktStylesNeu();
+
+  const liste =
+    document.getElementById(
+      'adminGesamtplanListeNeu'
+    );
+
+  const anzeige =
+    document.getElementById(
+      'adminGesamtKwAnzeigeNeu'
+    );
+
+  if (!liste) {
+    return;
+  }
+
+  if (anzeige) {
+    anzeige.textContent =
+      adminGesamtKwNeu
+        ? 'KW ' + String(adminGesamtKwNeu)
+        : 'KW —';
+  }
+
+  if (!adminGesamtKwNeu) {
+    liste.innerHTML =
+      '<div class="empty-state">Keine Dienstplandaten vorhanden.</div>';
+    return;
+  }
+
+  const tage =
+    (adminGesamtDienstplanNeu || [])
+      .filter(function(eintrag) {
+        return (
+          Number(eintrag.kw || 0) ===
+          Number(adminGesamtKwNeu)
+        );
+      });
+
+  if (!tage.length) {
+    liste.innerHTML =
+      '<div class="empty-state">Für diese Kalenderwoche gibt es keine Einträge.</div>';
+    return;
+  }
+
+  let html = '';
+
+  tage.forEach(function(tag) {
+    let dienste = '';
+
+    dienste += baueAdminDienstEintragNeu(
+      '🟢 GP Früh',
+      tag.gpFrueh,
+      ''
+    );
+
+    dienste += baueAdminDienstEintragNeu(
+      '🟢 GP Spät',
+      tag.gpSpaet,
+      ''
+    );
+
+    dienste += baueAdminDienstEintragNeu(
+      '☕ GP Ablöse',
+      tag.gpAbloese,
+      tag.gpAbloesezeit
+    );
+
+    dienste += baueAdminDienstEintragNeu(
+      '🔵 WP Früh',
+      tag.wpFrueh,
+      ''
+    );
+
+    dienste += baueAdminDienstEintragNeu(
+      '🔵 WP Spät',
+      tag.wpSpaet,
+      ''
+    );
+
+    dienste += baueAdminDienstEintragNeu(
+      '☕ WP Ablöse',
+      tag.wpAbloese,
+      tag.wpAbloesezeit
+    );
+
+    const abwesenheiten =
+      adminAbwesenheitenHtmlNeu(
+        tag.datum || ''
+      );
+
+    html += `
+      <div class="admin-gesamt-tag-neu">
+        <div class="admin-gesamt-tagkopf-neu">
+          <div class="admin-gesamt-datum-neu">
+            ${escapeHtmlNeu(tag.tag || '')}
+            ·
+            ${escapeHtmlNeu(tag.datum || '')}
+          </div>
+        </div>
+
+        ${kalenderHinweiseHtmlNeu(tag.datum || '')}
+
+        <div style="margin-top:7px;">
+          ${
+            dienste ||
+            '<div style="color:#777;font-size:13px;padding:5px 0;">Keine Dienste eingetragen.</div>'
+          }
+        </div>
+
+        ${abwesenheiten}
+
+        ${
+          tag.notiz
+            ? `
+              <div class="admin-gesamt-notiz-neu">
+                📝 ${escapeHtmlNeu(tag.notiz)}
+              </div>
+            `
+            : ''
+        }
+      </div>
+    `;
+  });
+
+  liste.innerHTML = html;
+};
+
+
+// Styles möglichst früh bereitstellen.
+if (document.readyState === 'loading') {
+  document.addEventListener(
+    'DOMContentLoaded',
+    installiereAdminGesamtplanKompaktStylesNeu
+  );
+} else {
+  installiereAdminGesamtplanKompaktStylesNeu();
+}
